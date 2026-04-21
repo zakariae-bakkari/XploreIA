@@ -1,0 +1,33 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs / Editors
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Environment files
+.env
+
+# Composer
+/vendor/
+
+# Node (if you ever touch JS tools)
+node_modules/
+
+# XAMPP / local configs (optional)
+*.sql
+
+# Cache / temp
+/tmp/
+.cache/
+
+# Uploaded files (if your app has uploads)
+public/uploads/
+
+# Build files
+dist/
+build/
