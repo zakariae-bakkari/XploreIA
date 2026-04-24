@@ -1,0 +1,121 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * XploreIA CLI Tool "co"
+ */
+
+if ($argc < 2) {
+    echo "Usage: \n";
+    echo "  php co make:controller {Name} \n";
+    echo "  php co auth \n";
+    exit(1);
+}
+
+$command = $argv[1];
+
+switch ($command) {
+    case 'auth':
+    case 'make:auth':
+        generateController('Auth', true);
+        break;
+    case 'make:controller':
+        if (!isset($argv[2])) {
+            echo "Error: Please specify a controller name.\n";
+            exit(1);
+        }
+        generateController($argv[2]);
+        break;
+    case 'make:model':
+        if (!isset($argv[2])) {
+            echo "Error: Please specify a model name.\n";
+            exit(1);
+        }
+        generateModel($argv[2]);
+        break;
+    default:
+        // Default to creating a controller if no command matches
+        generateController($command);
+        break;
+}
+
+function generateController($name, $isAuth = false)
+{
+    $className = str_replace('Controller', '', $name) . 'Controller';
+    $filePath = __DIR__ . "/backend/app/Controllers/$className.php";
+
+    // Check if we are inside backend folder or root
+    if (!is_dir(__DIR__ . "/backend")) {
+        $filePath = __DIR__ . "/app/Controllers/$className.php";
+    }
+
+    if (file_exists($filePath)) {
+        echo "Error: Controller $className already exists.\n";
+        exit(1);
+    }
+
+    echo "Do you want to include default CRUD operations? (y/n): ";
+    $crud = trim(fgets(STDIN));
+
+    echo "Do you want to add the route automatically? (y/n): ";
+    $addRoute = trim(fgets(STDIN));
+
+    $content = "<?php\n\nnamespace App\Controllers;\n\nuse Core\Controller;\nuse Core\Database;\nuse PDO;\n\nclass $className extends Controller {\n    private \$db;\n\n    public function __construct() {\n        \$this->db = Database::getInstance()->getConnection();\n    }\n";
+
+    if (strtolower($crud) === 'y') {
+        $content .= "\n    public function index() {\n        // Fetch list\n    }\n\n    public function show(\$id) {\n        // Fetch single\n    }\n\n    public function store() {\n        // Create\n    }\n\n    public function update(\$id) {\n        // Update\n    }\n\n    public function destroy(\$id) {\n        // Delete\n    }\n";
+    } else {
+        $content .= "\n    public function index() {\n        \$this->jsonResponse(['message' => 'Hello from $className']);\n    }\n";
+    }
+
+    $content .= "}\n";
+
+    $dir = dirname($filePath);
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
+
+    file_put_contents($filePath, $content);
+    echo "✅ Controller $className created at $filePath\n";
+
+    if (strtolower($addRoute) === 'y') {
+        $backendDir = is_dir(__DIR__ . "/backend") ? __DIR__ . "/backend" : __DIR__;
+        $routePath = $backendDir . "/routes/web.php";
+
+        if (file_exists($routePath)) {
+            $routeName = strtolower(str_replace('Controller', '', $className));
+            $routeLine = "\nRouter::get('/$routeName', '$className@index');";
+            $routes = file_get_contents($routePath);
+            $routes = str_replace('?>', '', $routes);
+            $routes .= $routeLine . "\n?>";
+            file_put_contents($routePath, $routes);
+            echo "✅ Route added: Router::get('/$routeName', '$className@index');\n";
+        } else {
+            echo "⚠️ Could not find routes file at: $routePath\n";
+        }
+    }
+}
+
+function generateModel($name)
+{
+    $className = $name;
+    $backendDir = is_dir(__DIR__ . "/backend") ? __DIR__ . "/backend" : __DIR__;
+    $filePath = $backendDir . "/app/Models/$className.php";
+
+    if (file_exists($filePath)) {
+        echo "Error: Model $className already exists.\n";
+        exit(1);
+    }
+
+    $tableName = strtolower($className) . 's';
+
+    $content = "<?php\n\nnamespace App\Models;\n\nuse Core\Database;\nuse PDO;\n\nclass $className {\n    private \$db;\n    private \$table = '$tableName';\n\n    public function __construct() {\n        \$this->db = Database::getInstance()->getConnection();\n    }\n\n    public function all() {\n        \$stmt = \$this->db->query(\"SELECT * FROM {\$this->table}\");\n        return \$stmt->fetchAll();\n    }\n\n    public function find(\$id) {\n        \$stmt = \$this->db->prepare(\"SELECT * FROM {\$this->table} WHERE id = ?\");\n        \$stmt->execute([\$id]);\n        return \$stmt->fetch();\n    }\n}\n";
+
+    $dir = dirname($filePath);
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
+
+    file_put_contents($filePath, $content);
+    echo "✅ Model $className created at $filePath\n";
+}
