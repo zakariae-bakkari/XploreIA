@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { userApi } from '../api';
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
@@ -8,12 +9,7 @@ const UserList = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                // Adjust this URL to your local setup
-                const response = await fetch('http://localhost/XploreIA/backend/public/users');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const result = await response.json();
+                const result = await userApi.getAll();
                 if (result.status === 'success') {
                     setUsers(result.data);
                 } else {
