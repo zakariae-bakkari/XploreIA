@@ -1,4 +1,4 @@
-# 📦 PHP MVC Project Setup
+# 📦 XploreIA - Project Setup (React + PHP API)
 
 ## 🚀 Project Installation
 
@@ -56,30 +56,36 @@ http://localhost/xploreia/public
 ## 📁 Project Structure
 
 ```
-xploreia/
-│
-├── app/
-│   ├── controllers/
-│   ├── models/
-│   └── views/
-│
-├── core/
-├── public/        ← entry point (index.php)
-├── config/
-└── routes/
+XploreIA/
+├── backend/           ← PHP MVC Backend
+│   ├── app/
+│   │   ├── Controllers/
+│   │   ├── Models/
+│   │   └── Views/
+│   ├── core/          ← Base system logic
+│   └── public/        ← Entry point (index.php)
+├── frontend/          ← React + Vite Frontend
+│   ├── src/
+│   │   ├── api/       ← API services
+│   │   ├── components/
+│   │   └── pages/
+│   └── .env           ← Frontend config
+└── README.md
 ```
+
+---
+
+## 📜 Development Standards
+Before contributing, please read the [Development Rules](DEVELOPMENT_RULES.md) carefully.
 
 ---
 
 ## ⚠️ Important Notes
 
-* Always access the app via `/public`
-* Do NOT modify files inside `/core` unless necessary
-* Keep logic separated:
-
-  * Controllers → handle requests
-  * Models → database logic
-  * Views → UI only
+* Always access the app via the React frontend.
+* The PHP backend is now an **API-only** system.
+* **No MVC**: We have Controllers to handle requests, but Models and Views were removed in favor of React.
+* Do NOT modify files inside `backend/core/` unless you are the Super Admin.
 
 ---
 
@@ -107,3 +113,15 @@ xploreia/
 ---
 
 Stay organized. Future you will be less angry.
+
+---
+
+## 👥 Team Members
+
+| Name | Role |
+| :--- | :--- |
+| **Bakkari Zakariae** | 👑 Super Admin |
+| **Hamri Meriem** | 👨‍💻 Late wake up Developer  😴 |
+| **Ait Yahya Saad** | 👨‍💻 Hacker |
+| **Oubraim Noureddine** | 👨‍💻 Developer with Abtal |
+| **Errami Youssef** | 👨‍💻 Developer 💵 |

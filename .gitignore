@@ -18,8 +18,6 @@ Thumbs.db
 # Node (if you ever touch JS tools)
 node_modules/
 
-# XAMPP / local configs (optional)
-*.sql
 
 # Cache / temp
 /tmp/
