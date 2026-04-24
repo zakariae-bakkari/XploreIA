@@ -26,7 +26,7 @@ const AiToolsPage = () => {
                 if (toolsData.status === 'success') setTools(toolsData.data);
                 if (filtersData.status === 'success') setFilters(filtersData.data);
             } catch (err) {
-                setError('Failed to fetch data');
+                setError('Failed to fetch data'+err);
             } finally {
                 setLoading(false);
             }
