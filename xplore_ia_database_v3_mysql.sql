@@ -94,8 +94,7 @@ CREATE TABLE ai_tools (
                             CHECK (global_rating BETWEEN 0 AND 5),
     website_url         VARCHAR(500)    DEFAULT NULL,
     release_date        DATE            DEFAULT NULL,
-    pricing_model       ENUM('free','freemium','premium')
-                                        NOT NULL DEFAULT 'free',
+    pricing_model       ENUM ('free', 'freemium', 'premium') NOT NULL DEFAULT 'freemium',
     status              ENUM('draft','pending','published','rejected','archived')
                                         NOT NULL DEFAULT 'draft',
     created_at          TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -1,55 +1,57 @@
 # 📦 XploreIA - Project Setup (React + PHP API)
 
-## 🚀 Project Installation
-
-Follow these steps to run the project locally using XAMPP.
+XploreIA is a modern AI tools marketplace platform built with a decoupled architecture: a **React + Vite** frontend and a **Native PHP API** backend.
 
 ---
 
-## 1. Clone the repository
+## 🚀 Installation & Setup
 
+### 1. Clone the repository
 ```bash
-git clone https://github.com/zakariae-bakkari/xploreia.git
+git clone https://github.com/zakariae-bakkari/XploreIA.git
+cd XploreIA
 ```
 
 ---
 
-## 2. Move project to XAMPP
+## 🖥️ Backend Setup (PHP API)
 
-Move the project folder into the `htdocs` directory:
+The backend is a custom-built PHP API that handles database interactions and business logic.
 
-### On Linux:
-
-```bash
-mv xploreia /opt/lampp/htdocs/xploreia
-```
-
-### On Windows:
-
-Move the folder to:
-
-```
-C:\xampp\htdocs\xploreia
-```
-
----
-
-## 3. Start XAMPP
-
-Make sure the following services are running:
-
-* Apache
-* MySQL
+1.  **Move to XAMPP**:
+    Move the `XploreIA` folder to your XAMPP `htdocs` directory (usually `C:\xampp\htdocs\XploreIA`).
+2.  **Configure Environment**:
+    - Go to `backend/`
+    - Copy `example.env` to `.env`
+    - Update the database credentials in `.env` if necessary.
+3.  **Database Import**:
+    - Start **Apache** and **MySQL** in XAMPP.
+    - Go to [phpMyAdmin](http://localhost/phpmyadmin).
+    - Create a database named `xplore_ia`.
+    - Import the `xplore_ia_database_v3_mysql.sql` file located in the root directory.
+4.  **Verify API**:
+    Your API entry point is `http://localhost/XploreIA/backend/public/`.
 
 ---
 
-## 4. Access the project
+## ⚛️ Frontend Setup (React)
 
-Open your browser and go to:
+The frontend is built with React, Vite, and pnpm.
 
-```
-http://localhost/xploreia/public
-```
+1.  **Install dependencies**:
+    ```bash
+    cd frontend
+    pnpm install
+    ```
+2.  **Configure Environment**:
+    - Copy `example.env` to `.env`
+    - Ensure `VITE_API_URL` points to your backend entry point (e.g., `http://localhost/XploreIA/backend/public`).
+3.  **Run Development Server**:
+    ```bash
+    pnpm dev
+    ```
+4.  **Access the App**:
+    Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
@@ -57,62 +59,29 @@ http://localhost/xploreia/public
 
 ```
 XploreIA/
-├── backend/           ← PHP MVC Backend
-│   ├── app/
-│   │   ├── Controllers/
-│   │   ├── Models/
-│   │   └── Views/
-│   ├── core/          ← Base system logic
-│   └── public/        ← Entry point (index.php)
-├── frontend/          ← React + Vite Frontend
+├── backend/                ← PHP API
+│   ├── app/                ← Controllers & Logic
+│   ├── config/             ← Database & App Config
+│   ├── core/               ← Base System (Router, DotEnv, DB)
+│   ├── public/             ← API Entry Point (index.php)
+│   ├── routes/             ← API Route Definitions
+│   └── .env                ← Backend Environment Variables
+├── frontend/               ← React Frontend
 │   ├── src/
-│   │   ├── api/       ← API services
-│   │   ├── components/
-│   │   └── pages/
-│   └── .env           ← Frontend config
-└── README.md
+│   │   ├── api/            ← Axios / API Services
+│   │   ├── components/     ← Reusable UI Components
+│   │   └── pages/          ← View Components
+│   └── .env                ← Frontend Environment Variables
+└── xplore_ia_database.sql  ← Database Schema
 ```
-
----
-
-## 📜 Development Standards
-Before contributing, please read the [Development Rules](DEVELOPMENT_RULES.md) carefully.
 
 ---
 
 ## ⚠️ Important Notes
 
-* Always access the app via the React frontend.
-* The PHP backend is now an **API-only** system.
-* **No MVC**: We have Controllers to handle requests, but Models and Views were removed in favor of React.
-* Do NOT modify files inside `backend/core/` unless you are the Super Admin.
-
----
-
-## 🛠 Requirements
-
-* PHP >= 8.x
-* XAMPP (Apache + MySQL)
-
----
-
-## ✅ Good Practices
-
-* Do not commit `.env` or sensitive data
-* Keep code clean and modular
-* Follow MVC structure
-
----
-
-## 💀 Common Mistakes
-
-* Opening `index.php` directly (don’t do that)
-* Mixing HTML inside Models (just don’t)
-* Writing SQL inside Views (please no)
-
----
-
-Stay organized. Future you will be less angry.
+*   **API-Only Backend**: The PHP backend does not serve HTML. It returns JSON for the React frontend.
+*   **Environment Variables**: We use a custom `Core\DotEnv` loader in the backend to support `.env` files without Composer.
+*   **Security**: Never commit your `.env` files. They are already added to `.gitignore`.
 
 ---
 
@@ -121,7 +90,12 @@ Stay organized. Future you will be less angry.
 | Name | Role |
 | :--- | :--- |
 | **Bakkari Zakariae** | 👑 Super Admin |
-| **Hamri Meriem** | 👨‍💻 Late wake up Developer  😴 |
-| **Ait Yahya Saad** | 👨‍💻 Hacker |
-| **Oubraim Noureddine** | 👨‍💻 Developer with Abtal |
-| **Errami Youssef** | 👨‍💻 Developer 💵 |
+| **Hamri Meriem** | 👨‍💻 Developer |
+| **Ait Yahya Saad** | 👨‍💻 Developer |
+| **Oubraim Noureddine** | 👨‍💻 Developer |
+| **Errami Youssef** | 👨‍💻 Developer |
+
+---
+
+## 📜 Development Standards
+Before contributing, please read the [Development Rules](DEVELOPMENT_RULES.md) carefully.

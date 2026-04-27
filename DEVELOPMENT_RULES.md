@@ -8,7 +8,7 @@ This document defines the technical standards and workflows for the XploreIA tea
 
 ### Backend (PHP)
 - **`backend/app/Controllers/`**: All logic for handling requests.
-- **`backend/core/`**: Base classes (Database, Controller, Router). **STRICTLY FORBIDDEN to modify** (Super Admin only).
+- **`backend/core/`**: Base classes (Database, Controller, Router, DotEnv). **STRICTLY FORBIDDEN to modify** (Super Admin only).
 - **Files**: Must use `PascalCase.php` (e.g., `AiToolController.php`).
 
 ### Frontend (React)
