@@ -1,9 +1,9 @@
 <?php
 
 return [
-    'host'     => getenv('DB_HOST')     ?: 'localhost',
-    'dbname'   => getenv('DB_NAME')     ?: 'xplore_ia',
-    'username' => getenv('DB_USERNAME') ?: 'root',
-    'password' => getenv('DB_PASSWORD') ?: '',
+    'host'     => getenv('DB_HOST'),
+    'dbname'   => getenv('DB_NAME'),
+    'username' => getenv('DB_USERNAME'),
+    'password' => getenv('DB_PASSWORD'),
     'charset'  => 'utf8mb4'
 ];
