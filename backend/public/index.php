@@ -36,6 +36,10 @@ spl_autoload_register(function ($class) {
 });
 
 use Core\Router;
+use Core\DotEnv;
+
+// Load environment variables
+DotEnv::load(__DIR__ . '/../.env');
 
 // Load routes
 require_once __DIR__ . '/../routes/web.php';
