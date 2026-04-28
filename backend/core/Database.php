@@ -20,11 +20,9 @@ class Database {
         ];
 
         try {
-            // CORRECTION : 'user' au lieu de 'username'
-            $this->pdo = new PDO($dsn, $config['user'], $config['password'], $options);
+            $this->pdo = new PDO($dsn, $config['username'], $config['password'], $options);
         } catch (PDOException $e) {
             header('Content-Type: application/json');
-            http_response_code(500);
             echo json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]);
             exit;
         }
@@ -39,24 +37,5 @@ class Database {
 
     public function getConnection() {
         return $this->pdo;
-    }
-
-    // Méthodes utilitaires
-    public static function query($sql, $params = [])
-    {
-        $db = self::getInstance()->getConnection();
-        $stmt = $db->prepare($sql);
-        $stmt->execute($params);
-        return $stmt;
-    }
-
-    public static function fetchAll($sql, $params = [])
-    {
-        return self::query($sql, $params)->fetchAll();
-    }
-
-    public static function fetchOne($sql, $params = [])
-    {
-        return self::query($sql, $params)->fetch();
     }
 }
