@@ -6,8 +6,15 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
  * @param {object} options - Fetch options (method, headers, body)
  * @returns {Promise<any>}
  */
-export const apiRequest = async (endpoint, options = {}) => {
-    const url = `${BACKEND_URL.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`;
+export const apiRequest = async (endpoint = '', options = {}) => {
+    if (!BACKEND_URL) {
+        console.error("VITE_BACKEND_URL is not defined in .env file");
+        throw new Error("Configuration error: API URL is missing");
+    }
+
+    const cleanBase = BACKEND_URL.replace(/\/$/, '');
+    const cleanEndpoint = endpoint ? endpoint.replace(/^\//, '') : '';
+    const url = `${cleanBase}/${cleanEndpoint}`;
     
     const defaultHeaders = {
         'Content-Type': 'application/json',

@@ -1,0 +1,219 @@
+/* Updated ProfilePage.css to use project variables */
+
+.profile-page {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.profile-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+}
+
+.profile-nav button {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-weight: 600;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.profile-nav button.active {
+    color: var(--accent);
+    background: var(--accent-bg);
+}
+
+.card {
+    background: var(--bg);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.card h2 {
+    margin-top: 0;
+    color: var(--text-h);
+}
+
+.profile-photo-section {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.current-photo img, .avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+}
+
+.avatar-placeholder {
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.photo-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--text);
+    font-weight: 500;
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+}
+
+input {
+    flex-grow: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 12px;
+    border-radius: 8px;
+    color: var(--text-h);
+}
+
+.primary-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.outline-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.message-banner {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.message-banner.success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #2e7d32;
+    border: 1px solid #2e7d32;
+}
+
+.message-banner.error {
+    background: rgba(211, 47, 47, 0.1);
+    color: #d32f2f;
+    border: 1px solid #d32f2f;
+}
+
+/* Modal and Professional UI */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-card {
+    background: var(--bg);
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+}
+
+.modal-card h3 {
+    margin-top: 0;
+    color: var(--text-h);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.name-display {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-h);
+}
+
+.edit-icon-btn {
+    background: var(--social-bg);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.forgot-pass-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.danger-btn {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.danger-btn:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.save-btn {
+    background: #22c55e;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}

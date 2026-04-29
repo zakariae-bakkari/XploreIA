@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiRequest } from '../api';
 import './AiToolsPage.css';
 
 const AiToolsPage = () => {
@@ -15,18 +16,15 @@ const AiToolsPage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [toolsRes, filtersRes] = await Promise.all([
-                    fetch('http://localhost/XploreIA/backend/public/ai-tools'),
-                    fetch('http://localhost/XploreIA/backend/public/filters')
+                const [toolsData, filtersData] = await Promise.all([
+                    apiRequest('ai-tools'),
+                    apiRequest('filters')
                 ]);
-
-                const toolsData = await toolsRes.json();
-                const filtersData = await filtersRes.json();
 
                 if (toolsData.status === 'success') setTools(toolsData.data);
                 if (filtersData.status === 'success') setFilters(filtersData.data);
             } catch (err) {
-                setError('Failed to fetch data'+err);
+                setError('Failed to fetch data: ' + err.message);
             } finally {
                 setLoading(false);
             }
@@ -38,9 +36,9 @@ const AiToolsPage = () => {
     const filteredTools = tools.filter(tool => {
         const matchesCategory = selectedCategory === 'all' || tool.category_name === selectedCategory;
         const matchesChar = selectedChar === 'all' || tool.characteristics.some(c => c.name === selectedChar);
-        const matchesSearch = tool.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                             tool.description.toLowerCase().includes(searchTerm.toLowerCase());
-        
+        const matchesSearch = tool.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            tool.description.toLowerCase().includes(searchTerm.toLowerCase());
+
         return matchesCategory && matchesChar && matchesSearch;
     });
 
@@ -56,14 +54,14 @@ const AiToolsPage = () => {
 
             <section className="filter-bar">
                 <div className="search-box">
-                    <input 
-                        type="text" 
-                        placeholder="Rechercher un outil..." 
+                    <input
+                        type="text"
+                        placeholder="Rechercher un outil..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                
+
                 <div className="filters">
                     <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
                         <option value="all">Toutes les catégories</option>
@@ -92,9 +90,9 @@ const AiToolsPage = () => {
                             </div>
                             <div className="rating">⭐ {tool.global_rating || 'N/A'}</div>
                         </div>
-                        
+
                         <p className="tool-description">{tool.description}</p>
-                        
+
                         <div className="tool-tags">
                             {tool.characteristics.map((c, i) => (
                                 <span key={i} className={`tag tag-${c.type}`}>{c.name}</span>
@@ -116,7 +114,7 @@ const AiToolsPage = () => {
                     </div>
                 ))}
             </div>
-            
+
             {filteredTools.length === 0 && (
                 <div className="no-results">Aucun outil ne correspond à votre recherche.</div>
             )}
