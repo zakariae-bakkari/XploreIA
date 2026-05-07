@@ -1,14 +1,18 @@
 import React from 'react';
 import { ShieldCheck } from 'lucide-react';
 
-const VerificationForm = ({ email, code, setCode, handleVerify, loading, error, success, timer, formatTime, setStep }) => {
+const VerificationForm = ({ 
+    email, code, setCode, handleVerify, loading, error, success, timer, formatTime, setStep,
+    title = "Verify Email",
+    buttonText = "Verify & Create Account"
+}) => {
     return (
         <div className="signup-step">
             <div className="signup-header">
                 <div className="icon-wrapper accent">
                     <ShieldCheck size={32} />
                 </div>
-                <h1>Verify Email</h1>
+                <h1>{title}</h1>
                 <p>We've sent a 6-digit code to <strong>{email}</strong>.</p>
                 <div className={`countdown ${timer < 60 ? 'urgent' : ''}`}>
                     Expires in: {formatTime(timer)}
@@ -33,7 +37,7 @@ const VerificationForm = ({ email, code, setCode, handleVerify, loading, error, 
                 {success && <div className="success-message">{success}</div>}
 
                 <button type="submit" className="signup-btn" disabled={loading || timer === 0}>
-                    {loading ? 'Verifying...' : 'Verify & Create Account'}
+                    {loading ? 'Verifying...' : buttonText}
                 </button>
                 
                 <p className="resend-text">

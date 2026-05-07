@@ -12,4 +12,15 @@ Router::post('/users/create', 'UserController@create');
 Router::post('/signup','AuthController@signup');
 Router::post('/verify-code','AuthController@verifyCode');
 
+// meriem : login 08-May-26
+Router::post('/login', 'AuthController@login');
+Router::post('/logout', 'AuthController@logout');
+
+// meriem : forgot password 08-May-26
+Router::post('/forgot-password', 'AuthController@forgotPassword');
+Router::post('/forgot-password/verify', 'AuthController@forgotPasswordVerify');
+Router::post('/reset-password', 'AuthController@resetPassword');
+
+
+
 ?>

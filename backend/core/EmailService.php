@@ -14,7 +14,7 @@ class EmailService {
      * @param string $code 6-digit code
      * @return bool
      */
-    public static function sendVerificationCode($to, $code) {
+    public static function sendVerificationCode($to, $code, $type = 'signup') {
         $mail = new PHPMailer(true);
 
         // Always log to file for local debugging
@@ -36,8 +36,9 @@ class EmailService {
 
             // Content
             $mail->isHTML(true);
-            $mail->Subject = 'Verify your XploreIA account';
-            $mail->Body    = self::getEmailTemplate($code);
+            $isSignup = $type === 'signup';
+            $mail->Subject = $isSignup ? 'Verify your XploreIA account' : 'Reset your XploreIA password';
+            $mail->Body    = self::getEmailTemplate($code, $type);
             $mail->AltBody = "Your verification code is: $code";
 
             return $mail->send();
@@ -47,7 +48,13 @@ class EmailService {
         }
     }
 
-    private static function getEmailTemplate($code) {
+    private static function getEmailTemplate($code, $type) {
+        $isSignup = $type === 'signup';
+        $title = $isSignup ? 'Welcome to XploreIA' : 'Password Reset Request';
+        $message = $isSignup 
+            ? 'Thank you for signing up! Please use the following verification code to complete your registration. This code will expire in 15 minutes.'
+            : 'We received a request to reset your password. Please use the following verification code to proceed. This code will expire in 15 minutes.';
+
         return "
         <html>
         <head>
@@ -61,10 +68,10 @@ class EmailService {
         <body>
             <div class='container'>
                 <div class='header'>
-                    <h1>Welcome to XploreIA</h1>
+                    <h1>$title</h1>
                 </div>
                 <p>Hello,</p>
-                <p>Thank you for signing up! Please use the following verification code to complete your registration. This code will expire in 15 minutes.</p>
+                <p>$message</p>
                 <div class='code'>$code</div>
                 <p>If you didn't request this, you can safely ignore this email.</p>
                 <div class='footer'>

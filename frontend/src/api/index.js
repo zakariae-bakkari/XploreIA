@@ -46,7 +46,11 @@ export const apiRequest = async (endpoint, options = {}) => {
 export const authApi = {
     signup: (data) => apiRequest('signup', { method: 'POST', body: JSON.stringify(data) }),
     verifyCode: (code) => apiRequest('verify-code', { method: 'POST', body: JSON.stringify({ code }) }),
-    //!! important : meriem you add you login her
+    login: (data) => apiRequest('login', { method: 'POST', body: JSON.stringify(data) }),
+    logout: () => apiRequest('logout', { method: 'POST' }),
+    forgotPassword: (email) => apiRequest('forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+    forgotPasswordVerify: (code) => apiRequest('forgot-password/verify', { method: 'POST', body: JSON.stringify({ code }) }),
+    resetPassword: (data) => apiRequest('reset-password', { method: 'POST', body: JSON.stringify(data) }),
 };
 
 // Example Service: User Service

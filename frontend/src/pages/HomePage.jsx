@@ -63,6 +63,11 @@ function HomePage() {
           <p>Join our community</p>
           <ul>
             <li>
+              <a href="/login">
+                Login
+              </a>
+            </li>
+            <li>
               <a href="/signup">
                 Sign Up Now
               </a>
