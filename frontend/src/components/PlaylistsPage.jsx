@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { apiRequest } from '../api';
+import { playlistApi } from '../api';
 import '../styling/PlaylistsPage.css';
+import { useAuth } from '../contexts/AuthContext';
 
-const PlaylistsPage = ({ user }) => {
-    const userEmail = user?.email ;
+const PlaylistsPage = () => {
+    const { user } = useAuth();
+    const userEmail = user?.email;
     const [playlists, setPlaylists] = useState([]);
     const [loading, setLoading] = useState(true);
     
@@ -16,9 +18,10 @@ const PlaylistsPage = ({ user }) => {
     const [formData, setFormData] = useState({ name: '', description: '' });
 
     const fetchPlaylists = async () => {
+        if (!userEmail) return;
         setLoading(true);
         try {
-            const res = await apiRequest(`playlists?email=${userEmail}`);
+            const res = await playlistApi.getAllByUser(userEmail);
             if (res.status === 'success') setPlaylists(res.data);
         } catch (err) {
             console.error(err);
@@ -29,15 +32,12 @@ const PlaylistsPage = ({ user }) => {
 
     useEffect(() => {
         fetchPlaylists();
-    }, []);
+    }, [userEmail]);
 
     const handleCreate = async (e) => {
         e.preventDefault();
         try {
-            await apiRequest('playlists/create', {
-                method: 'POST',
-                body: JSON.stringify({ ...formData, email: userEmail })
-            });
+            await playlistApi.create({ ...formData, email: userEmail });
             setFormData({ name: '', description: '' });
             setView('list');
             fetchPlaylists();
@@ -49,10 +49,7 @@ const PlaylistsPage = ({ user }) => {
     const handleUpdate = async (e) => {
         e.preventDefault();
         try {
-            const res = await apiRequest('playlists/update', {
-                method: 'POST',
-                body: JSON.stringify({ ...formData, id: selectedPlaylist.id, email: userEmail })
-            });
+            const res = await playlistApi.update({ ...formData, id: selectedPlaylist.id, email: userEmail });
             alert(res.message);
             setView('details'); // Redirection vers la page de la playlist modifiée
             fetchPlaylists();
@@ -64,7 +61,7 @@ const PlaylistsPage = ({ user }) => {
     const handleDelete = async (id) => {
         if (!confirm('Supprimer la playlist entière ?')) return;
         try {
-            const res = await apiRequest(`playlists/delete?id=${id}`, { method: 'POST' });
+            const res = await playlistApi.delete(id);
             alert(res.message);
             setView('list');
             fetchPlaylists();
@@ -77,7 +74,7 @@ const PlaylistsPage = ({ user }) => {
         setSelectedPlaylist(playlist);
         setLoading(true);
         try {
-            const res = await apiRequest(`playlists/content?id=${playlist.id}`);
+            const res = await playlistApi.getContent(playlist.id);
             setPlaylistItems(res.data);
             setView('details');
         } catch (err) {

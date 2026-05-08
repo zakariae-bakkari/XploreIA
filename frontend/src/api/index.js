@@ -67,8 +67,16 @@ export const userApi = {
     getById: (id) => apiRequest(`users/${id}`),
 };
 
-// Example Service: AI Tool Service
+// AI Tool Service
 export const aiToolApi = {
     getAll: () => apiRequest('ai-tools'),
 };
 
+// Playlist Service
+export const playlistApi = {
+    getAllByUser: (email) => apiRequest(`playlists?email=${email}`),
+    getContent: (id) => apiRequest(`playlists/content?id=${id}`),
+    create: (data) => apiRequest('playlists/create', { method: 'POST', body: JSON.stringify(data) }),
+    update: (data) => apiRequest('playlists/update', { method: 'POST', body: JSON.stringify(data) }),
+    delete: (id) => apiRequest(`playlists/delete?id=${id}`, { method: 'POST' }),
+};
