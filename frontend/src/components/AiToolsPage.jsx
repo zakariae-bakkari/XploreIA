@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiRequest } from '../api';
-import './AiToolsPage.css';
+import '../styling/AiToolsPage.css';
 
 const AiToolsPage = () => {
     const [tools, setTools] = useState([]);

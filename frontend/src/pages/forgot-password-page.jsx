@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { authApi } from '../api';
-import './signup.css';
+import '../styling/signup.css';
 
 // Components
 import ForgotPasswordForm from '../components/auth/ForgotPasswordForm';

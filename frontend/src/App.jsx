@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom'
 import { authApi } from './api'
 import { User, LogOut, Folder, Search } from 'lucide-react'
-import './App.css'
+import './styling/App.css'
 
 // Pages
 import HomePage from './pages/HomePage'

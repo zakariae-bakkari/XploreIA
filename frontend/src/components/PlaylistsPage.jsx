@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiRequest } from '../api';
-import './PlaylistsPage.css';
+import '../styling/PlaylistsPage.css';
 
 const PlaylistsPage = ({ user }) => {
     const userEmail = user?.email || 'guest@example.com';
