@@ -141,11 +141,11 @@ class AuthController extends Controller {
         $user = $stmt->fetch();
 
         if (!$user) {
-            $this->jsonResponse(['status' => 'error', 'message' => 'User not found'], 404);
+            $this->jsonResponse(['status' => 'error', 'message' => 'Invalid credentials'], 404);
         }
 
         if (!password_verify($password, $user['password_hash'])) {
-            $this->jsonResponse(['status' => 'error', 'message' => 'Incorrect password'], 401);
+            $this->jsonResponse(['status' => 'error', 'message' => 'Invalid credentials'], 401);
         }
 
         $_SESSION['user_id'] = $user['id'];
@@ -187,7 +187,7 @@ class AuthController extends Controller {
         $user = $stmt->fetch();
 
         if (!$user) {
-            $this->jsonResponse(['status' => 'error', 'message' => 'User not found'], 404);
+            $this->jsonResponse(['status' => 'error', 'message' => 'Invalid email'], 404);
         }
 
         $code = str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
