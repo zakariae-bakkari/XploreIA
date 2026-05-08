@@ -3,7 +3,7 @@ import { apiRequest } from '../api';
 import '../styling/PlaylistsPage.css';
 
 const PlaylistsPage = ({ user }) => {
-    const userEmail = user?.email || 'guest@example.com';
+    const userEmail = user?.email ;
     const [playlists, setPlaylists] = useState([]);
     const [loading, setLoading] = useState(true);
     
