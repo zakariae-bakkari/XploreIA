@@ -106,6 +106,7 @@ class AuthController extends Controller {
             // Create session
             $_SESSION['user_id'] = $userId;
             $_SESSION['user_name'] = $pending['name'];
+            $_SESSION['user_role'] = 'user'; // Default role for new users
             
             unset($_SESSION['pending_user']);
 
@@ -115,7 +116,8 @@ class AuthController extends Controller {
                 'user' => [
                     'id' => $userId,
                     'name' => $pending['name'],
-                    'email' => $pending['email']
+                    'email' => $pending['email'],
+                    'role' => 'user'
                 ]
             ]);
         } catch (\Exception $e) {
@@ -136,7 +138,7 @@ class AuthController extends Controller {
             $this->jsonResponse(['status' => 'error', 'message' => 'Invalid email format'], 400);
         }
 
-        $stmt = $this->db->prepare("SELECT id, password_hash, name FROM users WHERE email = :email");
+        $stmt = $this->db->prepare("SELECT id, password_hash, name, role FROM users WHERE email = :email");
         $stmt->execute(['email' => $email]);
         $user = $stmt->fetch();
 
@@ -150,6 +152,7 @@ class AuthController extends Controller {
 
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'];
+        $_SESSION['user_role'] = $user['role'] ?? 'user';
 
         $this->jsonResponse([
             'status' => 'success',
@@ -157,7 +160,8 @@ class AuthController extends Controller {
             'user' => [
                 'id' => $user['id'],
                 'name' => $user['name'],
-                'email' => $email
+                'email' => $email,
+                'role' => $user['role'] ?? 'user'
             ]
         ]);
     }
@@ -288,7 +292,8 @@ class AuthController extends Controller {
                 'connected' => true,
                 'user' => [
                     'id' => $_SESSION['user_id'],
-                    'name' => $_SESSION['user_name'] ?? 'User'
+                    'name' => $_SESSION['user_name'] ?? 'User',
+                    'role' => $_SESSION['user_role'] ?? 'user'
                 ]
             ]);
         } else {

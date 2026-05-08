@@ -3,10 +3,12 @@ import reactLogo from '../assets/react.svg'
 import viteLogo from '../assets/vite.svg'
 import heroImg from '../assets/hero.png'
 import AiToolsPage from '../components/AiToolsPage'
-import { authApi } from '../api'
-import { User, LogOut } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext';
 
-function HomePage({ user, loading }) {
+function HomePage() {
+
+  const {user, loading} = useAuth();
+
   return (
     <>
       <section id="center">

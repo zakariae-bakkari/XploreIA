@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
 import { apiRequest } from '../api';
 import '../styling/ProfilePage.css';
+import { useAuth } from '../contexts/AuthContext';
 
-const ProfilePage = ({ user }) => {
-    const userEmail = user?.email || 'guest@example.com';
+const ProfilePage = () => {
+
+    const { user } = useAuth();
+
+    const userEmail = user?.email;
     const [userData, setUserData] = useState({ name: user?.name || 'Guest User', profile_url: '' });
     const [message, setMessage] = useState({ type: '', text: '' });
     
