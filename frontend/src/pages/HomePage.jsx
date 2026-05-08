@@ -6,55 +6,12 @@ import AiToolsPage from '../components/AiToolsPage'
 import { authApi } from '../api'
 import { User, LogOut } from 'lucide-react'
 
-function HomePage() {
+function HomePage({ user, loading }) {
   const [count, setCount] = useState(0)
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const data = await authApi.checkStatus();
-        if (data.connected) {
-          setUser(data.user);
-        }
-      } catch (err) {
-        console.error("Auth check failed", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkAuth();
-  }, []);
-
-  const handleLogout = async () => {
-    await authApi.logout();
-    setUser(null);
-    window.location.reload();
-  };
 
   return (
     <>
       <section id="center">
-        <div className="auth-status-indicator">
-          {!loading && (
-            user ? (
-              <div className="user-badge connected">
-                <div className="status-dot online"></div>
-                <User size={16} />
-                <span>{user.name}</span>
-                <button onClick={handleLogout} title="Logout" className="logout-mini-btn">
-                  <LogOut size={14} />
-                </button>
-              </div>
-            ) : (
-              <div className="auth-buttons-top">
-                <a href="/login" className="login-btn-sm">Login</a>
-                <a href="/signup" className="signup-btn-sm">Sign Up</a>
-              </div>
-            )
-          )}
-        </div>
         <AiToolsPage />
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />

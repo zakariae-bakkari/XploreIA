@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { apiRequest } from '../api';
 import './PlaylistsPage.css';
 
-const PlaylistsPage = () => {
-    const userEmail = 'noureddine@gmail.com';
+const PlaylistsPage = ({ user }) => {
+    const userEmail = user?.email || 'guest@example.com';
     const [playlists, setPlaylists] = useState([]);
     const [loading, setLoading] = useState(true);
     

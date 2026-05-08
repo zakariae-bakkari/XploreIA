@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { apiRequest } from '../api';
 import './ProfilePage.css';
 
-const ProfilePage = () => {
-    const userEmail = 'noureddine@gmail.com';
-    const [userData, setUserData] = useState({ name: 'Noureddine Oubraim', profile_url: '' });
+const ProfilePage = ({ user }) => {
+    const userEmail = user?.email || 'guest@example.com';
+    const [userData, setUserData] = useState({ name: user?.name || 'Guest User', profile_url: '' });
     const [message, setMessage] = useState({ type: '', text: '' });
     
     // UI States

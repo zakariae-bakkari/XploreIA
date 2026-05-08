@@ -100,6 +100,58 @@
   color: var(--text-h);
 }
 
+.header-auth-links {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.login-link {
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.signup-link-btn {
+  text-decoration: none;
+  background: var(--accent);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.signup-link-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.header-nav a {
+  text-decoration: none;
+}
+
+.logout-mini-btn {
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  margin-left: 4px;
+  transition: all 0.2s ease;
+}
+
+.logout-mini-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
 .main-content {
   flex-grow: 1;
   width: 100%;
