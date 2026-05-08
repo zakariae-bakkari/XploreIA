@@ -1,0 +1,30 @@
+/* We can reuse most styles from signup.css by importing it or copying the layout */
+@import './signup.css';
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at top left, var(--accent-bg), transparent),
+                radial-gradient(circle at bottom right, var(--accent-bg), transparent);
+    padding: 20px;
+}
+
+.login-glass {
+    width: 100%;
+    max-width: 450px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px;
+    box-shadow: var(--shadow);
+}
+
+@media (prefers-color-scheme: dark) {
+    .login-glass {
+        background: rgba(22, 23, 29, 0.7);
+    }
+}

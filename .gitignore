@@ -8,24 +8,33 @@ Thumbs.db
 
 # Logs
 *.log
+backend/storage/logs/
 
 # Environment files
 .env
+backend/.env
+frontend/.env
+frontend/.env.local
 
-# Composer
-/vendor/
+# Backend Dependencies (Composer)
+vendor/
+backend/vendor/
+composer.lock
 
-# Node (if you ever touch JS tools)
+# Frontend Dependencies (Node/PNPM)
 node_modules/
+frontend/node_modules/
+frontend/dist/
+.pnpm-debug.log
 
+# Build files
+dist/
+build/
 
 # Cache / temp
 /tmp/
 .cache/
 
-# Uploaded files (if your app has uploads)
+# Uploaded files
 public/uploads/
-
-# Build files
-dist/
-build/
+backend/public/uploads/

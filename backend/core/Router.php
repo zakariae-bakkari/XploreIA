@@ -18,9 +18,8 @@ class Router {
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         
         // Remove project subdirectory if necessary (e.g., /XploreIA/backend/public/)
-        // This is a simple logic, might need adjustment based on virtual host setup
         $basePath = '/XploreIA/backend/public';
-        if (strpos($path, $basePath) === 0) {
+        if (stripos($path, $basePath) === 0) {
             $path = substr($path, strlen($basePath));
         }
         
