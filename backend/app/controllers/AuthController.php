@@ -280,4 +280,22 @@ class AuthController extends Controller {
             'message' => 'Password reset successful'
         ]);
     }
+    // zakariae : 8-May-26 : status function that checks if user is logged in or not 
+    public function status() {
+        if (isset($_SESSION['user_id'])) {
+            $this->jsonResponse([
+                'status' => 'success',
+                'connected' => true,
+                'user' => [
+                    'id' => $_SESSION['user_id'],
+                    'name' => $_SESSION['user_name'] ?? 'User'
+                ]
+            ]);
+        } else {
+            $this->jsonResponse([
+                'status' => 'success',
+                'connected' => false
+            ]);
+        }
+    }
 }

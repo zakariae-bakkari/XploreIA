@@ -48,6 +48,7 @@ export const authApi = {
     verifyCode: (code) => apiRequest('verify-code', { method: 'POST', body: JSON.stringify({ code }) }),
     login: (data) => apiRequest('login', { method: 'POST', body: JSON.stringify(data) }),
     logout: () => apiRequest('logout', { method: 'POST' }),
+    checkStatus: () => apiRequest('status', { method: 'GET' }), // zakariae : 8-May-26 : check if user is logged in or not 
     forgotPassword: (email) => apiRequest('forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
     forgotPasswordVerify: (code) => apiRequest('forgot-password/verify', { method: 'POST', body: JSON.stringify({ code }) }),
     resetPassword: (data) => apiRequest('reset-password', { method: 'POST', body: JSON.stringify(data) }),

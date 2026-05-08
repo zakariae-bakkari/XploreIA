@@ -1,7 +1,9 @@
-import React from 'react';
-import { LogIn, Mail, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { LogIn, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 const LoginForm = ({ formData, handleChange, handleLogin, loading, error, onForgotPassword }) => {
+    const [showPassword, setShowPassword] = useState(false);
+
     return (
         <div className="signup-step">
             <div className="signup-header">
@@ -23,9 +25,17 @@ const LoginForm = ({ formData, handleChange, handleLogin, loading, error, onForg
                 <div className="input-group">
                     <Lock className="input-icon" size={20} />
                     <input
-                        type="password" name="password" placeholder="Password"
+                        type={showPassword ? "text" : "password"} 
+                        name="password" placeholder="Password"
                         value={formData.password} onChange={handleChange} required
                     />
+                    <button 
+                        type="button" 
+                        className="password-toggle"
+                        onClick={() => setShowPassword(!showPassword)}
+                    >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
                 </div>
 
                 {error && <div className="error-message">{error}</div>}

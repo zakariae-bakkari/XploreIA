@@ -1,7 +1,10 @@
-import React from 'react';
-import { Lock, ArrowRight, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { Lock, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
 const ResetPasswordForm = ({ formData, handleChange, handleSubmit, loading, error }) => {
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
     return (
         <div className="signup-step">
             <div className="signup-header">
@@ -16,16 +19,32 @@ const ResetPasswordForm = ({ formData, handleChange, handleSubmit, loading, erro
                 <div className="input-group">
                     <Lock className="input-icon" size={20} />
                     <input 
-                        type="password" name="password" placeholder="New Password" 
+                        type={showPassword ? "text" : "password"} 
+                        name="password" placeholder="New Password" 
                         value={formData.password} onChange={handleChange} required minLength="8"
                     />
+                    <button 
+                        type="button" 
+                        className="password-toggle"
+                        onClick={() => setShowPassword(!showPassword)}
+                    >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
                 </div>
                 <div className="input-group">
                     <Lock className="input-icon" size={20} />
                     <input 
-                        type="password" name="confirmPassword" placeholder="Confirm Password" 
+                        type={showConfirmPassword ? "text" : "password"} 
+                        name="confirmPassword" placeholder="Confirm Password" 
                         value={formData.confirmPassword} onChange={handleChange} required 
                     />
+                    <button 
+                        type="button" 
+                        className="password-toggle"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                        {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
                 </div>
 
                 {error && <div className="error-message">{error}</div>}

@@ -16,6 +16,9 @@ Router::post('/verify-code','AuthController@verifyCode');
 Router::post('/login', 'AuthController@login');
 Router::post('/logout', 'AuthController@logout');
 
+// zakariae : 8-May-26
+Router::get('/status', 'AuthController@status');
+
 // meriem : forgot password 08-May-26
 Router::post('/forgot-password', 'AuthController@forgotPassword');
 Router::post('/forgot-password/verify', 'AuthController@forgotPasswordVerify');
