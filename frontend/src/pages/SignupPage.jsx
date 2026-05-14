@@ -24,7 +24,7 @@ const SignupPage = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+      setError("Les mots de passe ne correspondent pas.");
       return;
     }
     setLoading(true);
@@ -34,10 +34,10 @@ const SignupPage = () => {
       if (data.status === 'success') {
         navigate('/login');
       } else {
-        setError(data.message || "Signup failed.");
+        setError(data.message || "Échec de l'inscription.");
       }
     } catch (err) {
-      setError(err.message || "Something went wrong.");
+      setError(err.message || "Une erreur est survenue.");
     } finally {
       setLoading(false);
     }
@@ -50,31 +50,31 @@ const SignupPage = () => {
         {/* Left Content */}
         <div style={{ flex: 1, maxWidth: '600px' }}>
           <h1 className="h1-xl" style={{ fontSize: '64px', lineHeight: '1.1', marginBottom: '24px', fontWeight: 'bold' }}>
-            Join the Future <br />
-            <span style={{ color: 'var(--secondary)' }}>of AI Discovery.</span>
+            Rejoignez le Futur <br />
+            <span style={{ color: 'var(--secondary)' }}>de la Découverte d'IA.</span>
           </h1>
           <p className="body-lg" style={{ color: 'var(--on-surface-variant)', marginBottom: '48px', maxWidth: '500px' }}>
-            Connect with precision-engineered AI models and technical innovators in the most advanced marketplace ever built.
+            Connectez-vous à des modèles d'IA de précision et à des innovateurs techniques dans le marché le plus avancé jamais construit.
           </p>
           
           <div className="flex flex-col gap-lg">
             <div className="flex items-center gap-md">
-              <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(219, 252, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+               <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(219, 252, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
                 <span className="material-symbols-outlined">bolt</span>
               </div>
-              <p className="body-md" style={{ fontWeight: '500' }}>Lightning-fast deployment workflows</p>
+              <p className="body-md" style={{ fontWeight: '500' }}>Flux de déploiement ultra-rapides</p>
             </div>
             <div className="flex items-center gap-md">
-              <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(219, 252, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+               <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(219, 252, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
                 <span className="material-symbols-outlined">security</span>
               </div>
-              <p className="body-md" style={{ fontWeight: '500' }}>Enterprise-grade encryption and privacy</p>
+              <p className="body-md" style={{ fontWeight: '500' }}>Chiffrement et confidentialité de niveau entreprise</p>
             </div>
             <div className="flex items-center gap-md">
-              <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(219, 252, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
+               <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(219, 252, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
                 <span className="material-symbols-outlined">groups</span>
               </div>
-              <p className="body-md" style={{ fontWeight: '500' }}>Collaborative AI-native community</p>
+              <p className="body-md" style={{ fontWeight: '500' }}>Communauté collaborative native de l'IA</p>
             </div>
           </div>
         </div>
@@ -85,19 +85,19 @@ const SignupPage = () => {
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>person_add</span>
           </div>
 
-          <div style={{ marginBottom: '32px' }}>
-            <h2 className="h2-lg" style={{ fontSize: '32px', marginBottom: '8px' }}>Create Account</h2>
-            <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>Enter your credentials to begin your journey.</p>
+           <div style={{ marginBottom: '32px' }}>
+            <h2 className="h2-lg" style={{ fontSize: '32px', marginBottom: '8px' }}>Créer un Compte</h2>
+            <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>Entrez vos informations pour commencer votre voyage.</p>
           </div>
 
           {error && <div style={{ color: 'var(--error)', marginBottom: '16px', fontSize: '14px' }}>{error}</div>}
 
           <form className="flex flex-col gap-md" onSubmit={handleSignup}>
-            <div className="flex flex-col gap-xs">
-              <label className="label-sm" style={{ color: 'var(--outline)', fontSize: '10px' }}>FULL NAME</label>
+             <div className="flex flex-col gap-xs">
+              <label className="label-sm" style={{ color: 'var(--outline)', fontSize: '10px' }}>NOM COMPLET</label>
               <div className="input-container">
                 <span className="material-symbols-outlined input-icon">badge</span>
-                <input type="text" name="name" className="cyber-input" placeholder="John Doe" value={formData.name} onChange={handleChange} required />
+                <input type="text" name="name" className="cyber-input" placeholder="Jean Dupont" value={formData.name} onChange={handleChange} required />
               </div>
             </div>
 
@@ -111,7 +111,7 @@ const SignupPage = () => {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="flex flex-col gap-xs">
-                <label className="label-sm" style={{ color: 'var(--outline)', fontSize: '10px' }}>PASSWORD</label>
+              <label className="label-sm" style={{ color: 'var(--outline)', fontSize: '10px' }}>MOT DE PASSE</label>
                 <div className="input-container">
                   <span className="material-symbols-outlined input-icon">lock</span>
                   <input type={showPassword ? "text" : "password"} name="password" className="cyber-input" style={{ paddingRight: '48px' }} placeholder="••••••••" value={formData.password} onChange={handleChange} required />
@@ -120,8 +120,8 @@ const SignupPage = () => {
                   </span>
                 </div>
               </div>
-              <div className="flex flex-col gap-xs">
-                <label className="label-sm" style={{ color: 'var(--outline)', fontSize: '10px' }}>CONFIRM</label>
+               <div className="flex flex-col gap-xs">
+                <label className="label-sm" style={{ color: 'var(--outline)', fontSize: '10px' }}>CONFIRMER</label>
                 <div className="input-container">
                   <span className="material-symbols-outlined input-icon">lock</span>
                   <input type={showConfirmPassword ? "text" : "password"} name="confirmPassword" className="cyber-input" style={{ paddingRight: '48px' }} placeholder="••••••••" value={formData.confirmPassword} onChange={handleChange} required />
@@ -132,21 +132,14 @@ const SignupPage = () => {
               </div>
             </div>
 
-            <label className="flex items-start gap-sm" style={{ cursor: 'pointer', marginTop: '8px' }}>
-              <input type="checkbox" style={{ accentColor: 'var(--secondary)', marginTop: '4px' }} required />
-              <span className="body-md" style={{ fontSize: '14px', color: 'var(--on-surface-variant)', textTransform: 'none' }}>
-                I agree to the <span style={{ color: 'var(--secondary)' }}>Terms of Service</span> and <span style={{ color: 'var(--secondary)' }}>Privacy Policy</span>
-              </span>
-            </label>
-
-            <button className="btn-primary btn-full" type="submit" disabled={loading} style={{ background: 'var(--primary-container)', color: 'var(--on-primary)', padding: '20px', borderRadius: '12px', marginTop: '16px' }}>
-              {loading ? "CREATING..." : "Create Account"}
+             <button className="btn-primary btn-full" type="submit" disabled={loading} style={{ background: 'var(--primary-container)', color: 'var(--on-primary)', padding: '20px', borderRadius: '12px', marginTop: '16px' }}>
+              {loading ? "CRÉATION..." : "Créer le compte"}
             </button>
           </form>
 
-          <div style={{ marginTop: '32px', textAlign: 'center' }}>
+           <div style={{ marginTop: '32px', textAlign: 'center' }}>
             <p className="body-md" style={{ color: 'var(--on-surface-variant)', fontSize: '14px' }}>
-              Already have an account? <Link to="/login" style={{ color: 'white', fontWeight: 'bold', marginLeft: '8px' }}>Login</Link>
+              Vous avez déjà un compte ? <Link to="/login" style={{ color: 'white', fontWeight: 'bold', marginLeft: '8px' }}>Se connecter</Link>
             </p>
           </div>
         </div>

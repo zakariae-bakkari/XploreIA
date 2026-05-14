@@ -25,13 +25,13 @@ const SettingsPage = () => {
     try {
       const res = await userApi.updateName({ email: user.email, name: formData.name });
       if (res.status === 'success') {
-        setStatus({ type: 'success', message: 'Name updated successfully!' });
+        setStatus({ type: 'success', message: 'Nom mis à jour avec succès !' });
         checkAuth(); // Refresh global user state
       } else {
-        setStatus({ type: 'error', message: res.message || 'Failed to update name' });
+        setStatus({ type: 'error', message: res.message || 'Échec de la mise à jour du nom' });
       }
     } catch (err) {
-      setStatus({ type: 'error', message: 'Connection error' });
+      setStatus({ type: 'error', message: 'Erreur de connexion' });
     } finally {
       setLoading(false);
     }
@@ -40,7 +40,7 @@ const SettingsPage = () => {
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (passwordData.new_password !== passwordData.confirm_password) {
-      setStatus({ type: 'error', message: 'New passwords do not match' });
+      setStatus({ type: 'error', message: 'Les nouveaux mots de passe ne correspondent pas' });
       return;
     }
 
@@ -53,13 +53,13 @@ const SettingsPage = () => {
       });
 
       if (res.status === 'success') {
-        setStatus({ type: 'success', message: 'Password changed successfully!' });
+        setStatus({ type: 'success', message: 'Mot de passe changé avec succès !' });
         setPasswordData({ old_password: '', new_password: '', confirm_password: '' });
       } else {
-        setStatus({ type: 'error', message: res.message || 'Failed to change password' });
+        setStatus({ type: 'error', message: res.message || 'Échec du changement de mot de passe' });
       }
     } catch (err) {
-      setStatus({ type: 'error', message: 'Connection error' });
+      setStatus({ type: 'error', message: 'Erreur de connexion' });
     } finally {
       setLoading(false);
     }
@@ -74,8 +74,8 @@ const SettingsPage = () => {
     <DashboardLayout>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         <header style={{ marginBottom: '40px' }}>
-          <h1 className="h1-xl" style={{ fontSize: '40px' }}>Account Settings</h1>
-          <p style={{ color: 'var(--on-surface-variant)', marginTop: '8px' }}>Manage your profile, security, and developer credentials.</p>
+          <h1 className="h1-xl" style={{ fontSize: '40px' }}>Paramètres du Compte</h1>
+          <p style={{ color: 'var(--on-surface-variant)', marginTop: '8px' }}>Gérez votre profil, votre sécurité et vos identifiants de développeur.</p>
         </header>
 
          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px' }}>
@@ -91,11 +91,11 @@ const SettingsPage = () => {
             <form onSubmit={handleUpdateName}>
               <div className="flex justify-between items-start" style={{ marginBottom: '32px' }}>
                 <div>
-                  <h2 className="h3-md">Personal Information</h2>
-                  <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none', marginTop: '4px' }}>Update your name and primary email address.</p>
+                  <h2 className="h3-md">Informations Personnelles</h2>
+                  <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none', marginTop: '4px' }}>Mettez à jour votre nom et votre adresse email principale.</p>
                 </div>
                 <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '10px 24px' }}>
-                  {loading ? 'Saving...' : 'Save Name'}
+                  {loading ? 'Enregistrement...' : 'Enregistrer le Nom'}
                 </button>
               </div>
 
@@ -110,7 +110,7 @@ const SettingsPage = () => {
 
                 <div className="flex flex-col gap-md">
                   <div className="flex flex-col gap-xs">
-                    <label className="label-sm" style={{ color: 'var(--primary)', opacity: 0.8 }}>Full Name</label>
+                    <label className="label-sm" style={{ color: 'var(--primary)', opacity: 0.8 }}>Nom Complet</label>
                     <input 
                       type="text" 
                       className="cyber-input" 
@@ -121,7 +121,7 @@ const SettingsPage = () => {
                     />
                   </div>
                   <div className="flex flex-col gap-xs">
-                    <label className="label-sm" style={{ color: 'var(--primary)', opacity: 0.8, opacity: 0.5 }}>Email Address (Read-only)</label>
+                    <label className="label-sm" style={{ color: 'var(--primary)', opacity: 0.8, opacity: 0.5 }}>Adresse Email (Lecture seule)</label>
                     <input 
                       type="email" 
                       className="cyber-input" 
@@ -144,19 +144,19 @@ const SettingsPage = () => {
                     <span className="material-symbols-outlined">security</span>
                   </div>
                   <div>
-                    <h3 className="h3-md">Security & Password</h3>
-                    <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Change your account password securely.</p>
+                    <h3 className="h3-md">Sécurité & Mot de Passe</h3>
+                    <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Changez votre mot de passe en toute sécurité.</p>
                   </div>
                 </div>
                 <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '10px 24px', background: 'var(--secondary)', color: 'white' }}>
-                   Update Password
+                   Mettre à jour le mot de passe
                 </button>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
                 <div className="flex flex-col gap-md">
                   <div className="flex flex-col gap-xs">
-                    <label className="label-sm" style={{ color: 'var(--primary)', opacity: 0.8 }}>Current Password</label>
+                    <label className="label-sm" style={{ color: 'var(--primary)', opacity: 0.8 }}>Mot de passe actuel</label>
                     <input 
                       type="password" 
                       className="cyber-input" 
@@ -167,9 +167,9 @@ const SettingsPage = () => {
                     />
                   </div>
                 </div>
-                <div className="flex flex-col gap-md">
+                 <div className="flex flex-col gap-md">
                   <div className="flex flex-col gap-xs">
-                    <label className="label-sm" style={{ color: 'var(--primary)', opacity: 0.8 }}>New Password</label>
+                    <label className="label-sm" style={{ color: 'var(--primary)', opacity: 0.8 }}>Nouveau mot de passe</label>
                     <input 
                       type="password" 
                       className="cyber-input" 
@@ -180,7 +180,7 @@ const SettingsPage = () => {
                     />
                   </div>
                   <div className="flex flex-col gap-xs">
-                    <label className="label-sm" style={{ color: 'var(--primary)', opacity: 0.8 }}>Confirm New Password</label>
+                    <label className="label-sm" style={{ color: 'var(--primary)', opacity: 0.8 }}>Confirmer le nouveau mot de passe</label>
                     <input 
                       type="password" 
                       className="cyber-input" 

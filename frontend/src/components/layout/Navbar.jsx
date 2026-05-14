@@ -23,9 +23,9 @@ const Navbar = () => {
           </Link>
           
           <div className="nav-links flex gap-md">
-            <Link to="/discover" className={`nav-link ${isActive('/discover') ? 'active' : ''}`} style={{ fontSize: '14px', fontWeight: '500' }}>Discovery</Link>
+            <Link to="/discover" className={`nav-link ${isActive('/discover') ? 'active' : ''}`} style={{ fontSize: '14px', fontWeight: '500' }}>Découvrir</Link>
             {user && (
-              <Link to="/dashboard" className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`} style={{ fontSize: '14px', fontWeight: '500' }}>Dashboard</Link>
+              <Link to="/dashboard" className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`} style={{ fontSize: '14px', fontWeight: '500' }}>Tableau de Bord</Link>
             )}
             <Link to="/debug" className={`nav-link ${isActive('/debug') ? 'active' : ''}`} style={{ fontSize: '14px', fontWeight: '500' }}>debug</Link>
           </div>
@@ -37,7 +37,7 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '99px', padding: '8px 16px', border: '1px solid rgba(255,255,255,0.1)', width: '300px' }}>
             <input 
               type="text" 
-              placeholder="Search marketplace..." 
+              placeholder="Rechercher sur le marché..." 
               style={{ background: 'none', border: 'none', color: 'white', fontSize: '13px', outline: 'none', width: '100%' }}
             />
           </div>
@@ -46,7 +46,7 @@ const Navbar = () => {
             {user ? (
               <div className="flex items-center gap-md">
                 <Link to="/dashboard" className="btn-primary" style={{ padding: '10px 24px', fontSize: '13px', borderRadius: '99px', textDecoration: 'none' }}>
-                  Get Started
+                  Commencer
                 </Link>
                 <Link to="/profile" className="flex items-center justify-center" style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--primary)', color: 'var(--on-primary)', fontWeight: 'bold', fontSize: '14px', textDecoration: 'none', border: '1px solid rgba(0, 219, 233, 0.2)' }}>
                   {getInitials(user.name)}
@@ -54,9 +54,9 @@ const Navbar = () => {
               </div>
             ) : (
               <>
-                <Link to="/login" className="nav-link" style={{ fontSize: '14px' }}>Login</Link>
+                <Link to="/login" className="nav-link" style={{ fontSize: '14px' }}>Connexion</Link>
                 <Link to="/signup" className="btn-primary" style={{ padding: '10px 24px', fontSize: '13px', borderRadius: '99px', textDecoration: 'none' }}>
-                  Get Started
+                  Commencer
                 </Link>
               </>
             )}

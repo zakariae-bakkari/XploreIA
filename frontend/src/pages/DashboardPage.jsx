@@ -69,17 +69,17 @@ const DashboardPage = () => {
         <div className="flex justify-between items-center" style={{ marginBottom: '40px' }}>
           <div>
             <h1 className="h1-xl" style={{ color: 'var(--primary)', fontSize: '40px' }}>
-              {role === 'admin' ? 'Management Console' : 'My AI Workspace'}
+              {role === 'admin' ? 'Console de Gestion' : 'Mon Espace IA'}
             </h1>
             <p style={{ color: 'var(--on-surface-variant)', marginTop: '8px' }}>
               {role === 'admin' 
-                ? `System active. Currently managing ${allTools.length} AI tools.` 
-                : `Welcome back, ${profile?.name || user?.name}. You have ${profile?.playlists?.length || 0} collections active.`}
+                ? `Système actif. Gestion de ${allTools.length} outils IA en cours.` 
+                : `Bon retour, ${profile?.name || user?.name || 'Explorateur'}. Vous avez ${profile?.playlists?.length || 0} collections actives.`}
             </p>
           </div>
           <div className="flex gap-md">
              <button className="btn-primary" style={{ padding: '12px 24px' }}>
-               {role === 'admin' ? 'Add New AI Tool' : 'Suggest AI Tool'}
+               {role === 'admin' ? 'Ajouter un Outil IA' : 'Suggérer un Outil'}
              </button>
           </div>
         </div>
@@ -93,8 +93,8 @@ const DashboardPage = () => {
               </div>
             </div>
             <div>
-              <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Marketplace Tools</p>
-              <h2 className="h2-lg" style={{ marginTop: '8px' }}>{allTools.length} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>active</span></h2>
+               <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Outils du Marché</p>
+               <h2 className="h2-lg" style={{ marginTop: '8px' }}>{allTools.length} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>actifs</span></h2>
             </div>
           </div>
 
@@ -105,8 +105,8 @@ const DashboardPage = () => {
               </div>
             </div>
             <div>
-              <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Your Collections</p>
-              <h2 className="h2-lg" style={{ marginTop: '8px' }}>{profile?.playlists?.length || 0} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>playlists</span></h2>
+               <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Vos Collections</p>
+               <h2 className="h2-lg" style={{ marginTop: '8px' }}>{profile?.playlists?.length || 0} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>sauvegardées</span></h2>
             </div>
           </div>
 
@@ -117,8 +117,8 @@ const DashboardPage = () => {
               </div>
             </div>
             <div>
-              <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Suggestions</p>
-              <h2 className="h2-lg" style={{ marginTop: '8px' }}>{profile?.suggestions?.length || 0} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>submitted</span></h2>
+               <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Suggestions</p>
+               <h2 className="h2-lg" style={{ marginTop: '8px' }}>{profile?.suggestions?.length || 0} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>en attente</span></h2>
             </div>
           </div>
         </section>
@@ -128,7 +128,7 @@ const DashboardPage = () => {
           {/* Main List / Table */}
            <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px' }}>
             <h3 className="h3-md" style={{ marginBottom: '24px' }}>
-              Latest Marketplace Additions
+              Derniers Ajouts au Marché
             </h3>
             <div className="flex flex-col gap-md">
                {allTools.slice(0, 4).map(tool => (
@@ -161,19 +161,19 @@ const DashboardPage = () => {
                        </p>
                     </div>
                     <div className="flex gap-sm">
-                        <Link to={`/tool/${slugify(tool.name)}`} className="btn-primary" style={{ padding: '8px 16px', fontSize: '12px' }}>View Tool</Link>
+                        <Link to={`/tool/${slugify(tool.name)}`} className="btn-primary" style={{ padding: '8px 16px', fontSize: '12px' }}>Voir l'outil</Link>
                     </div>
                  </div>
                ))}
                {allTools.length === 0 && (
-                 <p style={{ textAlign: 'center', color: 'var(--on-surface-variant)', padding: '20px' }}>No tools found in the marketplace.</p>
+                 <p style={{ textAlign: 'center', color: 'var(--on-surface-variant)', padding: '20px' }}>Aucun outil trouvé dans le marché.</p>
                )}
             </div>
           </div>
 
           {/* My Playlists Section */}
           <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px', marginTop: '24px' }}>
-            <h3 className="h3-md" style={{ marginBottom: '24px' }}>My Playlists</h3>
+            <h3 className="h3-md" style={{ marginBottom: '24px' }}>Mes Playlists</h3>
             <div className="flex flex-col gap-md">
               {profile?.playlists?.length > 0 ? (
                 profile.playlists.map(pl => (
@@ -184,18 +184,18 @@ const DashboardPage = () => {
                     <div style={{ flex: 1 }}>
                       <h4 style={{ fontWeight: 'bold', fontSize: '15px' }}>{pl.name}</h4>
                       <p style={{ fontSize: '13px', color: 'var(--on-surface-variant)' }}>
-                        {pl.item_count || 0} items • {pl.is_public ? 'Public' : 'Private'}
+                        {pl.item_count || 0} éléments • {pl.is_public ? 'Public' : 'Privé'}
                       </p>
                     </div>
                     <Link to="/playlists" className="btn-primary" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      Open
+                      Ouvrir
                     </Link>
                   </div>
                 ))
               ) : (
                 <div style={{ textAlign: 'center', padding: '20px', color: 'var(--on-surface-variant)' }}>
-                  <p>You haven't created any playlists yet.</p>
-                  <Link to="/playlists" style={{ color: 'var(--primary)', fontSize: '14px', marginTop: '8px', display: 'inline-block' }}>Create your first collection</Link>
+                  <p>Vous n'avez pas encore créé de playlist.</p>
+                  <Link to="/playlists" style={{ color: 'var(--primary)', fontSize: '14px', marginTop: '8px', display: 'inline-block' }}>Créer votre première collection</Link>
                 </div>
               )}
             </div>
@@ -205,7 +205,7 @@ const DashboardPage = () => {
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr', gap: '24px', marginTop: '40px' }}>
           <div className="flex flex-col gap-md">
             <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px' }}>
-              <h3 className="h3-md" style={{ marginBottom: '24px' }}>My Submissions</h3>
+              <h3 className="h3-md" style={{ marginBottom: '24px' }}>Mes Soumissions</h3>
               <div className="flex flex-col gap-lg">
                  {profile?.suggestions?.length > 0 ? (
                    profile.suggestions.slice(0, 3).map(tool => (
@@ -215,27 +215,27 @@ const DashboardPage = () => {
                         </div>
                         <div>
                           <p style={{ fontSize: '14px', lineHeight: '1.4' }}>
-                            Suggested <span style={{ fontWeight: 'bold' }}>{tool.name}</span>
+                            Suggéré <span style={{ fontWeight: 'bold' }}>{tool.name}</span>
                           </p>
                           <p style={{ fontSize: '12px', color: 'var(--on-surface-variant)', marginTop: '4px' }}>
-                            Status: <span style={{ color: 'var(--primary)' }}>{tool.status?.toUpperCase()}</span>
+                            Statut: <span style={{ color: 'var(--primary)' }}>{tool.status?.toUpperCase()}</span>
                           </p>
                         </div>
                      </div>
                    ))
                  ) : (
-                   <p style={{ fontSize: '14px', color: 'var(--on-surface-variant)' }}>No activity yet. Why not suggest a tool?</p>
+                   <p style={{ fontSize: '14px', color: 'var(--on-surface-variant)' }}>Aucune activité pour le moment. Pourquoi ne pas suggérer un outil ?</p>
                  )}
               </div>
             </div>
 
             {role !== 'admin' && (
               <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px', background: 'linear-gradient(135deg, rgba(0, 219, 233, 0.05) 0%, rgba(235, 178, 255, 0.05) 100%)' }}>
-                <h3 className="h3-md" style={{ marginBottom: '16px' }}>Need a missing tool?</h3>
-                <p className="body-md" style={{ fontSize: '14px', color: 'var(--on-surface-variant)', marginBottom: '24px' }}>
-                  If you can't find an AI tool you love, suggest it to our community!
+                <h1 className="h1-xl">Bonjour, {profile?.name || user?.name || 'Explorateur'} !</h1>
+                <p className="body-lg" style={{ color: 'var(--on-surface-variant)', marginTop: '8px' }}>
+                  Vous avez {profile?.playlists?.length || 0} collections actives. Prêt à explorer l'IA aujourd'hui ?
                 </p>
-                <button className="btn-primary" style={{ width: '100%' }}>Suggest Tool</button>
+                <button className="btn-primary" style={{ width: '100%' }}>Suggérer un outil</button>
               </div>
             )}
           </div>

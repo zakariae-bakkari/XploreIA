@@ -10,25 +10,25 @@ const HomePage = () => {
         <section className="hero">
           <div className="hero-content">
             <span className="label-sm" style={{ color: 'var(--primary-fixed-dim)', letterSpacing: '0.2em' }}>
-              GLOBAL AI MARKETPLACE
+              MARCHÉ GLOBAL DE L'IA
             </span>
             <h1 className="h1-xl" style={{ marginTop: '24px' }}>
-              Unlock the World of <br /> <span className="cyber-gradient-text">AI Intelligence</span>
+              Débloquez le Monde de <br /> <span className="cyber-gradient-text">l'Intelligence IA</span>
             </h1>
             <p className="body-lg" style={{ color: 'var(--on-surface-variant)', maxWidth: '700px', margin: '24px auto' }}>
-              XploreIA is the premiere technical gateway for discovering and exploring precision-built AI services. 
-              Find the perfect models for your workflow from our curated directory.
+              XploreIA est la première passerelle technique pour découvrir et explorer des services d'IA de précision. 
+              Trouvez les modèles parfaits pour votre flux de travail dans notre répertoire curaté.
             </p>
 
             <div className="glass-panel search-bar">
               <span className="material-symbols-outlined" style={{ padding: '0 16px', color: 'var(--on-surface-variant)' }}>search</span>
-              <input type="text" className="search-input" placeholder="Search for AI tools, models, or categories..." />
-              <button className="btn-primary" style={{ padding: '12px 24px' }}>Search</button>
+              <input type="text" className="search-input" placeholder="Rechercher des outils IA, des modèles ou des catégories..." />
+              <button className="btn-primary" style={{ padding: '12px 24px' }}>Rechercher</button>
             </div>
 
             <div className="flex justify-center gap-md" style={{ marginTop: '32px' }}>
-              <Link to="/signup" className="btn-primary" style={{ padding: '12px 32px', textDecoration: 'none' }}>Get Started</Link>
-              <Link to="/discover" className="glass-panel" style={{ padding: '12px 32px', color: 'var(--primary)', fontWeight: '600', textDecoration: 'none' }}>Explore Marketplace</Link>
+              <Link to="/signup" className="btn-primary" style={{ padding: '12px 32px', textDecoration: 'none' }}>Commencer</Link>
+              <Link to="/discover" className="glass-panel" style={{ padding: '12px 32px', color: 'var(--primary)', fontWeight: '600', textDecoration: 'none' }}>Explorer le Marché</Link>
             </div>
           </div>
         </section>
@@ -39,12 +39,12 @@ const HomePage = () => {
           <div className="glass-panel bento-item col-8" style={{ minHeight: '400px', padding: 'var(--lg)' }}>
             <div style={{ position: 'relative', zIndex: 2, maxWidth: '400px' }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontSize: '48px' }}>search_insights</span>
-              <h3 className="h2-lg" style={{ color: 'white', marginTop: '16px' }}>Curated AI Discovery</h3>
+              <h3 className="h2-lg" style={{ color: 'white', marginTop: '16px' }}>Découverte d'IA Curatée</h3>
               <p style={{ color: 'var(--on-surface-variant)', marginTop: '12px' }}>
-                Access a hand-picked selection of the most advanced AI models on the market. Filter by category, pricing, and performance.
+                Accédez à une sélection choisie des modèles d'IA les plus avancés du marché. Filtrez par catégorie, prix et performance.
               </p>
               <Link to="/discover" className="flex items-center gap-xs" style={{ background: 'none', color: 'var(--primary)', marginTop: '24px', fontWeight: '600', textDecoration: 'none' }}>
-                Open Marketplace <span className="material-symbols-outlined">arrow_forward</span>
+                Ouvrir le Marché <span className="material-symbols-outlined">arrow_forward</span>
               </Link>
             </div>
             <div style={{ position: 'absolute', right: '-80px', bottom: '-80px', width: '320px', height: '320px', background: 'rgba(0, 219, 233, 0.1)', filter: 'blur(100px)', borderRadius: '50%' }}></div>
@@ -53,18 +53,18 @@ const HomePage = () => {
           {/* Feature 2 - Suggestions */}
           <div className="glass-panel bento-item col-4" style={{ padding: 'var(--lg)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--secondary)', fontSize: '48px' }}>add_box</span>
-            <h3 className="h3-md" style={{ color: 'white' }}>Suggest Tools</h3>
+            <h3 className="h3-md" style={{ color: 'white' }}>Suggérer des Outils</h3>
             <p style={{ color: 'var(--on-surface-variant)' }}>
-              Found a great tool we missed? Suggest it to our community and help build the directory.
+              Vous avez trouvé un super outil que nous avons manqué ? Suggérez-le à notre communauté et aidez à construire le répertoire.
             </p>
           </div>
 
           {/* Feature 3 - Categories */}
           <div className="glass-panel bento-item col-4" style={{ padding: 'var(--lg)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontSize: '48px' }}>category</span>
-            <h3 className="h3-md" style={{ color: 'white' }}>Deep Categorization</h3>
+            <h3 className="h3-md" style={{ color: 'white' }}>Catégorisation Profonde</h3>
             <p style={{ color: 'var(--on-surface-variant)' }}>
-              From NLP to Generative Art, find exactly what you need with our precise taxonomy.
+              Du NLP à l'Art Génératif, trouvez exactement ce dont vous avez besoin avec notre taxonomie précise.
             </p>
           </div>
 
@@ -72,9 +72,9 @@ const HomePage = () => {
           <div className="glass-panel bento-item col-8" style={{ padding: 'var(--lg)' }}>
             <div className="flex items-center justify-between" style={{ height: '100%', gap: '24px' }}>
               <div style={{ maxWidth: '400px' }}>
-                <h3 className="h2-lg" style={{ color: 'white' }}>Verified Reviews</h3>
+                <h3 className="h2-lg" style={{ color: 'white' }}>Avis Vérifiés</h3>
                 <p style={{ color: 'var(--on-surface-variant)', marginTop: '12px' }}>
-                  Explore tools with confidence. Our community provides real feedback on performance and cost-effectiveness.
+                  Explorez les outils en toute confiance. Notre communauté fournit des retours réels sur la performance et le rapport qualité-prix.
                 </p>
               </div>
               <div style={{ position: 'relative' }}>
@@ -90,13 +90,13 @@ const HomePage = () => {
         {/* CTA Section */}
         <section style={{ padding: 'var(--xl) 0', textAlign: 'center' }}>
           <div className="glass-panel" style={{ padding: 'var(--xl)', border: '1px solid rgba(0, 219, 233, 0.2)', borderRadius: '32px' }}>
-            <h2 className="h2-lg">Ready to Find Your Next AI Solution?</h2>
+            <h2 className="h2-lg">Prêt à Trouver Votre Prochaine Solution IA ?</h2>
             <p className="body-lg" style={{ color: 'var(--on-surface-variant)', margin: '16px auto', maxWidth: '600px' }}>
-              Join 10,000+ technical pioneers exploring the boundaries of machine intelligence on XploreIA.
+              Rejoignez plus de 10 000 pionniers techniques explorant les frontières de l'intelligence artificielle sur XploreIA.
             </p>
             <div className="flex justify-center gap-md" style={{ marginTop: '24px' }}>
-              <Link to="/signup" className="btn-primary" style={{ padding: '12px 32px', textDecoration: 'none' }}>Get Started Now</Link>
-              <Link to="/community" className="glass-panel" style={{ padding: '12px 32px', color: 'var(--on-surface)', textDecoration: 'none' }}>Join Community</Link>
+              <Link to="/signup" className="btn-primary" style={{ padding: '12px 32px', textDecoration: 'none' }}>Commencer Maintenant</Link>
+              <Link to="/community" className="glass-panel" style={{ padding: '12px 32px', color: 'var(--on-surface)', textDecoration: 'none' }}>Rejoindre la Communauté</Link>
             </div>
           </div>
         </section>

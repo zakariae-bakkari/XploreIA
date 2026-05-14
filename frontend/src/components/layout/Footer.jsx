@@ -8,12 +8,12 @@ const Footer = () => {
         <div style={{ textAlign: 'center' }}>
           <span className="h3-md" style={{ color: 'var(--on-surface)', fontWeight: 'bold' }}>XploreIA</span>
           <p className="label-sm" style={{ color: 'var(--on-surface-variant)', marginTop: '4px', textTransform: 'none' }}>
-            © 2024 XploreIA AI Marketplace. Precision built for the future.
+            © 2024 Marché d'IA XploreIA. Conçu avec précision pour le futur.
           </p>
         </div>
         <div className="flex gap-md" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Link to="/tos" className="nav-link">Terms of Service</Link>
-          <Link to="/privacy" className="nav-link">Privacy Policy</Link>
+          <Link to="/tos" className="nav-link">Conditions d'Utilisation</Link>
+          <Link to="/privacy" className="nav-link">Politique de Confidentialité</Link>
           <Link to="/docs" className="nav-link">Documentation</Link>
           <Link to="/support" className="nav-link">Support API</Link>
         </div>

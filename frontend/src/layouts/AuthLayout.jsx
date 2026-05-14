@@ -8,18 +8,12 @@ const AuthLayout = ({ children }) => {
       <div className="light-leak-2"></div>
       
       {/* Simplified Auth Header */}
-      <header className="navbar" style={{ background: 'rgba(19, 19, 23, 0.3)', backdropFilter: 'blur(20px)' }}>
-        <div className="container nav-content">
+        <div className="container nav-content" style={{paddingTop:'30px',paddingBottom:'30px'}}>
           <Link to="/" className="flex items-center gap-base">
             <span className="material-symbols-outlined" style={{ color: 'var(--primary-fixed-dim)', fontSize: '30px' }}>explore</span>
             <span className="h3-md" style={{ color: 'var(--primary)', fontWeight: 'bold' }}>XploreIA</span>
           </Link>
-          <div className="flex items-center gap-md">
-            <Link to="/docs" className="nav-link" style={{ padding: '8px 16px' }}>Documentation</Link>
-            <Link to="/support" className="nav-link" style={{ padding: '8px 16px' }}>Support API</Link>
           </div>
-        </div>
-      </header>
 
       <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {children}
@@ -30,12 +24,12 @@ const AuthLayout = ({ children }) => {
           <div style={{ textAlign: 'center' }}>
             <span className="h3-md" style={{ color: 'var(--on-surface)', fontWeight: 'bold', fontSize: '18px' }}>XploreIA</span>
             <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none', fontSize: '10px' }}>
-              © 2024 XploreIA AI Marketplace.
+              © 2024 Marché d'IA XploreIA.
             </p>
           </div>
           <div className="flex gap-md" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Link to="/tos" className="nav-link" style={{ fontSize: '10px' }}>Terms</Link>
-            <Link to="/privacy" className="nav-link" style={{ fontSize: '10px' }}>Privacy</Link>
+            <Link to="/tos" className="nav-link" style={{ fontSize: '10px' }}>Conditions</Link>
+            <Link to="/privacy" className="nav-link" style={{ fontSize: '10px' }}>Confidentialité</Link>
           </div>
         </div>
       </footer>

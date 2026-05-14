@@ -33,7 +33,7 @@ const ProfilePage = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('fr-FR', {
       month: 'long',
       year: 'numeric'
     });
@@ -42,7 +42,7 @@ const ProfilePage = () => {
   if (loading) return (
     <DashboardLayout>
       <div style={{ textAlign: 'center', padding: '100px', color: 'var(--primary)' }}>
-        Synchronizing your profile data...
+        Synchronisation de vos données de profil...
       </div>
     </DashboardLayout>
   );
@@ -62,7 +62,7 @@ const ProfilePage = () => {
            <h1 className="h1-xl" style={{ marginTop: '24px', marginBottom: '8px' }}>{profile?.name || user?.name}</h1>
           <p className="body-lg" style={{ color: 'var(--on-surface-variant)' }}>{profile?.email || user?.email}</p>
           <p className="label-sm" style={{ color: 'var(--primary)', marginTop: '8px' }}>
-             {profile?.role?.toUpperCase()} • Member since {formatDate(profile?.created_at)}
+             {profile?.role === 'admin' ? 'ADMINISTRATEUR' : 'MEMBRE'} • Membre depuis {formatDate(profile?.created_at)}
           </p>
           
           <button 
@@ -81,15 +81,15 @@ const ProfilePage = () => {
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>logout</span>
-            Logout Account
+            Déconnexion
           </button>
         </header>
 
         <div className="flex flex-col gap-xl">
            <section className="glass-panel" style={{ padding: '32px', borderRadius: '24px' }}>
-            <h3 className="h3-md" style={{ marginBottom: '24px' }}>Account Overview</h3>
+            <h3 className="h3-md" style={{ marginBottom: '24px' }}>Vue d'ensemble du compte</h3>
             <p className="body-md" style={{ color: 'var(--on-surface-variant)', lineHeight: '1.6' }}>
-              Welcome back! You are currently an active member of the XploreIA ecosystem. Below is a summary of your community contributions and collections.
+              Bon retour ! Vous êtes actuellement un membre actif de l'écosystème XploreIA. Voici un résumé de vos contributions à la communauté et de vos collections.
             </p>
             <div className="flex gap-md" style={{ marginTop: '32px' }}>
                <div className="glass-panel" style={{ padding: '16px 24px', borderRadius: '16px', flex: 1, textAlign: 'center' }}>
@@ -101,15 +101,15 @@ const ProfilePage = () => {
                   <p className="label-sm" style={{ color: 'var(--outline)', fontSize: '10px' }}>SUGGESTIONS</p>
                </div>
                <div className="glass-panel" style={{ padding: '16px 24px', borderRadius: '16px', flex: 1, textAlign: 'center' }}>
-                  <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{profile?.status?.toUpperCase() || 'ACTIVE'}</p>
-                  <p className="label-sm" style={{ color: 'var(--outline)', fontSize: '10px' }}>STATUS</p>
+                  <p style={{ fontWeight: 'bold', fontSize: '20px' }}>{profile?.status === 'active' ? 'ACTIF' : 'ACTIF'}</p>
+                  <p className="label-sm" style={{ color: 'var(--outline)', fontSize: '10px' }}>STATUT</p>
                </div>
             </div>
           </section>
 
           {profile?.playlists?.length > 0 && (
             <section>
-              <h3 className="h3-md" style={{ marginBottom: '24px' }}>Your Playlists</h3>
+              <h3 className="h3-md" style={{ marginBottom: '24px' }}>Vos Playlists</h3>
               <div className="flex flex-col gap-md">
                 {profile.playlists.map(pl => (
                   <div key={pl.id} className="glass-panel" style={{ padding: '20px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '20px' }}>
@@ -119,7 +119,7 @@ const ProfilePage = () => {
                     <div style={{ flex: 1 }}>
                       <p style={{ fontWeight: 'bold' }}>{pl.name}</p>
                       <p style={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}>
-                        {pl.item_count || 0} Tools • {pl.is_public ? 'Public' : 'Private'}
+                        {pl.item_count || 0} Outils • {pl.is_public ? 'Public' : 'Privé'}
                       </p>
                     </div>
                     <span className="material-symbols-outlined" style={{ color: 'var(--outline)' }}>chevron_right</span>
@@ -130,7 +130,7 @@ const ProfilePage = () => {
           )}
 
           <section>
-            <h3 className="h3-md" style={{ marginBottom: '24px' }}>Community Suggestions</h3>
+            <h3 className="h3-md" style={{ marginBottom: '24px' }}>Suggestions de la communauté</h3>
             <div className="flex flex-col gap-md">
                {profile?.suggestions?.length > 0 ? (
                  profile.suggestions.map(tool => (
@@ -141,7 +141,7 @@ const ProfilePage = () => {
                       <div style={{ flex: 1 }}>
                          <p style={{ fontWeight: 'bold' }}>{tool.name}</p>
                          <p style={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}>
-                           Suggested on {new Date(tool.created_at).toLocaleDateString()}
+                           Suggéré le {new Date(tool.created_at).toLocaleDateString('fr-FR')}
                          </p>
                       </div>
                       <span className="label-sm" style={{ 
@@ -150,13 +150,13 @@ const ProfilePage = () => {
                         padding: '4px 12px', 
                         borderRadius: '99px' 
                       }}>
-                        {tool.status?.toUpperCase() || 'PENDING'}
+                        {tool.status === 'published' ? 'PUBLIÉ' : 'EN ATTENTE'}
                       </span>
                    </div>
                  ))
                ) : (
                  <div className="glass-panel" style={{ padding: '40px', textAlign: 'center', color: 'var(--on-surface-variant)', borderRadius: '24px' }}>
-                    <p>You haven't suggested any AI tools yet.</p>
+                    <p>Vous n'avez pas encore suggéré d'outils IA.</p>
                  </div>
                )}
             </div>

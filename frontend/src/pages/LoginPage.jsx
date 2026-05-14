@@ -21,7 +21,7 @@ const LoginPage = () => {
         navigate('/dashboard');
       }
     } catch (err) {
-      setError(err.message || "Invalid credentials. Please try again.");
+      setError(err.message || "Identifiants invalides. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
@@ -32,8 +32,8 @@ const LoginPage = () => {
       <div className="container flex items-center justify-center" style={{ minHeight: '80vh' }}>
         <div className="glass-card" style={{ width: '100%', maxWidth: '480px', padding: '48px', borderRadius: '24px' }}>
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <h1 className="h2-lg" style={{ fontSize: '32px', marginBottom: '12px' }}>Welcome Back</h1>
-            <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>Sign in to access your AI workspace.</p>
+            <h1 className="h2-lg" style={{ fontSize: '32px', marginBottom: '12px' }}>Bon Retour</h1>
+            <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>Connectez-vous pour accéder à votre espace IA.</p>
           </div>
 
           {error && (
@@ -44,7 +44,7 @@ const LoginPage = () => {
 
           <form className="flex flex-col gap-md" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-xs">
-              <label className="label-sm" style={{ color: 'var(--outline)', fontSize: '10px' }}>EMAIL ADDRESS</label>
+              <label className="label-sm" style={{ color: 'var(--outline)', fontSize: '10px' }}>ADRESSE EMAIL</label>
               <div className="input-container">
                 <span className="material-symbols-outlined input-icon">mail</span>
                 <input 
@@ -59,7 +59,7 @@ const LoginPage = () => {
             </div>
 
             <div className="flex flex-col gap-xs">
-              <label className="label-sm" style={{ color: 'var(--outline)', fontSize: '10px' }}>PASSWORD</label>
+              <label className="label-sm" style={{ color: 'var(--outline)', fontSize: '10px' }}>MOT DE PASSE</label>
               <div className="input-container">
                 <span className="material-symbols-outlined input-icon">lock</span>
                 <input 
@@ -80,22 +80,22 @@ const LoginPage = () => {
             <div className="flex justify-between items-center">
               <label className="flex items-center gap-xs" style={{ cursor: 'pointer' }}>
                 <input type="checkbox" style={{ accentColor: 'var(--primary)' }} />
-                <span className="label-sm" style={{ textTransform: 'none', color: 'var(--on-surface-variant)' }}>Remember me</span>
+                <span className="label-sm" style={{ textTransform: 'none', color: 'var(--on-surface-variant)' }}>Se souvenir de moi</span>
               </label>
               <Link to="/forgot-password" style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '12px' }} className="label-sm">
-                Forgot Password?
+                Mot de passe oublié ?
               </Link>
             </div>
 
             <button className="btn-primary btn-full" type="submit" disabled={loading} style={{ background: 'var(--primary-container)', color: 'var(--on-primary)', padding: '20px', borderRadius: '12px', marginTop: '16px' }}>
-              {loading ? "LOGGING IN..." : "Login to Platform"}
+              {loading ? "CONNEXION..." : "Se connecter"}
             </button>
           </form>
 
           <div style={{ marginTop: '40px', textAlign: 'center' }}>
             <p className="body-md" style={{ color: 'var(--on-surface-variant)', fontSize: '14px' }}>
-              Don't have an account? 
-              <Link to="/signup" style={{ color: 'var(--secondary)', fontWeight: 'bold', marginLeft: '8px' }}>Sign up for free</Link>
+              Vous n'avez pas de compte ? 
+              <Link to="/signup" style={{ color: 'var(--secondary)', fontWeight: 'bold', marginLeft: '8px' }}>S'inscrire gratuitement</Link>
             </p>
           </div>
         </div>

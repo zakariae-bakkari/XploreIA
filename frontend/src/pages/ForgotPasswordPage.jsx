@@ -18,9 +18,9 @@ const ForgotPasswordPage = () => {
           <span className="material-symbols-outlined" style={{ fontSize: '48px', color: 'white' }}>key</span>
         </div>
         
-        <h1 className="h2-lg" style={{ color: 'var(--on-surface)', marginBottom: '12px' }}>Reset Password</h1>
+        <h1 className="h2-lg" style={{ color: 'var(--on-surface)', marginBottom: '12px' }}>Réinitialiser le mot de passe</h1>
         <p style={{ color: 'var(--on-surface-variant)', marginBottom: '32px', fontSize: '14px' }}>
-          Enter your email to receive a verification code.
+          Entrez votre email pour recevoir un code de vérification.
         </p>
 
         <form className="flex flex-col gap-md" onSubmit={handleSubmit}>
@@ -29,7 +29,7 @@ const ForgotPasswordPage = () => {
             <input 
               type="email" 
               className="cyber-input" 
-              placeholder="Email Address" 
+              placeholder="Adresse Email" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -37,15 +37,15 @@ const ForgotPasswordPage = () => {
           </div>
 
           <button className="btn-primary btn-full" type="submit" style={{ marginTop: '16px' }}>
-            <span>Send Reset Code</span>
+            <span>Envoyer le code</span>
             <span className="material-symbols-outlined">arrow_forward</span>
           </button>
         </form>
 
         <div style={{ marginTop: '32px' }}>
           <p style={{ color: 'var(--on-surface-variant)', fontSize: '14px' }}>
-            Remember your password? 
-            <Link to="/login" style={{ color: 'white', fontWeight: 'bold', marginLeft: '8px' }}>Log in</Link>
+            Vous vous souvenez de votre mot de passe ? 
+            <Link to="/login" style={{ color: 'white', fontWeight: 'bold', marginLeft: '8px' }}>Se connecter</Link>
           </p>
         </div>
       </div>

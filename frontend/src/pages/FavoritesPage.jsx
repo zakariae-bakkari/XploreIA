@@ -83,32 +83,32 @@ const FavoritesPage = () => {
       <div className="fade-in">
         <header className="flex justify-between items-center" style={{ marginBottom: '40px' }}>
           <div>
-            <h1 className="h2-lg">My Favorites</h1>
+            <h1 className="h2-lg">Mes Favoris</h1>
             <p style={{ color: 'var(--on-surface-variant)', marginTop: '8px' }}>
-              Manage your curated collections and AI toolkits.
+              Gérez vos collections et vos boîtes à outils IA personnalisées.
             </p>
           </div>
           <button className="btn-primary flex items-center gap-sm" onClick={handleOpenCreate}>
             <span className="material-symbols-outlined">add_circle</span>
-            <span>New Collection</span>
+            <span>Nouvelle Collection</span>
           </button>
         </header>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center" style={{ padding: '100px' }}>
              <div className="animate-spin" style={{ width: '40px', height: '40px', border: '4px solid rgba(0, 219, 233, 0.1)', borderTopColor: 'var(--primary)', borderRadius: '50%' }}></div>
-             <p style={{ marginTop: '16px', color: 'var(--on-surface-variant)' }}>Synchronizing collections...</p>
+             <p style={{ marginTop: '16px', color: 'var(--on-surface-variant)' }}>Synchronisation de vos collections...</p>
           </div>
         ) : playlists.length === 0 ? (
           <div className="glass-panel flex flex-col items-center justify-center" style={{ padding: '80px', textAlign: 'center', borderRadius: '32px' }}>
              <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: 'rgba(0, 219, 233, 0.05)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '40px' }}>playlist_add</span>
              </div>
-             <h3 className="h3-md">No Collections Yet</h3>
+             <h3 className="h3-md">Aucune collection</h3>
              <p className="body-md" style={{ color: 'var(--on-surface-variant)', maxWidth: '400px', margin: '16px 0 32px' }}>
-               Start grouping your favorite AI tools into specialized playlists for faster access.
+               Commencez à regrouper vos outils IA préférés dans des playlists spécialisées pour un accès plus rapide.
              </p>
-             <button className="btn-primary" onClick={handleOpenCreate}>Create Your First List</button>
+             <button className="btn-primary" onClick={handleOpenCreate}>Créer votre première liste</button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -131,21 +131,21 @@ const FavoritesPage = () => {
                 <div style={{ flex: 1 }}>
                   <h3 className="h3-sm" style={{ marginBottom: '8px' }}>{pl.name}</h3>
                   <p style={{ fontSize: '14px', color: 'var(--on-surface-variant)', marginBottom: '20px', display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {pl.description || "No description provided for this collection."}
+                    {pl.description || "Aucune description fournie pour cette collection."}
                   </p>
 
                   <div className="flex items-center gap-sm" style={{ marginBottom: '24px' }}>
                     <span className="label-sm" style={{ background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: '99px', color: 'var(--outline)' }}>
-                      {pl.item_count || 0} Tools
+                      {pl.item_count || 0} Outils
                     </span>
                     <span className="label-sm" style={{ color: pl.is_public ? 'var(--primary)' : 'var(--outline)' }}>
-                      {pl.is_public ? 'Public' : 'Private'}
+                      {pl.is_public ? 'Public' : 'Privé'}
                     </span>
                   </div>
                 </div>
 
                 <Link to={`/playlists/${pl.id}`} className="btn-secondary" style={{ width: '100%', textAlign: 'center', textDecoration: 'none' }}>
-                  View Collection
+                  Voir la Collection
                 </Link>
               </div>
             ))}
@@ -164,15 +164,15 @@ const FavoritesPage = () => {
               </button>
 
               <h2 className="h2-md" style={{ marginBottom: '32px' }}>
-                {isEditing ? 'Edit Collection' : 'Create New Collection'}
+                {isEditing ? 'Modifier la Collection' : 'Nouvelle Collection'}
               </h2>
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
                 <div className="input-group">
-                  <label className="label-sm">Collection Name</label>
+                  <label className="label-sm">Nom de la collection</label>
                   <input 
                     type="text" 
-                    placeholder="e.g. Content Creation Tools" 
+                    placeholder="ex: Outils de création de contenu" 
                     className="glass-input" 
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
@@ -181,9 +181,9 @@ const FavoritesPage = () => {
                 </div>
 
                 <div className="input-group">
-                  <label className="label-sm">Description (Optional)</label>
+                  <label className="label-sm">Description (Optionnel)</label>
                   <textarea 
-                    placeholder="What is this collection for?" 
+                    placeholder="À quoi sert cette collection ?" 
                     className="glass-input" 
                     style={{ minHeight: '120px', resize: 'none' }}
                     value={formData.description}
@@ -199,13 +199,13 @@ const FavoritesPage = () => {
                     onChange={e => setFormData({...formData, is_public: e.target.checked})}
                     style={{ width: '20px', height: '20px', accentColor: 'var(--primary)' }}
                   />
-                  <label htmlFor="is_public" className="body-md" style={{ cursor: 'pointer' }}>Make this collection public</label>
+                  <label htmlFor="is_public" className="body-md" style={{ cursor: 'pointer' }}>Rendre cette collection publique</label>
                 </div>
 
                 <div className="flex gap-md" style={{ marginTop: '20px' }}>
-                  <button type="button" className="btn-secondary flex-1" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                  <button type="button" className="btn-secondary flex-1" onClick={() => setIsModalOpen(false)}>Annuler</button>
                   <button type="submit" className="btn-primary flex-1">
-                    {isEditing ? 'Update Collection' : 'Create Collection'}
+                    {isEditing ? 'Mettre à jour' : 'Créer la collection'}
                   </button>
                 </div>
               </form>
