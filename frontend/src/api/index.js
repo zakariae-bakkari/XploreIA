@@ -1,4 +1,4 @@
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
 
 /**
  * Base fetch wrapper for API calls
@@ -50,6 +50,7 @@ export const apiRequest = async (endpoint = '', options = {}) => {
     }
 };
 
+// zakariae et meriem 
 export const authApi = {
     signup: (data) => apiRequest('signup', { method: 'POST', body: JSON.stringify(data) }),
     verifyCode: (code) => apiRequest('verify-code', { method: 'POST', body: JSON.stringify({ code }) }),
@@ -61,22 +62,29 @@ export const authApi = {
     resetPassword: (data) => apiRequest('reset-password', { method: 'POST', body: JSON.stringify(data) }),
 };
 
-// Example Service: User Service
-export const userApi = {
-    getAll: () => apiRequest('users'),
-    getById: (id) => apiRequest(`users/${id}`),
-};
 
-// AI Tool Service
-export const aiToolApi = {
-    getAll: () => apiRequest('ai-tools'),
-};
-
-// Playlist Service
+// noureddine : Playlist Service
 export const playlistApi = {
     getAllByUser: (email) => apiRequest(`playlists?email=${email}`),
     getContent: (id) => apiRequest(`playlists/content?id=${id}`),
     create: (data) => apiRequest('playlists/create', { method: 'POST', body: JSON.stringify(data) }),
     update: (data) => apiRequest('playlists/update', { method: 'POST', body: JSON.stringify(data) }),
     delete: (id) => apiRequest(`playlists/delete?id=${id}`, { method: 'POST' }),
+};
+
+
+// youssef et saad
+//  Service: AI Tools
+export const aiToolApi = {
+    getAll: () => apiRequest('ai-tools'),
+    getById: (id) => apiRequest(`ai-tools/${id}`),
+};
+
+// Service: User
+export const userApi = {
+    getAll: () => apiRequest('users'),
+    getById: (id) => apiRequest(`users/${id}`),
+    create: (data) => apiRequest('users', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id, data) => apiRequest(`users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete: (id) => apiRequest(`users/${id}`, { method: 'DELETE' }),
 };

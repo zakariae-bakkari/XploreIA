@@ -1,5 +1,4 @@
 <?php
-
 return [
     'host'     => getenv('DB_HOST'),
     'dbname'   => getenv('DB_NAME'),
