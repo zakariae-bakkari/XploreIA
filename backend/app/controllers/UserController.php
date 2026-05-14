@@ -15,9 +15,31 @@ class UserController extends Controller {
 
     public function index() {
         try {
-            $stmt = $this->db->query("SELECT id, email, name, profile_url, status, role, last_login_at, created_at FROM users ORDER BY created_at DESC");
+            $stmt = $this->db->query("SELECT id, email, name, profile_url, status, role, created_at FROM users ORDER BY created_at DESC");
             $users = $stmt->fetchAll();
             $this->jsonResponse(['status' => 'success', 'data' => $users]);
+        } catch (\Exception $e) {
+            $this->jsonResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function show() {
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            $this->jsonResponse(['status' => 'error', 'message' => 'ID is required'], 400);
+            return;
+        }
+
+        try {
+            $stmt = $this->db->prepare("SELECT id, email, name, profile_url, status, role, created_at FROM users WHERE id = ?");
+            $stmt->execute([$id]);
+            $user = $stmt->fetch();
+
+            if ($user) {
+                $this->jsonResponse(['status' => 'success', 'data' => $user]);
+            } else {
+                $this->jsonResponse(['status' => 'error', 'message' => 'User not found'], 404);
+            }
         } catch (\Exception $e) {
             $this->jsonResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
@@ -130,6 +152,69 @@ class UserController extends Controller {
             } else {
                 $this->jsonResponse(['status' => 'error', 'message' => 'Mot de passe incorrecte'], 401);
             }
+        } catch (\Exception $e) {
+            $this->jsonResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Comprehensive profile data
+     * Includes personal info, playlists, and suggested tools
+     */
+    public function profile() {
+        $email = $_GET['email'] ?? '';
+        if (!$email && isset($_SESSION['user_email'])) {
+            $email = $_SESSION['user_email'];
+        }
+
+        if (!$email) {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Email is required'], 400);
+            return;
+        }
+
+        try {
+            // 1. Fetch User Info
+            $userStmt = $this->db->prepare("SELECT id, email, name, profile_url, status, role, created_at FROM users WHERE email = ?");
+            $userStmt->execute([$email]);
+            $user = $userStmt->fetch();
+
+            if (!$user) {
+                $this->jsonResponse(['status' => 'error', 'message' => 'User not found'], 404);
+                return;
+            }
+
+            // 2. Fetch Playlists
+            $plStmt = $this->db->prepare("
+                SELECT p.*, (SELECT COUNT(*) FROM playlist_items WHERE playlist_id = p.id) as item_count 
+                FROM playlists p 
+                WHERE p.user_id = ?
+            ");
+            $plStmt->execute([$user['id']]);
+            $user['playlists'] = $plStmt->fetchAll();
+
+            // 3. Fetch Suggested Tools (assuming status != 'published')
+            $toolStmt = $this->db->prepare("
+                SELECT t.id, t.name, t.description, t.status, t.created_at
+                FROM ai_tools t
+                WHERE t.status != 'published' AND t.name LIKE ? -- Mock filter for user's suggestions if no user_id in tools
+            ");
+            // If there's a user_id in ai_tools, use: WHERE t.user_id = ?
+            // For now, let's look for a potential user_id column
+            try {
+                $checkCol = $this->db->query("SHOW COLUMNS FROM ai_tools LIKE 'user_id'");
+                if ($checkCol->fetch()) {
+                    $toolStmt = $this->db->prepare("SELECT id, name, description, status, created_at FROM ai_tools WHERE user_id = ?");
+                    $toolStmt->execute([$user['id']]);
+                } else {
+                    $toolStmt->execute(['%']); // Fallback: all non-published (for admin/debug)
+                }
+            } catch (\Exception $e) {
+                $user['suggestions'] = [];
+            }
+            $user['suggestions'] = $toolStmt->fetchAll();
+
+            $this->jsonResponse(['status' => 'success', 'data' => $user]);
+
         } catch (\Exception $e) {
             $this->jsonResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
         }

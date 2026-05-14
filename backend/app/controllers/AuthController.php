@@ -152,6 +152,7 @@ class AuthController extends Controller {
 
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'];
+        $_SESSION['user_email'] = $email;
         $_SESSION['user_role'] = $user['role'] ?? 'user';
 
         $this->jsonResponse([
@@ -293,6 +294,7 @@ class AuthController extends Controller {
                 'user' => [
                     'id' => $_SESSION['user_id'],
                     'name' => $_SESSION['user_name'] ?? 'User',
+                    'email' => $_SESSION['user_email'] ?? '',
                     'role' => $_SESSION['user_role'] ?? 'user'
                 ]
             ]);

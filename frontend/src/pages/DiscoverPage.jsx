@@ -10,16 +10,28 @@ const DiscoverPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
+  const slugify = (text) => {
+    return text.toString().toLowerCase()
+      .replace(/\s+/g, '-')           // Replace spaces with -
+      .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+      .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+      .replace(/^-+/, '')             // Trim - from start of text
+      .replace(/-+$/, '');            // Trim - from end of text
+  };
+
   useEffect(() => {
     const fetchTools = async () => {
       try {
         const response = await aiToolApi.getAll();
-        if (response && Array.isArray(response)) {
-          setTools(response);
-        } else if (response && response.data) {
-          setTools(response.data);
-        } else {
-          setTools([]);
+        const toolsData = Array.isArray(response) ? response : response.data;
+        if (toolsData) {
+          setTools(toolsData);
+          // Store mapping for frontend-only slug routing
+          const slugMap = {};
+          toolsData.forEach(t => {
+            slugMap[slugify(t.name)] = t.id;
+          });
+          localStorage.setItem('xplore_slug_map', JSON.stringify(slugMap));
         }
       } catch (err) {
         setError("Failed to fetch AI tools. Please try again later.");
@@ -121,8 +133,16 @@ const DiscoverPage = () => {
               {filteredTools.length > 0 ? (
                 filteredTools.map(tool => (
                   <div key={tool.id} className="glass-panel tool-card">
-                    <div style={{ position: 'relative' }}>
-                      <img src={tool.image_url || tool.image || "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800"} alt={tool.name} className="tool-image" />
+                    <div style={{ position: 'relative', width: '100%', height: '200px', overflow: 'hidden' }}>
+                      <img 
+                        src={tool.image_url || tool.image || "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800"} 
+                        alt={tool.name} 
+                        className="tool-image" 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          e.target.src = "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800";
+                        }}
+                      />
                       {tool.is_pro && (
                         <span className="label-sm" style={{ position: 'absolute', top: '16px', right: '16px', background: 'var(--primary-container)', color: 'var(--on-primary)', padding: '4px 12px', borderRadius: '99px' }}>
                           PRO
@@ -137,14 +157,17 @@ const DiscoverPage = () => {
                         <h3 className="h3-md" style={{ margin: 0 }}>{tool.name}</h3>
                       </div>
                       <p style={{ color: 'var(--on-surface-variant)', fontSize: '14px', marginBottom: '16px', flex: 1 }}>{tool.description}</p>
-                      <div className="flex gap-xs" style={{ marginBottom: '24px' }}>
-                        {tool.tags && Array.isArray(tool.tags) ? tool.tags.map(tag => (
-                          <span key={tag} className="tool-tag">{tag}</span>
-                        )) : (
-                          <span className="tool-tag">{tool.category || 'General'}</span>
+                      <div className="flex flex-wrap gap-xs" style={{ marginBottom: '24px' }}>
+                        <span className="tool-tag" style={{ background: 'rgba(0, 219, 233, 0.15)', color: 'var(--primary)' }}>
+                          {tool.category_name || 'General'}
+                        </span>
+                        {tool.models && tool.models.length > 0 && (
+                          <span className="tool-tag" style={{ background: 'rgba(235, 178, 255, 0.1)', color: 'var(--secondary)', fontSize: '11px' }}>
+                            {tool.models.slice(0, 2).map(m => m.name).join(' • ')}
+                          </span>
                         )}
                       </div>
-                      <Link to={`/tool/${tool.id}`} className="btn-primary" style={{ width: '100%', background: 'transparent', border: '1px solid var(--secondary)', color: 'var(--secondary)', textDecoration: 'none', textAlign: 'center' }}>
+                      <Link to={`/tool/${slugify(tool.name)}`} className="btn-primary" style={{ width: '100%', background: 'transparent', border: '1px solid var(--secondary)', color: 'var(--secondary)', textDecoration: 'none', textAlign: 'center' }}>
                         View Details
                       </Link>
                     </div>

@@ -27,8 +27,7 @@ const Navbar = () => {
             {user && (
               <Link to="/dashboard" className={`nav-link ${isActive('/dashboard') ? 'active' : ''}`} style={{ fontSize: '14px', fontWeight: '500' }}>Dashboard</Link>
             )}
-            <Link to="/community" className={`nav-link ${isActive('/community') ? 'active' : ''}`} style={{ fontSize: '14px', fontWeight: '500' }}>Community</Link>
-            <Link to="/pricing" className={`nav-link ${isActive('/pricing') ? 'active' : ''}`} style={{ fontSize: '14px', fontWeight: '500' }}>Pricing</Link>
+            <Link to="/debug" className={`nav-link ${isActive('/debug') ? 'active' : ''}`} style={{ fontSize: '14px', fontWeight: '500' }}>debug</Link>
           </div>
         </div>
 
@@ -36,7 +35,6 @@ const Navbar = () => {
           
           {/* Search Bar in Navbar */}
           <div className="hidden lg:flex items-center" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '99px', padding: '8px 16px', border: '1px solid rgba(255,255,255,0.1)', width: '300px' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--outline)', marginRight: '8px' }}>search</span>
             <input 
               type="text" 
               placeholder="Search marketplace..." 

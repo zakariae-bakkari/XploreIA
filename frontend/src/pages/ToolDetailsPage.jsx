@@ -4,15 +4,30 @@ import MainLayout from '../layouts/MainLayout';
 import { aiToolApi } from '../api';
 
 const ToolDetailsPage = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [tool, setTool] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTool = async () => {
       try {
-        const data = await aiToolApi.getById(id);
-        setTool(data);
+        // Resolve ID from slug map stored in DiscoverPage
+        const slugMap = JSON.parse(localStorage.getItem('xplore_slug_map') || '{}');
+        const resolvedId = slugMap[slug];
+
+        if (!resolvedId) {
+           // Fallback: If map is missing (direct access), we might need to fetch all tools first
+           // but for now we show not found
+           setLoading(false);
+           return;
+        }
+
+        const response = await aiToolApi.getById(resolvedId);
+        if (response && response.success) {
+          setTool(response.data);
+        } else {
+          setTool(null);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -20,7 +35,7 @@ const ToolDetailsPage = () => {
       }
     };
     fetchTool();
-  }, [id]);
+  }, [slug]);
 
   if (loading) return (
     <MainLayout>
@@ -54,10 +69,17 @@ const ToolDetailsPage = () => {
               <div>
                 <h1 className="h1-xl" style={{ marginBottom: '8px' }}>{tool.name}</h1>
                 <div className="flex gap-sm">
-                  <span className="tool-tag">{tool.category || 'AI Model'}</span>
-                  <span className="tool-tag" style={{ background: 'rgba(235, 178, 255, 0.1)', color: 'var(--secondary)' }}>
-                    {tool.is_pro ? 'Premium' : 'Free Access'}
+                  <span className="tool-tag" style={{ background: 'rgba(0, 219, 233, 0.1)', color: 'var(--primary)' }}>
+                    {tool.category_name || 'AI Model'}
                   </span>
+                  <span className="tool-tag" style={{ background: 'rgba(235, 178, 255, 0.1)', color: 'var(--secondary)' }}>
+                    {tool.pricing_model || 'Freemium'}
+                  </span>
+                  {tool.global_rating && (
+                    <span className="tool-tag" style={{ background: 'rgba(255, 193, 7, 0.1)', color: '#FFC107' }}>
+                      ★ {tool.global_rating}
+                    </span>
+                  )}
                 </div>
               </div>
               <button className="btn-primary" style={{ padding: '16px 32px' }}>
@@ -69,14 +91,56 @@ const ToolDetailsPage = () => {
               {tool.description || "No detailed description available for this tool yet. Our community is currently reviewing its features and capabilities."}
             </p>
 
-            <h3 className="h3-md" style={{ marginBottom: '24px' }}>Key Features</h3>
-            <div className="flex flex-wrap gap-md" style={{ marginBottom: '48px' }}>
-               {['Neural Processing', 'Cloud API', 'Real-time Analytics', 'Secure Workflow'].map(f => (
-                 <div key={f} className="feature-tag flex items-center gap-sm">
-                   <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--primary)' }}>check_circle</span>
-                   <span>{f}</span>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', marginBottom: '48px' }}>
+              <div>
+                <h3 className="h3-md" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="material-symbols-outlined" style={{ color: '#4CAF50' }}>add_circle</span>
+                  Advantages
+                </h3>
+                <div className="flex flex-col gap-sm">
+                   {tool.advantages?.length > 0 ? tool.advantages.map((adv, i) => (
+                     <div key={i} className="flex gap-sm body-md" style={{ color: 'var(--on-surface-variant)' }}>
+                       <span style={{ color: '#4CAF50' }}>•</span> {adv.name}
+                     </div>
+                   )) : <p style={{ color: 'var(--outline)', fontSize: '14px' }}>No specific advantages listed yet.</p>}
+                </div>
+              </div>
+              <div>
+                <h3 className="h3-md" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span className="material-symbols-outlined" style={{ color: '#FF5252' }}>remove_circle</span>
+                  Disadvantages
+                </h3>
+                <div className="flex flex-col gap-sm">
+                   {tool.disadvantages?.length > 0 ? tool.disadvantages.map((dis, i) => (
+                     <div key={i} className="flex gap-sm body-md" style={{ color: 'var(--on-surface-variant)' }}>
+                       <span style={{ color: '#FF5252' }}>•</span> {dis.name}
+                     </div>
+                   )) : <p style={{ color: 'var(--outline)', fontSize: '14px' }}>No specific disadvantages listed yet.</p>}
+                </div>
+              </div>
+            </div>
+
+            <h3 className="h3-md" style={{ marginBottom: '24px' }}>Available Models</h3>
+            <div className="flex flex-col gap-md" style={{ marginBottom: '48px' }}>
+               {tool.models?.length > 0 ? tool.models.map((model, i) => (
+                 <div key={i} className="glass-panel" style={{ padding: '20px', borderRadius: '16px', background: 'rgba(255,255,255,0.01)' }}>
+                   <div className="flex justify-between items-center" style={{ marginBottom: '8px' }}>
+                     <h4 style={{ fontWeight: 'bold', color: 'var(--primary)' }}>{model.name}</h4>
+                     <span className="label-sm" style={{ color: 'var(--outline)' }}>ACTIVE</span>
+                   </div>
+                   <p className="body-md" style={{ color: 'var(--on-surface-variant)', fontSize: '14px' }}>{model.description}</p>
                  </div>
-               ))}
+               )) : <p style={{ color: 'var(--outline)', fontSize: '14px' }}>No specialized models found for this tool.</p>}
+            </div>
+
+            <h3 className="h3-md" style={{ marginBottom: '24px' }}>Key Capabilities</h3>
+            <div className="flex flex-wrap gap-md" style={{ marginBottom: '48px' }}>
+               {tool.characteristics?.length > 0 ? tool.characteristics.map((char, i) => (
+                 <div key={i} className="feature-tag flex items-center gap-sm">
+                   <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--primary)' }}>check_circle</span>
+                   <span>{char.name}</span>
+                 </div>
+               )) : <p style={{ color: 'var(--outline)', fontSize: '14px' }}>Characteristics are being verified by our team.</p>}
             </div>
           </div>
 
@@ -88,7 +152,7 @@ const ToolDetailsPage = () => {
                   <span className="material-symbols-outlined">api</span>
                 </div>
                 <div>
-                  <p style={{ fontWeight: 'bold' }}>Xplore Labs</p>
+                  <p style={{ fontWeight: 'bold' }}>{tool.provider_name || 'Xplore Labs'}</p>
                   <p style={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}>Verified Provider</p>
                 </div>
               </div>
@@ -103,11 +167,11 @@ const ToolDetailsPage = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="body-md" style={{ color: 'var(--on-surface-variant)' }}>Rating</span>
-                  <span style={{ fontWeight: 'bold' }}>4.8/5</span>
+                  <span style={{ fontWeight: 'bold' }}>{tool.global_rating || 'N/A'}/5</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="body-md" style={{ color: 'var(--on-surface-variant)' }}>Updated</span>
-                  <span style={{ fontWeight: 'bold' }}>2 days ago</span>
+                  <span className="body-md" style={{ color: 'var(--on-surface-variant)' }}>Released</span>
+                  <span style={{ fontWeight: 'bold' }}>{tool.release_date || 'Unknown'}</span>
                 </div>
               </div>
             </div>

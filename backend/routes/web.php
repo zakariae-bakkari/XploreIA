@@ -3,12 +3,14 @@
 use Core\Router;
 
 Router::get('/users', 'UserController@index');
+Router::get('/users/show', 'UserController@show');
 Router::post('/users/update-photo', 'UserController@updatePhoto');
 Router::post('/users/update-name', 'UserController@updateName');
 Router::post('/users/change-password', 'UserController@changePassword');
 Router::post('/users/send-reset-code', 'UserController@sendResetCode');
 Router::post('/users/reset-password', 'UserController@resetPassword');
 Router::post('/users/delete-account', 'UserController@deleteAccount');
+Router::get('/profile', 'UserController@profile');
 
 Router::get('/ai-tools', 'AiToolController@index');
 Router::get('/filters', 'AiToolController@getFilters');

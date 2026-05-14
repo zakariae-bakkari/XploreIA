@@ -1,10 +1,66 @@
 import React from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { useAuth } from '../contexts/AuthContext';
+import { userApi, aiToolApi } from '../api';
+import { Link } from 'react-router-dom';
 
 const DashboardPage = () => {
   const { user } = useAuth();
+  const [profile, setProfile] = React.useState(null);
+  const [allTools, setAllTools] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  
   const role = user?.role || 'user';
+
+  const slugify = (text) => {
+    if (!text) return '';
+    return text.toString().toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w\-]+/g, '')
+      .replace(/\-\-+/g, '-')
+      .replace(/^-+/, '')
+      .replace(/-+$/, '');
+  };
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (user?.email) {
+          const [profileRes, toolsRes] = await Promise.all([
+            userApi.getProfile(user.email),
+            aiToolApi.getAll()
+          ]);
+          
+          if (profileRes.status === 'success') setProfile(profileRes.data);
+          
+          if (toolsRes.status === 'success') {
+            const toolsData = toolsRes.data;
+            setAllTools(toolsData);
+            
+            // Sync slug map for consistent routing
+            const slugMap = JSON.parse(localStorage.getItem('xplore_slug_map') || '{}');
+            toolsData.forEach(t => {
+              slugMap[slugify(t.name)] = t.id;
+            });
+            localStorage.setItem('xplore_slug_map', JSON.stringify(slugMap));
+          }
+        }
+      } catch (err) {
+        console.error("Dashboard fetch error", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [user]);
+
+  if (loading) return (
+    <DashboardLayout>
+      <div style={{ textAlign: 'center', padding: '100px', color: 'var(--primary)' }}>
+        Loading your workspace...
+      </div>
+    </DashboardLayout>
+  );
 
   return (
     <DashboardLayout>
@@ -17,8 +73,8 @@ const DashboardPage = () => {
             </h1>
             <p style={{ color: 'var(--on-surface-variant)', marginTop: '8px' }}>
               {role === 'admin' 
-                ? `System active. Currently managing 254 AI tools and 12,402 users.` 
-                : `Welcome back, ${user?.name || 'Explorer'}. Discover and save the best AI tools for your workflow.`}
+                ? `System active. Currently managing ${allTools.length} AI tools.` 
+                : `Welcome back, ${profile?.name || user?.name}. You have ${profile?.playlists?.length || 0} collections active.`}
             </p>
           </div>
           <div className="flex gap-md">
@@ -29,7 +85,7 @@ const DashboardPage = () => {
         </div>
 
         {/* Stats Grid */}
-        <section className="stats-grid">
+         <section className="stats-grid">
           <div className="glass-panel stats-card">
             <div className="flex justify-between">
               <div style={{ padding: '12px', background: 'rgba(0, 219, 233, 0.1)', color: 'var(--primary)', borderRadius: '12px' }}>
@@ -37,32 +93,32 @@ const DashboardPage = () => {
               </div>
             </div>
             <div>
-              <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>{role === 'admin' ? 'Total Tools' : 'Tools Discovered'}</p>
-              <h2 className="h2-lg" style={{ marginTop: '8px' }}>{role === 'admin' ? '254' : '42'} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>models</span></h2>
+              <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Marketplace Tools</p>
+              <h2 className="h2-lg" style={{ marginTop: '8px' }}>{allTools.length} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>active</span></h2>
             </div>
           </div>
 
           <div className="glass-panel stats-card">
             <div className="flex justify-between">
               <div style={{ padding: '12px', background: 'rgba(235, 178, 255, 0.1)', color: 'var(--secondary)', borderRadius: '12px' }}>
-                <span className="material-symbols-outlined">favorite</span>
+                <span className="material-symbols-outlined">auto_awesome_motion</span>
               </div>
             </div>
             <div>
-              <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Saved to Favorites</p>
-              <h2 className="h2-lg" style={{ marginTop: '8px' }}>{role === 'admin' ? '12.4k' : '18'} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>saved</span></h2>
+              <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Your Collections</p>
+              <h2 className="h2-lg" style={{ marginTop: '8px' }}>{profile?.playlists?.length || 0} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>playlists</span></h2>
             </div>
           </div>
 
           <div className="glass-panel stats-card">
             <div className="flex justify-between">
               <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--on-surface)', borderRadius: '12px' }}>
-                <span className="material-symbols-outlined">{role === 'admin' ? 'group' : 'reviews'}</span>
+                <span className="material-symbols-outlined">history_edu</span>
               </div>
             </div>
             <div>
-              <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>{role === 'admin' ? 'Total Members' : 'Suggestions'}</p>
-              <h2 className="h2-lg" style={{ marginTop: '8px' }}>{role === 'admin' ? '12.4k' : '3'} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>{role === 'admin' ? 'users' : 'pending'}</span></h2>
+              <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Suggestions</p>
+              <h2 className="h2-lg" style={{ marginTop: '8px' }}>{profile?.suggestions?.length || 0} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>submitted</span></h2>
             </div>
           </div>
         </section>
@@ -70,53 +126,106 @@ const DashboardPage = () => {
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr', gap: '24px', marginTop: '40px' }}>
           
           {/* Main List / Table */}
-          <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px' }}>
+           <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px' }}>
             <h3 className="h3-md" style={{ marginBottom: '24px' }}>
-              {role === 'admin' ? 'Recently Added Tools' : 'Explore New AI Models'}
+              Latest Marketplace Additions
             </h3>
             <div className="flex flex-col gap-md">
-               {[1, 2, 3, 4].map(i => (
-                 <div key={i} className="flex items-center gap-md" style={{ padding: '16px', borderRadius: '16px', background: 'rgba(255,255,255,0.02)' }}>
-                    <div style={{ width: '64px', height: '64px', borderRadius: '12px', overflow: 'hidden' }}>
-                       <img src={`https://images.unsplash.com/photo-${1677442136019 + i}-21780ecad995?w=128`} alt="Tool" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+               {allTools.slice(0, 4).map(tool => (
+                 <div key={tool.id} className="flex items-center gap-md" style={{ padding: '16px', borderRadius: '16px', background: 'rgba(255,255,255,0.02)' }}>
+                    <div style={{ width: '64px', height: '64px', borderRadius: '12px', overflow: 'hidden', background: 'rgba(0, 219, 233, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                       {tool.logo_url ? (
+                         <img 
+                           src={tool.logo_url} 
+                           alt={tool.name} 
+                           style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                           onError={(e) => {
+                             e.target.style.display = 'none';
+                             e.target.nextSibling.style.display = 'flex';
+                           }}
+                         />
+                       ) : null}
+                       <div className="flex items-center justify-center" style={{ 
+                         width: '100%', 
+                         height: '100%', 
+                         display: tool.logo_url ? 'none' : 'flex',
+                         color: 'var(--primary)'
+                       }}>
+                         <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>smart_toy</span>
+                       </div>
                     </div>
                     <div style={{ flex: 1 }}>
-                       <h4 style={{ fontWeight: 'bold', fontSize: '16px' }}>Neural Engine v{i}.0</h4>
-                       <p style={{ fontSize: '14px', color: 'var(--on-surface-variant)', marginTop: '4px' }}>Advanced text generation and code optimization model.</p>
+                       <h4 style={{ fontWeight: 'bold', fontSize: '16px' }}>{tool.name}</h4>
+                       <p style={{ fontSize: '14px', color: 'var(--on-surface-variant)', marginTop: '4px', display: '-webkit-box', WebkitLineClamp: '1', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                         {tool.description}
+                       </p>
                     </div>
                     <div className="flex gap-sm">
-                       {role === 'admin' ? (
-                         <>
-                           <button className="glass-panel" style={{ padding: '8px' }}><span className="material-symbols-outlined">edit</span></button>
-                           <button className="glass-panel" style={{ padding: '8px', color: 'var(--error)' }}><span className="material-symbols-outlined">delete</span></button>
-                         </>
-                       ) : (
-                         <button className="btn-primary" style={{ padding: '8px 16px', fontSize: '12px' }}>View Tool</button>
-                       )}
+                        <Link to={`/tool/${slugify(tool.name)}`} className="btn-primary" style={{ padding: '8px 16px', fontSize: '12px' }}>View Tool</Link>
                     </div>
                  </div>
                ))}
+               {allTools.length === 0 && (
+                 <p style={{ textAlign: 'center', color: 'var(--on-surface-variant)', padding: '20px' }}>No tools found in the marketplace.</p>
+               )}
             </div>
           </div>
 
-          {/* Activity / Suggestions */}
+          {/* My Playlists Section */}
+          <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px', marginTop: '24px' }}>
+            <h3 className="h3-md" style={{ marginBottom: '24px' }}>My Playlists</h3>
+            <div className="flex flex-col gap-md">
+              {profile?.playlists?.length > 0 ? (
+                profile.playlists.map(pl => (
+                  <div key={pl.id} className="flex items-center gap-md" style={{ padding: '16px', borderRadius: '16px', background: 'rgba(255,255,255,0.02)' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(0, 219, 233, 0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <span className="material-symbols-outlined">playlist_add_check</span>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ fontWeight: 'bold', fontSize: '15px' }}>{pl.name}</h4>
+                      <p style={{ fontSize: '13px', color: 'var(--on-surface-variant)' }}>
+                        {pl.item_count || 0} items • {pl.is_public ? 'Public' : 'Private'}
+                      </p>
+                    </div>
+                    <Link to="/playlists" className="btn-primary" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      Open
+                    </Link>
+                  </div>
+                ))
+              ) : (
+                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--on-surface-variant)' }}>
+                  <p>You haven't created any playlists yet.</p>
+                  <Link to="/playlists" style={{ color: 'var(--primary)', fontSize: '14px', marginTop: '8px', display: 'inline-block' }}>Create your first collection</Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr', gap: '24px', marginTop: '40px' }}>
           <div className="flex flex-col gap-md">
             <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px' }}>
-              <h3 className="h3-md" style={{ marginBottom: '24px' }}>Community Activity</h3>
+              <h3 className="h3-md" style={{ marginBottom: '24px' }}>My Submissions</h3>
               <div className="flex flex-col gap-lg">
-                 {[1, 2, 3].map(i => (
-                   <div key={i} className="flex gap-md">
-                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(0, 219, 233, 0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>{i === 1 ? 'new_releases' : 'comment'}</span>
-                      </div>
-                      <div>
-                        <p style={{ fontSize: '14px', lineHeight: '1.4' }}>
-                          <span style={{ fontWeight: 'bold' }}>User_{i}42</span> suggested a new tool: <span style={{ color: 'var(--primary)' }}>CodeMaster AI</span>
-                        </p>
-                        <p style={{ fontSize: '12px', color: 'var(--on-surface-variant)', marginTop: '4px' }}>{i}h ago</p>
-                      </div>
-                   </div>
-                 ))}
+                 {profile?.suggestions?.length > 0 ? (
+                   profile.suggestions.slice(0, 3).map(tool => (
+                     <div key={tool.id} className="flex gap-md">
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(235, 178, 255, 0.1)', color: 'var(--secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>auto_awesome</span>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: '14px', lineHeight: '1.4' }}>
+                            Suggested <span style={{ fontWeight: 'bold' }}>{tool.name}</span>
+                          </p>
+                          <p style={{ fontSize: '12px', color: 'var(--on-surface-variant)', marginTop: '4px' }}>
+                            Status: <span style={{ color: 'var(--primary)' }}>{tool.status?.toUpperCase()}</span>
+                          </p>
+                        </div>
+                     </div>
+                   ))
+                 ) : (
+                   <p style={{ fontSize: '14px', color: 'var(--on-surface-variant)' }}>No activity yet. Why not suggest a tool?</p>
+                 )}
               </div>
             </div>
 
@@ -130,7 +239,6 @@ const DashboardPage = () => {
               </div>
             )}
           </div>
-
         </div>
       </div>
     </DashboardLayout>

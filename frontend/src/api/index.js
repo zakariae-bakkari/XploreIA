@@ -77,14 +77,17 @@ export const playlistApi = {
 //  Service: AI Tools
 export const aiToolApi = {
     getAll: () => apiRequest('ai-tools'),
-    getById: (id) => apiRequest(`ai-tools/${id}`),
+    getById: (id) => apiRequest(`ai-tools/show?id=${id}`),
 };
 
 // Service: User
 export const userApi = {
     getAll: () => apiRequest('users'),
-    getById: (id) => apiRequest(`users/${id}`),
+    getById: (id) => apiRequest(`users/show?id=${id}`),
+    getProfile: (email) => apiRequest(`profile?email=${email}`),
     create: (data) => apiRequest('users', { method: 'POST', body: JSON.stringify(data) }),
     update: (id, data) => apiRequest(`users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    updateName: (data) => apiRequest('users/update-name', { method: 'POST', body: JSON.stringify(data) }),
+    changePassword: (data) => apiRequest('users/change-password', { method: 'POST', body: JSON.stringify(data) }),
     delete: (id) => apiRequest(`users/${id}`, { method: 'DELETE' }),
 };

@@ -11,7 +11,8 @@ import LoginPage from './pages/LoginPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import ProfilePage from './pages/ProfilePage'
 import ToolDetailsPage from './pages/ToolDetailsPage'
-import PlaylistsPage from './components/PlaylistsPage'
+import DebugPage from './pages/DebugPage'
+import FavoritesPage from './pages/FavoritesPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 
 function App() {
@@ -20,7 +21,8 @@ function App() {
       {/* Public Routes */}
       <Route path="/" element={<HomePage />} />
       <Route path="/discover" element={<DiscoverPage />} />
-      <Route path="/tool/:id" element={<ToolDetailsPage />} />
+      <Route path="/tool/:slug" element={<ToolDetailsPage />} />
+      <Route path="/debug" element={<DebugPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -43,10 +45,26 @@ function App() {
         } 
       />
       <Route 
+        path="/settings" 
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/favorites" 
+        element={
+          <ProtectedRoute>
+            <FavoritesPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
         path="/playlists" 
         element={
           <ProtectedRoute>
-            <PlaylistsPage />
+            <FavoritesPage />
           </ProtectedRoute>
         } 
       />
