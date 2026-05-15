@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { useAuth } from '../contexts/AuthContext';
 import { userApi, aiToolApi } from '../api';
 import { Link } from 'react-router-dom';
 
+// Modular Components
+import { DashboardStats } from '../components/dashboard/DashboardStats';
+import DashboardTools from '../components/dashboard/DashboardTools';
+import DashboardPlaylists from '../components/dashboard/DashboardPlaylists';
+
 const DashboardPage = () => {
   const { user } = useAuth();
-  const [profile, setProfile] = React.useState(null);
-  const [allTools, setAllTools] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  const [profile, setProfile] = useState(null);
+  const [allTools, setAllTools] = useState([]);
+  const [loading, setLoading] = useState(true);
   
   const role = user?.role || 'user';
 
@@ -22,7 +27,7 @@ const DashboardPage = () => {
       .replace(/-+$/, '');
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
         if (user?.email) {
@@ -84,127 +89,19 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
-         <section className="stats-grid">
-          <div className="glass-panel stats-card">
-            <div className="flex justify-between">
-              <div style={{ padding: '12px', background: 'rgba(0, 219, 233, 0.1)', color: 'var(--primary)', borderRadius: '12px' }}>
-                <span className="material-symbols-outlined">explore</span>
-              </div>
-            </div>
-            <div>
-               <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Outils du Marché</p>
-               <h2 className="h2-lg" style={{ marginTop: '8px' }}>{allTools.length} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>actifs</span></h2>
-            </div>
-          </div>
-
-          <div className="glass-panel stats-card">
-            <div className="flex justify-between">
-              <div style={{ padding: '12px', background: 'rgba(235, 178, 255, 0.1)', color: 'var(--secondary)', borderRadius: '12px' }}>
-                <span className="material-symbols-outlined">auto_awesome_motion</span>
-              </div>
-            </div>
-            <div>
-               <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Vos Collections</p>
-               <h2 className="h2-lg" style={{ marginTop: '8px' }}>{profile?.playlists?.length || 0} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>sauvegardées</span></h2>
-            </div>
-          </div>
-
-          <div className="glass-panel stats-card">
-            <div className="flex justify-between">
-              <div style={{ padding: '12px', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--on-surface)', borderRadius: '12px' }}>
-                <span className="material-symbols-outlined">history_edu</span>
-              </div>
-            </div>
-            <div>
-               <p className="label-sm" style={{ color: 'var(--on-surface-variant)', textTransform: 'none' }}>Suggestions</p>
-               <h2 className="h2-lg" style={{ marginTop: '8px' }}>{profile?.suggestions?.length || 0} <span style={{ fontSize: '14px', fontWeight: 'normal', color: 'var(--outline)' }}>en attente</span></h2>
-            </div>
-          </div>
-        </section>
+        <DashboardStats 
+          allToolsCount={allTools.length}
+          playlistCount={profile?.playlists?.length || 0}
+          suggestionCount={profile?.suggestions?.length || 0}
+        />
 
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.2fr', gap: '24px', marginTop: '40px' }}>
+          <DashboardTools allTools={allTools} slugify={slugify} />
           
-          {/* Main List / Table */}
-           <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px' }}>
-            <h3 className="h3-md" style={{ marginBottom: '24px' }}>
-              Derniers Ajouts au Marché
-            </h3>
-            <div className="flex flex-col gap-md">
-               {allTools.slice(0, 4).map(tool => (
-                 <div key={tool.id} className="flex items-center gap-md" style={{ padding: '16px', borderRadius: '16px', background: 'rgba(255,255,255,0.02)' }}>
-                    <div style={{ width: '64px', height: '64px', borderRadius: '12px', overflow: 'hidden', background: 'rgba(0, 219, 233, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                       {tool.logo_url ? (
-                         <img 
-                           src={tool.logo_url} 
-                           alt={tool.name} 
-                           style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                           onError={(e) => {
-                             e.target.style.display = 'none';
-                             e.target.nextSibling.style.display = 'flex';
-                           }}
-                         />
-                       ) : null}
-                       <div className="flex items-center justify-center" style={{ 
-                         width: '100%', 
-                         height: '100%', 
-                         display: tool.logo_url ? 'none' : 'flex',
-                         color: 'var(--primary)'
-                       }}>
-                         <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>smart_toy</span>
-                       </div>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                       <h4 style={{ fontWeight: 'bold', fontSize: '16px' }}>{tool.name}</h4>
-                       <p style={{ fontSize: '14px', color: 'var(--on-surface-variant)', marginTop: '4px', display: '-webkit-box', WebkitLineClamp: '1', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                         {tool.description}
-                       </p>
-                    </div>
-                    <div className="flex gap-sm">
-                        <Link to={`/tool/${slugify(tool.name)}`} className="btn-primary" style={{ padding: '8px 16px', fontSize: '12px' }}>Voir l'outil</Link>
-                    </div>
-                 </div>
-               ))}
-               {allTools.length === 0 && (
-                 <p style={{ textAlign: 'center', color: 'var(--on-surface-variant)', padding: '20px' }}>Aucun outil trouvé dans le marché.</p>
-               )}
-            </div>
-          </div>
+          <div className="flex flex-col">
+            <DashboardPlaylists playlists={profile?.playlists} />
 
-          {/* My Playlists Section */}
-          <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px', marginTop: '24px' }}>
-            <h3 className="h3-md" style={{ marginBottom: '24px' }}>Mes Playlists</h3>
-            <div className="flex flex-col gap-md">
-              {profile?.playlists?.length > 0 ? (
-                profile.playlists.map(pl => (
-                  <div key={pl.id} className="flex items-center gap-md" style={{ padding: '16px', borderRadius: '16px', background: 'rgba(255,255,255,0.02)' }}>
-                    <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(0, 219, 233, 0.1)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <span className="material-symbols-outlined">playlist_add_check</span>
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <h4 style={{ fontWeight: 'bold', fontSize: '15px' }}>{pl.name}</h4>
-                      <p style={{ fontSize: '13px', color: 'var(--on-surface-variant)' }}>
-                        {pl.item_count || 0} éléments • {pl.is_public ? 'Public' : 'Privé'}
-                      </p>
-                    </div>
-                    <Link to="/playlists" className="btn-primary" style={{ padding: '6px 12px', fontSize: '11px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      Ouvrir
-                    </Link>
-                  </div>
-                ))
-              ) : (
-                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--on-surface-variant)' }}>
-                  <p>Vous n'avez pas encore créé de playlist.</p>
-                  <Link to="/playlists" style={{ color: 'var(--primary)', fontSize: '14px', marginTop: '8px', display: 'inline-block' }}>Créer votre première collection</Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr', gap: '24px', marginTop: '40px' }}>
-          <div className="flex flex-col gap-md">
-            <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px' }}>
+            <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px', marginTop: '24px' }}>
               <h3 className="h3-md" style={{ marginBottom: '24px' }}>Mes Soumissions</h3>
               <div className="flex flex-col gap-lg">
                  {profile?.suggestions?.length > 0 ? (
@@ -228,18 +125,20 @@ const DashboardPage = () => {
                  )}
               </div>
             </div>
-
-            {role !== 'admin' && (
-              <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px', background: 'linear-gradient(135deg, rgba(0, 219, 233, 0.05) 0%, rgba(235, 178, 255, 0.05) 100%)' }}>
-                <h1 className="h1-xl">Bonjour, {profile?.name || user?.name || 'Explorateur'} !</h1>
-                <p className="body-lg" style={{ color: 'var(--on-surface-variant)', marginTop: '8px' }}>
-                  Vous avez {profile?.playlists?.length || 0} collections actives. Prêt à explorer l'IA aujourd'hui ?
-                </p>
-                <button className="btn-primary" style={{ width: '100%' }}>Suggérer un outil</button>
-              </div>
-            )}
           </div>
         </div>
+
+        {role !== 'admin' && (
+          <div style={{ marginTop: '40px' }}>
+            <div className="glass-panel" style={{ padding: '32px', borderRadius: '32px', background: 'linear-gradient(135deg, rgba(0, 219, 233, 0.05) 0%, rgba(235, 178, 255, 0.05) 100%)' }}>
+              <h1 className="h2-lg">Prêt à explorer ?</h1>
+              <p className="body-lg" style={{ color: 'var(--on-surface-variant)', marginTop: '8px' }}>
+                Rejoignez la communauté et aidez-nous à découvrir les meilleures IA.
+              </p>
+              <button className="btn-primary" style={{ marginTop: '24px' }}>Explorer le Marché</button>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

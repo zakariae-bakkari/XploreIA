@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../layouts/AuthLayout';
 import { authApi } from '../api';
+import { StepEmail, StepCode, StepPassword } from '../components/auth/ForgotSteps';
 
 const ForgotPasswordPage = () => {
   const navigate = useNavigate();
@@ -119,100 +120,33 @@ const ForgotPasswordPage = () => {
         ) : null}
 
         {step === 1 && (
-          <form className="flex flex-col gap-md" onSubmit={handleSendCode}>
-            <div className="input-container">
-              <span className="material-symbols-outlined input-icon">mail</span>
-              <input 
-                type="email" 
-                className="cyber-input" 
-                placeholder="Adresse Email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <button className="btn-primary btn-full" type="submit" style={{ marginTop: '16px' }} disabled={loading}>
-              <span>{loading ? 'Envoi...' : 'Envoyer le code'}</span>
-              <span className="material-symbols-outlined">arrow_forward</span>
-            </button>
-          </form>
+          <StepEmail 
+            email={email} 
+            setEmail={setEmail} 
+            handleSendCode={handleSendCode} 
+            loading={loading} 
+          />
         )}
 
         {step === 2 && (
-          <form className="flex flex-col gap-md" onSubmit={handleVerifyCode}>
-            <div className="input-container">
-              <span className="material-symbols-outlined input-icon">verified_user</span>
-              <input 
-                type="text" 
-                className="cyber-input" 
-                placeholder="Code à 6 chiffres" 
-                maxLength="6"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                required
-                style={{ textAlign: 'center', letterSpacing: '8px', fontSize: '20px' }}
-              />
-            </div>
-            <button className="btn-primary btn-full" type="submit" style={{ marginTop: '16px' }} disabled={loading}>
-              <span>{loading ? 'Vérification...' : 'Vérifier le code'}</span>
-              <span className="material-symbols-outlined">check_circle</span>
-            </button>
-            <button 
-              type="button" 
-              className="btn-text" 
-              style={{ 
-                marginTop: '16px', 
-                fontSize: '14px', 
-                color: 'var(--on-surface-variant)', 
-                background: 'none', 
-                border: 'none', 
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '4px',
-                width: '100%',
-                transition: 'color 0.2s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.color = 'white'}
-              onMouseOut={(e) => e.currentTarget.style.color = 'var(--on-surface-variant)'}
-              onClick={() => setStep(1)}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span>
-              Changer d'adresse email
-            </button>
-          </form>
+          <StepCode 
+            code={code} 
+            setCode={setCode} 
+            handleVerifyCode={handleVerifyCode} 
+            loading={loading} 
+            setStep={setStep} 
+          />
         )}
 
         {step === 3 && (
-          <form className="flex flex-col gap-md" onSubmit={handleResetPassword}>
-            <div className="input-container">
-              <span className="material-symbols-outlined input-icon">lock</span>
-              <input 
-                type="password" 
-                className="cyber-input" 
-                placeholder="Nouveau mot de passe" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <div className="input-container">
-              <span className="material-symbols-outlined input-icon">lock_clock</span>
-              <input 
-                type="password" 
-                className="cyber-input" 
-                placeholder="Confirmer le mot de passe" 
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
-            <button className="btn-primary btn-full" type="submit" style={{ marginTop: '16px' }} disabled={loading}>
-              <span>{loading ? 'Réinitialisation...' : 'Réinitialiser le mot de passe'}</span>
-              <span className="material-symbols-outlined">update</span>
-            </button>
-          </form>
+          <StepPassword 
+            password={password} 
+            setPassword={setPassword} 
+            confirmPassword={confirmPassword} 
+            setConfirmPassword={setConfirmPassword} 
+            handleResetPassword={handleResetPassword} 
+            loading={loading} 
+          />
         )}
 
         <div style={{ marginTop: '32px' }}>

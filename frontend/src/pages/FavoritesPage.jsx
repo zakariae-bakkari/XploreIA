@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { playlistApi } from '../api';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import PlaylistCard from '../components/playlists/PlaylistCard';
+import PlaylistModal from '../components/playlists/PlaylistModal';
 
 const FavoritesPage = () => {
   const { user } = useAuth();
@@ -113,104 +114,25 @@ const FavoritesPage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {playlists.map(pl => (
-              <div key={pl.id} className="glass-panel pl-card-premium" style={{ display: 'flex', flexDirection: 'column' }}>
-                <div className="flex justify-between items-start" style={{ marginBottom: '20px' }}>
-                  <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, rgba(0, 219, 233, 0.1) 0%, rgba(235, 178, 255, 0.1) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>folder_special</span>
-                  </div>
-                  <div className="flex gap-xs">
-                    <button className="icon-btn-subtle" title="Edit" onClick={() => handleOpenEdit(pl)}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>edit</span>
-                    </button>
-                    <button className="icon-btn-subtle" title="Delete" onClick={() => handleDelete(pl.id)} style={{ color: 'var(--error)' }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>delete</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div style={{ flex: 1 }}>
-                  <h3 className="h3-sm" style={{ marginBottom: '8px' }}>{pl.name}</h3>
-                  <p style={{ fontSize: '14px', color: 'var(--on-surface-variant)', marginBottom: '20px', display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {pl.description || "Aucune description fournie pour cette collection."}
-                  </p>
-
-                  <div className="flex items-center gap-sm" style={{ marginBottom: '24px' }}>
-                    <span className="label-sm" style={{ background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: '99px', color: 'var(--outline)' }}>
-                      {pl.item_count || 0} Outils
-                    </span>
-                    <span className="label-sm" style={{ color: pl.is_public ? 'var(--primary)' : 'var(--outline)' }}>
-                      {pl.is_public ? 'Public' : 'Privé'}
-                    </span>
-                  </div>
-                </div>
-
-                <Link to={`/playlists/${pl.id}`} className="btn-secondary" style={{ width: '100%', textAlign: 'center', textDecoration: 'none' }}>
-                  Voir la Collection
-                </Link>
-              </div>
+              <PlaylistCard 
+                key={pl.id} 
+                pl={pl} 
+                handleOpenEdit={handleOpenEdit} 
+                handleDelete={handleDelete} 
+              />
             ))}
           </div>
         )}
 
         {/* Modal Overlay */}
         {isModalOpen && (
-          <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
-            <div className="glass-panel fade-in" style={{ width: '100%', maxWidth: '500px', padding: '40px', borderRadius: '32px', position: 'relative' }}>
-              <button 
-                onClick={() => setIsModalOpen(false)} 
-                style={{ position: 'absolute', top: '24px', right: '24px', background: 'transparent', border: 'none', color: 'var(--outline)', cursor: 'pointer' }}
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-
-              <h2 className="h2-md" style={{ marginBottom: '32px' }}>
-                {isEditing ? 'Modifier la Collection' : 'Nouvelle Collection'}
-              </h2>
-
-              <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
-                <div className="input-group">
-                  <label className="label-sm">Nom de la collection</label>
-                  <input 
-                    type="text" 
-                    placeholder="ex: Outils de création de contenu" 
-                    className="glass-input" 
-                    value={formData.name}
-                    onChange={e => setFormData({...formData, name: e.target.value})}
-                    required 
-                  />
-                </div>
-
-                <div className="input-group">
-                  <label className="label-sm">Description (Optionnel)</label>
-                  <textarea 
-                    placeholder="À quoi sert cette collection ?" 
-                    className="glass-input" 
-                    style={{ minHeight: '120px', resize: 'none' }}
-                    value={formData.description}
-                    onChange={e => setFormData({...formData, description: e.target.value})}
-                  />
-                </div>
-
-                <div className="flex items-center gap-sm" style={{ marginTop: '8px' }}>
-                  <input 
-                    type="checkbox" 
-                    id="is_public"
-                    checked={formData.is_public}
-                    onChange={e => setFormData({...formData, is_public: e.target.checked})}
-                    style={{ width: '20px', height: '20px', accentColor: 'var(--primary)' }}
-                  />
-                  <label htmlFor="is_public" className="body-md" style={{ cursor: 'pointer' }}>Rendre cette collection publique</label>
-                </div>
-
-                <div className="flex gap-md" style={{ marginTop: '20px' }}>
-                  <button type="button" className="btn-secondary flex-1" onClick={() => setIsModalOpen(false)}>Annuler</button>
-                  <button type="submit" className="btn-primary flex-1">
-                    {isEditing ? 'Mettre à jour' : 'Créer la collection'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+          <PlaylistModal 
+            isEditing={isEditing}
+            formData={formData}
+            setFormData={setFormData}
+            handleSubmit={handleSubmit}
+            setIsModalOpen={setIsModalOpen}
+          />
         )}
       </div>
 
