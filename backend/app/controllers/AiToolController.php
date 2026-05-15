@@ -21,7 +21,7 @@ class AiToolController extends Controller {
             // Fetch AI tools with category info
             $query = "
                 SELECT 
-                    t.id, t.name, t.description, t.logo_url, t.global_rating, t.website_url, t.release_date,
+                    t.id, t.name, t.description, t.logo_url, t.global_rating, t.website_url, t.release_date, t.pricing_model,
                     c.name as category_name,
                     p.name as provider_name
                 FROM ai_tools t
@@ -178,6 +178,17 @@ class AiToolController extends Controller {
         ");
         $priceStmt->execute([$id]);
         $tool['pricing_plans'] = $priceStmt->fetchAll();
+        
+        // Récupérer les avis (Reviews)
+        $reviewStmt = $db->prepare("
+            SELECT r.id, r.comment, r.rating, r.created_at, u.name as user_name
+            FROM reviews r
+            JOIN users u ON r.user_id = u.id
+            WHERE r.tool_id = ? AND r.status = 'approved'
+            ORDER BY r.created_at DESC
+        ");
+        $reviewStmt->execute([$id]);
+        $tool['reviews'] = $reviewStmt->fetchAll();
         
         $this->jsonResponse([
             'success' => true,

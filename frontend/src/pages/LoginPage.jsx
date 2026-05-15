@@ -77,11 +77,8 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <div className="flex justify-between items-center">
-              <label className="flex items-center gap-xs" style={{ cursor: 'pointer' }}>
-                <input type="checkbox" style={{ accentColor: 'var(--primary)' }} />
-                <span className="label-sm" style={{ textTransform: 'none', color: 'var(--on-surface-variant)' }}>Se souvenir de moi</span>
-              </label>
+            <div className="flex justify-between items-right">
+              <div></div>
               <Link to="/forgot-password" style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '12px' }} className="label-sm">
                 Mot de passe oublié ?
               </Link>

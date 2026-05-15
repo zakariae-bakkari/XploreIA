@@ -1,11 +1,22 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
+  const [navSearch, setNavSearch] = useState('');
+
   const isActive = (path) => location.pathname === path;
+
+  const handleNavSearch = (e) => {
+    e.preventDefault();
+    if (navSearch.trim()) {
+      navigate(`/discover?q=${encodeURIComponent(navSearch.trim())}`);
+      setNavSearch('');
+    }
+  };
 
   const getInitials = (name) => {
     if (!name) return 'X';
@@ -34,13 +45,15 @@ const Navbar = () => {
         <div className="flex items-center gap-lg" style={{ flex: 1, justifyContent: 'flex-end' }}>
           
           {/* Search Bar in Navbar */}
-          <div className="hidden lg:flex items-center" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '99px', padding: '8px 16px', border: '1px solid rgba(255,255,255,0.1)', width: '300px' }}>
+          <form onSubmit={handleNavSearch} className="hidden lg:flex items-center" style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '99px', padding: '8px 16px', border: '1px solid rgba(255,255,255,0.1)', width: '300px' }}>
             <input 
               type="text" 
               placeholder="Rechercher sur le marché..." 
               style={{ background: 'none', border: 'none', color: 'white', fontSize: '13px', outline: 'none', width: '100%' }}
+              value={navSearch}
+              onChange={(e) => setNavSearch(e.target.value)}
             />
-          </div>
+          </form>
 
           <div className="flex items-center gap-md">
             {user ? (

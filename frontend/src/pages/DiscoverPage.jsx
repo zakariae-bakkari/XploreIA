@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import MainLayout from '../layouts/MainLayout';
 import { aiToolApi } from '../api';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 const DiscoverPage = () => {
+  const location = useLocation();
   const [tools, setTools] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Get initial search query from URL params
+  const getQueryParam = () => new URLSearchParams(location.search).get('q') || '';
+  const [searchQuery, setSearchQuery] = useState(getQueryParam());
   const [selectedCategory, setSelectedCategory] = useState('Tout');
   const [pricingFilters, setPricingFilters] = useState({
     free: false,
@@ -28,6 +32,12 @@ const DiscoverPage = () => {
     const fetchTools = async () => {
       try {
         const response = await aiToolApi.getAll();
+        
+        if (response.status === 'error') {
+          setError(response.message || "Échec de la récupération des outils IA.");
+          return;
+        }
+
         const toolsData = Array.isArray(response) ? response : response.data;
         if (toolsData) {
           setTools(toolsData);
@@ -39,7 +49,7 @@ const DiscoverPage = () => {
           localStorage.setItem('xplore_slug_map', JSON.stringify(slugMap));
         }
       } catch (err) {
-        setError("Échec de la récupération des outils IA. Veuillez réessayer plus tard.");
+        setError("Erreur de connexion au serveur.");
         console.error(err);
       } finally {
         setLoading(false);
@@ -49,12 +59,21 @@ const DiscoverPage = () => {
     fetchTools();
   }, []);
 
+  // Update searchQuery when URL param changes
+  useEffect(() => {
+    const q = new URLSearchParams(location.search).get('q');
+    if (q !== null) {
+      setSearchQuery(q);
+    }
+  }, [location.search]);
+
   // Dynamic categories from data
   const categories = ['Tout', ...new Set(tools.map(tool => tool.category_name || tool.category).filter(Boolean))];
 
   const filteredTools = tools.filter(tool => {
     const matchesSearch = tool.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         tool.description.toLowerCase().includes(searchQuery.toLowerCase());
+                         tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         tool.category_name?.toLowerCase().includes(searchQuery.toLowerCase());
     
     // Category match (check both category ID or name if needed, but usually category_name is safer for labels)
     const matchesCategory = selectedCategory === 'Tout' || 
@@ -152,13 +171,31 @@ const DiscoverPage = () => {
                 Découvrez la prochaine génération d'intelligence de précision.
               </p>
             </div>
-            <div className="glass-panel" style={{ padding: '4px 12px', display: 'flex', alignItems: 'center', gap: '8px', width: '300px' }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--outline)' }}>search</span>
+            <div className="glass-panel" style={{ 
+              padding: '8px 24px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px', 
+              width: '400px', 
+              borderRadius: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: 'rgba(255, 255, 255, 0.03)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
+            }}>
+              <span className="material-symbols-outlined" style={{ color: 'var(--primary)', fontSize: '24px' }}>search</span>
               <input 
                 type="text" 
                 placeholder="Rechercher des modèles..." 
                 className="body-md"
-                style={{ background: 'transparent', border: 'none', color: 'white', width: '100%', padding: '8px 0', outline: 'none' }}
+                style={{ 
+                  background: 'transparent', 
+                  border: 'none', 
+                  color: 'white', 
+                  width: '100%', 
+                  padding: '12px 0', 
+                  outline: 'none',
+                  fontSize: '16px'
+                }}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -188,18 +225,15 @@ const DiscoverPage = () => {
                           e.target.src = "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800";
                         }}
                       />
-                      {tool.is_pro && (
-                        <span className="label-sm" style={{ position: 'absolute', top: '16px', right: '16px', background: 'var(--primary-container)', color: 'var(--on-primary)', padding: '4px 12px', borderRadius: '99px' }}>
-                          PRO
-                        </span>
-                      )}
                     </div>
                     <div style={{ padding: 'var(--md)', flex: 1, display: 'flex', flexDirection: 'column' }}>
                       <div className="flex items-center gap-sm" style={{ marginBottom: '12px' }}>
                         <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'rgba(0, 219, 233, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
                           <span className="material-symbols-outlined">auto_awesome</span>
                         </div>
-                        <h3 className="h3-md" style={{ margin: 0 }}>{tool.name}</h3>
+                        <a href={tool.website_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
+                          <h3 className="h3-md" style={{ margin: 0, cursor: 'pointer' }}>{tool.name}</h3>
+                        </a>
                       </div>
                       <p style={{ color: 'var(--on-surface-variant)', fontSize: '14px', marginBottom: '16px', flex: 1 }}>{tool.description}</p>
                       <div className="flex flex-wrap gap-xs" style={{ marginBottom: '24px' }}>
