@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import MainLayout from '../layouts/MainLayout';
 import { aiToolApi } from '../api';
 import { useLocation } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { useLocation } from 'react-router-dom';
 import FilterSidebar from '../components/ui/FilterSidebar';
 import DiscoveryHeader from '../components/ui/DiscoveryHeader';
 import ToolCard from '../components/ui/ToolCard';
+import { slugify } from '../lib/utils';
 
 const DiscoverPage = () => {
   const location = useLocation();
@@ -23,15 +24,6 @@ const DiscoverPage = () => {
     freemium: false,
     premium: false
   });
-
-  const slugify = (text) => {
-    return text.toString().toLowerCase()
-      .replace(/\s+/g, '-')           // Replace spaces with -
-      .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-      .replace(/\-\-+/g, '-')         // Replace multiple - with single -
-      .replace(/^-+/, '')             // Trim - from start of text
-      .replace(/-+$/, '');            // Trim - from end of text
-  };
 
   useEffect(() => {
     const fetchTools = async () => {

@@ -6,17 +6,20 @@ use Core\Controller;
 use Core\Database;
 use PDO;
 
-class AiToolController extends Controller {
+class AiToolController extends Controller
+{
     private $db;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = Database::getInstance()->getConnection();
     }
 
     /**
      * Fetch all AI tools with their category, characteristics, and models
      */
-    public function index() {
+    public function index()
+    {
         try {
             // Fetch AI tools with category info
             $query = "
@@ -30,7 +33,7 @@ class AiToolController extends Controller {
                 WHERE t.status = 'published'
                 ORDER BY t.global_rating DESC
             ";
-            
+
             $stmt = $this->db->query($query);
             $tools = $stmt->fetchAll();
 
@@ -73,7 +76,8 @@ class AiToolController extends Controller {
     /**
      * Fetch all categories and characteristics for filtering
      */
-    public function getFilters() {
+    public function getFilters()
+    {
         try {
             $categories = $this->db->query("SELECT id, name FROM categories")->fetchAll();
             $characteristics = $this->db->query("SELECT DISTINCT name, type FROM characteristics WHERE status = 'active'")->fetchAll();
@@ -94,23 +98,23 @@ class AiToolController extends Controller {
     }
 
     public function show()
-{
-    // Récupère l'ID depuis le paramètre GET
-    $id = $_GET['id'] ?? null;
-    
-    if (!$id) {
-        $this->jsonResponse([
-            'success' => false,
-            'error' => 'ID parameter is required'
-        ], 400);
-        return;
-    }
-    
-    try {
-        // CORRECTION ICI - Utilise getInstance
-        $db = Database::getInstance()->getConnection();
-        
-        $sql = "
+    {
+        // Récupère l'ID depuis le paramètre GET
+        $id = $_GET['id'] ?? null;
+
+        if (!$id) {
+            $this->jsonResponse([
+                'success' => false,
+                'error' => 'ID parameter is required'
+            ], 400);
+            return;
+        }
+
+        try {
+            // CORRECTION ICI - Utilise getInstance
+            $db = Database::getInstance()->getConnection();
+
+            $sql = "
             SELECT 
                 t.id,
                 t.name,
@@ -127,80 +131,106 @@ class AiToolController extends Controller {
             LEFT JOIN providers p ON t.provider_id = p.id
             WHERE t.id = :id
         ";
-        
-        $stmt = $db->prepare($sql);
-        $stmt->execute([':id' => $id]);
-        $tool = $stmt->fetch();
-        
-        if (!$tool) {
-            $this->jsonResponse([
-                'success' => false,
-                'error' => 'Tool not found'
-            ], 404);
-            return;
-        }
-        
-        // Récupérer les avantages
-        $advStmt = $db->prepare("SELECT advantage_name as name FROM advantages WHERE tool_id = ?");
-        $advStmt->execute([$id]);
-        $tool['advantages'] = $advStmt->fetchAll();
-        
-        // Récupérer les inconvénients
-        $disStmt = $db->prepare("SELECT disadvantage_name as name FROM disadvantages WHERE tool_id = ?");
-        $disStmt->execute([$id]);
-        $tool['disadvantages'] = $disStmt->fetchAll();
-        
-        // Récupérer les caractéristiques
-        $charStmt = $db->prepare("
+
+            $stmt = $db->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            $tool = $stmt->fetch();
+
+            if (!$tool) {
+                $this->jsonResponse([
+                    'success' => false,
+                    'error' => 'Tool not found'
+                ], 404);
+                return;
+            }
+
+            // Récupérer les avantages
+            $advStmt = $db->prepare("SELECT advantage_name as name FROM advantages WHERE tool_id = ?");
+            $advStmt->execute([$id]);
+            $tool['advantages'] = $advStmt->fetchAll();
+
+            // Récupérer les inconvénients
+            $disStmt = $db->prepare("SELECT disadvantage_name as name FROM disadvantages WHERE tool_id = ?");
+            $disStmt->execute([$id]);
+            $tool['disadvantages'] = $disStmt->fetchAll();
+
+            // Récupérer les caractéristiques
+            $charStmt = $db->prepare("
             SELECT c.name 
             FROM tool_characteristics tc
             JOIN characteristics c ON tc.characteristic_id = c.id
             WHERE tc.tool_id = ?
         ");
-        $charStmt->execute([$id]);
-        $tool['characteristics'] = $charStmt->fetchAll();
-        
-        // Récupérer les modèles
-        $modelStmt = $db->prepare("
+            $charStmt->execute([$id]);
+            $tool['characteristics'] = $charStmt->fetchAll();
+
+            // Récupérer les modèles
+            $modelStmt = $db->prepare("
             SELECT m.name, m.description
             FROM tool_models tm
             JOIN models m ON tm.model_id = m.id
             WHERE tm.tool_id = ?
         ");
-        $modelStmt->execute([$id]);
-        $tool['models'] = $modelStmt->fetchAll();
-        
-        // Récupérer les plans tarifaires
-        $priceStmt = $db->prepare("
+            $modelStmt->execute([$id]);
+            $tool['models'] = $modelStmt->fetchAll();
+
+            // Récupérer les plans tarifaires
+            $priceStmt = $db->prepare("
             SELECT plan_name, pricing_type, price_month, price_year
             FROM pricing_plans
             WHERE tool_id = ?
         ");
-        $priceStmt->execute([$id]);
-        $tool['pricing_plans'] = $priceStmt->fetchAll();
-        
-        // Récupérer les avis (Reviews)
-        $reviewStmt = $db->prepare("
+            $priceStmt->execute([$id]);
+            $tool['pricing_plans'] = $priceStmt->fetchAll();
+
+            // Récupérer les avis (Reviews)
+            $reviewStmt = $db->prepare("
             SELECT r.id, r.comment, r.rating, r.created_at, u.name as user_name
             FROM reviews r
             JOIN users u ON r.user_id = u.id
             WHERE r.tool_id = ? AND r.status = 'approved'
             ORDER BY r.created_at DESC
         ");
-        $reviewStmt->execute([$id]);
-        $tool['reviews'] = $reviewStmt->fetchAll();
-        
-        $this->jsonResponse([
-            'success' => true,
-            'data' => $tool
-        ]);
-        
-    } catch (\PDOException $e) {
-        $this->jsonResponse([
-            'success' => false,
-            'error' => 'Database error: ' . $e->getMessage()
-        ], 500);
+            $reviewStmt->execute([$id]);
+            $tool['reviews'] = $reviewStmt->fetchAll();
+
+            $this->jsonResponse([
+                'success' => true,
+                'data' => $tool
+            ]);
+
+        } catch (\PDOException $e) {
+            $this->jsonResponse([
+                'success' => false,
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
-    
+
+    public function getFeatured()
+    {
+        try {
+            $query = "SELECT *
+                            FROM ai_tools
+                            WHERE status = 'published'
+                            AND global_rating >= 4.5
+                            ORDER BY global_rating DESC, created_at DESC
+                            LIMIT 10;";
+            $stm = $this->db->prepare($query);
+            $stm->execute();
+            $tools = $stm->fetchAll(PDO::FETCH_ASSOC);
+
+            $this->jsonResponse([
+                'status' => 'success',
+                'data' => $tools
+            ]);
+        } catch (Exception $e) {
+            $this->jsonResponse([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ]);
+
+        }
+    }
+
 }

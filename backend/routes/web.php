@@ -25,11 +25,11 @@ Router::post('/playlists/delete', 'PlaylistController@delete');
 Router::get('/users/create', 'UserController@create');
 Router::post('/users/create', 'UserController@create');
 // zakariae : signup 01-May-26
-Router::post('/signup','AuthController@signup');
-Router::post('/verify-code','AuthController@verifyCode');
-Router::get('/ai-tools/{id}', 'AiToolController@show'); 
+Router::post('/signup', 'AuthController@signup');
+Router::post('/verify-code', 'AuthController@verifyCode');
 Router::get('/ai-tools/show', 'AiToolController@show');
 Router::get('/ai-tools-detail', 'AiToolController@show');
+Router::get('/ai-tools/featured', 'AiToolController@getFeatured'); # zakariae : 16-May-26
 
 
 // Routes pour les détails des AI Tools
@@ -52,7 +52,5 @@ Router::get('/status', 'AuthController@status');
 Router::post('/forgot-password', 'AuthController@forgotPassword');
 Router::post('/forgot-password/verify', 'AuthController@forgotPasswordVerify');
 Router::post('/reset-password', 'AuthController@resetPassword');
-
-
 
 ?>
