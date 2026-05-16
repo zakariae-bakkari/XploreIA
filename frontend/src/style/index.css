@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 :root {
   /* Colors from design */
   --outline: #849495;
@@ -75,15 +77,42 @@
   padding: 0;
 }
 
+/* Global scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--inverse-primary) rgba(86, 85, 85, 0);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00dbe9 0%, #ebb2ff 100%);
+  border-radius: 999px;
+  border: 2px solid rgba(0, 0, 0, 0);
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #00f0ff 0%, #f8d8ff 100%);
+}
+
 body {
   background-color: var(--background);
   color: var(--on-background);
   font-family: var(--font-body-md);
   line-height: 1.6;
   min-h-screen: 100vh;
-  background-image: 
-      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: 32px 32px;
   overflow-x: hidden;
 }
@@ -134,7 +163,11 @@ button {
   left: -10%;
   width: 50%;
   height: 50%;
-  background: radial-gradient(circle, rgba(0, 219, 233, 0.1) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(0, 219, 233, 0.1) 0%,
+    transparent 70%
+  );
   z-index: -1;
   pointer-events: none;
 }
@@ -145,7 +178,11 @@ button {
   right: -10%;
   width: 50%;
   height: 50%;
-  background: radial-gradient(circle, rgba(235, 178, 255, 0.1) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(235, 178, 255, 0.1) 0%,
+    transparent 70%
+  );
   z-index: -1;
   pointer-events: none;
 }
@@ -200,21 +237,47 @@ button {
   .container {
     padding: 0 var(--margin-mobile);
   }
-  .h1-xl { font-size: 40px; }
-  .h2-lg { font-size: 32px; }
+  .h1-xl {
+    font-size: 40px;
+  }
+  .h2-lg {
+    font-size: 32px;
+  }
 }
 
-.flex { display: flex; }
-.flex-col { flex-direction: column; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.justify-center { justify-content: center; }
-.gap-xs { gap: var(--xs); }
-.gap-base { gap: var(--base); }
-.gap-sm { gap: var(--sm); }
-.gap-md { gap: var(--md); }
-.gap-lg { gap: var(--lg); }
-.gap-gutter { gap: var(--gutter); }
+.flex {
+  display: flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.items-center {
+  align-items: center;
+}
+.justify-between {
+  justify-content: space-between;
+}
+.justify-center {
+  justify-content: center;
+}
+.gap-xs {
+  gap: var(--xs);
+}
+.gap-base {
+  gap: var(--base);
+}
+.gap-sm {
+  gap: var(--sm);
+}
+.gap-md {
+  gap: var(--md);
+}
+.gap-lg {
+  gap: var(--lg);
+}
+.gap-gutter {
+  gap: var(--gutter);
+}
 
 /* Components */
 .navbar {
@@ -327,11 +390,18 @@ button {
   overflow: hidden;
 }
 
-.col-8 { grid-column: span 8; }
-.col-4 { grid-column: span 4; }
+.col-8 {
+  grid-column: span 8;
+}
+.col-4 {
+  grid-column: span 4;
+}
 
 @media (max-width: 768px) {
-  .col-8, .col-4 { grid-column: span 12; }
+  .col-8,
+  .col-4 {
+    grid-column: span 12;
+  }
 }
 
 /* Discovery Page */
@@ -572,8 +642,14 @@ button {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
