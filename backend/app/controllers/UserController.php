@@ -6,14 +6,18 @@ use Core\Controller;
 use Core\Database;
 use PDO;
 
-class UserController extends Controller {
+// noureddine 
+class UserController extends Controller
+{
     private $db;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = Database::getInstance()->getConnection();
     }
 
-    public function index() {
+    public function index()
+    {
         try {
             $stmt = $this->db->query("SELECT id, email, name, profile_url, status, role, created_at FROM users ORDER BY created_at DESC");
             $users = $stmt->fetchAll();
@@ -23,7 +27,8 @@ class UserController extends Controller {
         }
     }
 
-    public function show() {
+    public function show()
+    {
         $id = $_GET['id'] ?? null;
         if (!$id) {
             $this->jsonResponse(['status' => 'error', 'message' => 'ID is required'], 400);
@@ -46,7 +51,8 @@ class UserController extends Controller {
     }
 
     // 1. MODIFIER PROFIL (changer photo profil)
-    public function updatePhoto() {
+    public function updatePhoto()
+    {
         $data = json_decode(file_get_contents("php://input"), true);
         $email = $data['email'] ?? '';
         $profile_url = $data['profile_url'] ?? null;
@@ -66,7 +72,8 @@ class UserController extends Controller {
     }
 
     // 2. MODIFIER PROFIL (changer mot de passe)
-    public function changePassword() {
+    public function changePassword()
+    {
         $data = json_decode(file_get_contents("php://input"), true);
         $email = $data['email'] ?? '';
         $old_password = $data['old_password'] ?? '';
@@ -92,12 +99,14 @@ class UserController extends Controller {
     }
 
     // Forgot Password Flow
-    public function sendResetCode() {
+    public function sendResetCode()
+    {
         // Mocking code generation and email sending
         $this->jsonResponse(['status' => 'success', 'message' => 'Code envoyé (Simulé)', 'code' => '123456']);
     }
 
-    public function resetPassword() {
+    public function resetPassword()
+    {
         $data = json_decode(file_get_contents("php://input"), true);
         $email = $data['email'] ?? '';
         $new_password = $data['new_password'] ?? '';
@@ -113,7 +122,8 @@ class UserController extends Controller {
     }
 
     // 3. MODIFIER PROFIL (changer nom)
-    public function updateName() {
+    public function updateName()
+    {
         $data = json_decode(file_get_contents("php://input"), true);
         $email = $data['email'] ?? '';
         $name = $data['name'] ?? '';
@@ -133,7 +143,8 @@ class UserController extends Controller {
     }
 
     // 4. SUPPRIMER PROFIL (supprimer compte)
-    public function deleteAccount() {
+    public function deleteAccount()
+    {
         $data = json_decode(file_get_contents("php://input"), true);
         $email = $data['email'] ?? '';
         $password = $data['password'] ?? '';
@@ -161,7 +172,8 @@ class UserController extends Controller {
      * Comprehensive profile data
      * Includes personal info, playlists, and suggested tools
      */
-    public function profile() {
+    public function profile()
+    {
         $email = $_GET['email'] ?? '';
         if (!$email && isset($_SESSION['user_email'])) {
             $email = $_SESSION['user_email'];
@@ -192,26 +204,30 @@ class UserController extends Controller {
             $plStmt->execute([$user['id']]);
             $user['playlists'] = $plStmt->fetchAll();
 
-            // 3. Fetch Suggested Tools (assuming status != 'published')
-            $toolStmt = $this->db->prepare("
-                SELECT t.id, t.name, t.description, t.status, t.created_at
-                FROM ai_tools t
-                WHERE t.status != 'published' AND t.name LIKE ? -- Mock filter for user's suggestions if no user_id in tools
-            ");
-            // If there's a user_id in ai_tools, use: WHERE t.user_id = ?
-            // For now, let's look for a potential user_id column
+            // 3. Fetch Suggested Tools: simplified — prefer `user_id`, then `created_by_email`, else empty.
+            $user['suggestions'] = [];
             try {
-                $checkCol = $this->db->query("SHOW COLUMNS FROM ai_tools LIKE 'user_id'");
-                if ($checkCol->fetch()) {
-                    $toolStmt = $this->db->prepare("SELECT id, name, description, status, created_at FROM ai_tools WHERE user_id = ?");
-                    $toolStmt->execute([$user['id']]);
+                $stmt = null;
+                $check = $this->db->query("SHOW COLUMNS FROM ai_tools LIKE 'user_id'");
+                if ($check && $check->fetch()) {
+                    $stmt = $this->db->prepare("SELECT id, name, description, status, created_at FROM ai_tools WHERE user_id = ? AND status != 'published' ORDER BY created_at DESC");
+                    $stmt->execute([$user['id']]);
                 } else {
-                    $toolStmt->execute(['%']); // Fallback: all non-published (for admin/debug)
+                    $check = $this->db->query("SHOW COLUMNS FROM ai_tools LIKE 'created_by_email'");
+                    if ($check && $check->fetch()) {
+                        $stmt = $this->db->prepare("SELECT id, name, description, status, created_at FROM ai_tools WHERE created_by_email = ? AND status != 'published' ORDER BY created_at DESC");
+                        $stmt->execute([$user['email']]);
+                    }
+                }
+
+                if ($stmt) {
+                    $user['suggestions'] = $stmt->fetchAll();
+                } else {
+                    $user['suggestions'] = [];
                 }
             } catch (\Exception $e) {
                 $user['suggestions'] = [];
             }
-            $user['suggestions'] = $toolStmt->fetchAll();
 
             $this->jsonResponse(['status' => 'success', 'data' => $user]);
 

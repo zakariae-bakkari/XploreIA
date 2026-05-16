@@ -1,4 +1,3 @@
-import React from 'react';
 
 export const DashboardStats = ({ allToolsCount, playlistCount, suggestionCount }) => (
   <section className="stats-grid">

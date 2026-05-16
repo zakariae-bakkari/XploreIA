@@ -68,7 +68,9 @@ export const playlistApi = {
     getAllByUser: (email) => apiRequest(`playlists?email=${email}`),
     getContent: (id) => apiRequest(`playlists/content?id=${id}`),
     create: (data) => apiRequest('playlists/create', { method: 'POST', body: JSON.stringify(data) }),
+    // !!! use patch isntead of POST
     update: (data) => apiRequest('playlists/update', { method: 'POST', body: JSON.stringify(data) }),
+        // !!! use patch isntead of delete 
     delete: (id) => apiRequest(`playlists/delete?id=${id}`, { method: 'POST' }),
 };
 
@@ -78,6 +80,7 @@ export const playlistApi = {
 export const aiToolApi = {
     getAll: () => apiRequest('ai-tools'),
     getById: (id) => apiRequest(`ai-tools/show?id=${id}`),
+    // zakariae 16
 };
 
 // Service: User

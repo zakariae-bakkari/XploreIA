@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 const slugify = (text) => {
@@ -45,7 +44,7 @@ const ToolCard = ({ tool }) => {
             </span>
           )}
         </div>
-        <Link to={`/tool/${slugify(tool.name)}`} className="btn-primary" style={{ width: '100%', background: 'transparent', border: '1px solid var(--secondary)', color: 'var(--secondary)', textDecoration: 'none', textAlign: 'center' }}>
+        <Link to={`/discover/${slugify(tool.name)}`} className="btn-primary" style={{ width: '100%', background: 'transparent', border: '1px solid var(--secondary)', color: 'var(--secondary)', textDecoration: 'none', textAlign: 'center' }}>
           Voir les Détails
         </Link>
       </div>

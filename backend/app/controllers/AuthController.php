@@ -106,6 +106,7 @@ class AuthController extends Controller {
             // Create session
             $_SESSION['user_id'] = $userId;
             $_SESSION['user_name'] = $pending['name'];
+            $_SESSION['user_email'] = $pending['email'];
             $_SESSION['user_role'] = 'user'; // Default role for new users
             
             unset($_SESSION['pending_user']);
