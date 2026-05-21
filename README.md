@@ -33,18 +33,20 @@ The backend is a custom-built PHP API that handles database interactions and bus
 4.  **Verify API**:
     Your API entry point is `http://localhost/XploreIA/backend/public/`.
 
-### Windows Run Script
+### Unified Run Script
 
-If you are on Windows with XAMPP installed in `C:\xampp`, run `start.bat` from the project root. It starts Apache and MySQL, then opens the frontend dev server in a separate window.
+Run the PHP launcher from the project root and it will pick the right script for your system:
 
-```bat
-start.bat
+```bash
+php start.php
 ```
+
+On Windows it runs `start.bat`. On Linux and macOS it runs `start.sh`.
 
 After it starts, open:
 
 - Frontend: `http://localhost:5173`
-- Backend API: `http://localhost/XploreIA/backend/public`
+- Backend API: `http://localhost/XploreIA/backend/public` on XAMPP, or `http://localhost:8000` with the shell launcher
 - phpMyAdmin: `http://localhost/phpmyadmin`
 
 ---
