@@ -7,6 +7,7 @@ XploreIA is a modern AI tools marketplace platform built with a decoupled archit
 ## 🚀 Installation & Setup
 
 ### 1. Clone the repository
+
 ```bash
 git clone https://github.com/zakariae-bakkari/XploreIA.git
 cd XploreIA
@@ -31,6 +32,22 @@ The backend is a custom-built PHP API that handles database interactions and bus
     - Import the `xplore_ia_database_v3_mysql.sql` file located in the root directory.
 4.  **Verify API**:
     Your API entry point is `http://localhost/XploreIA/backend/public/`.
+
+### Unified Run Script
+
+Run the PHP launcher from the project root and it will pick the right script for your system:
+
+```bash
+php start.php
+```
+
+On Windows it runs `start.bat`. On Linux and macOS it runs `start.sh`.
+
+After it starts, open:
+
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost/XploreIA/backend/public` on XAMPP, or `http://localhost:8000` with the shell launcher
+- phpMyAdmin: `http://localhost/phpmyadmin`
 
 ---
 
@@ -79,23 +96,24 @@ XploreIA/
 
 ## ⚠️ Important Notes
 
-*   **API-Only Backend**: The PHP backend does not serve HTML. It returns JSON for the React frontend.
-*   **Environment Variables**: We use a custom `Core\DotEnv` loader in the backend to support `.env` files without Composer.
-*   **Security**: Never commit your `.env` files. They are already added to `.gitignore`.
+- **API-Only Backend**: The PHP backend does not serve HTML. It returns JSON for the React frontend.
+- **Environment Variables**: We use a custom `Core\DotEnv` loader in the backend to support `.env` files without Composer.
+- **Security**: Never commit your `.env` files. They are already added to `.gitignore`.
 
 ---
 
 ## 👥 Team Members
 
-| Name | Role |
-| :--- | :--- |
-| **Bakkari Zakariae** | 👑 Super Admin |
-| **Hamri Meriem** | 👨‍💻 Developer |
-| **Ait Yahya Saad** | 👨‍💻 Developer |
-| **Oubraim Noureddine** | 👨‍💻 Developer |
-| **Errami Youssef** | 👨‍💻 Developer |
+| Name                   | Role           |
+| :--------------------- | :------------- |
+| **Bakkari Zakariae**   | 👑 Super Admin |
+| **Hamri Meriem**       | 👨‍💻 Developer   |
+| **Ait Yahya Saad**     | 👨‍💻 Developer   |
+| **Oubraim Noureddine** | 👨‍💻 Developer   |
+| **Errami Youssef**     | 👨‍💻 Developer   |
 
 ---
 
 ## 📜 Development Standards
+
 Before contributing, please read the [Development Rules](DEVELOPMENT_RULES.md) carefully.
