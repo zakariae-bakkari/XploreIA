@@ -1,17 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
-import { aiToolApi } from '../../api';
+import { useEffect, useMemo, useState } from "react";
+import { aiToolApi } from "../../api";
 
 const AdminCategoriesPage = () => {
   const [categories, setCategories] = useState([]);
   const [characteristics, setCharacteristics] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const load = async () => {
       try {
         const response = await aiToolApi.getFilters();
-        if (response.status === 'success') {
+        if (response.status === "success") {
           setCategories(response.data?.categories || []);
           setCharacteristics(response.data?.characteristics || []);
         }
@@ -24,13 +24,16 @@ const AdminCategoriesPage = () => {
   }, []);
 
   const filteredCategories = useMemo(
-    () => categories.filter((category) => category.name.toLowerCase().includes(search.toLowerCase())),
+    () =>
+      categories.filter((category) =>
+        category.name.toLowerCase().includes(search.toLowerCase()),
+      ),
     [categories, search],
   );
 
   const groupedCharacteristics = useMemo(() => {
     return characteristics.reduce((groups, item) => {
-      const type = item.type || 'general';
+      const type = item.type || "general";
       groups[type] = groups[type] || [];
       groups[type].push(item);
       return groups;
@@ -38,15 +41,24 @@ const AdminCategoriesPage = () => {
   }, [characteristics]);
 
   if (loading) {
-    return <div className="admin-loading"><div className="loader" /><p>Chargement des catégories...</p></div>;
+    return (
+      <div className="admin-loading">
+        <div className="loader" />
+        <p>Chargement des catégories...</p>
+      </div>
+    );
   }
 
   return (
     <div className="admin-page">
       <section className="admin-page-head">
         <div>
-          <p className="label-sm" style={{ color: 'var(--outline)' }}>Gestion catalogue</p>
-          <h1 className="h2-lg" style={{ marginTop: '8px' }}>Catégories et caractéristiques</h1>
+          <p className="label-sm" style={{ color: "var(--outline)" }}>
+            Gestion catalogue
+          </p>
+          <h1 className="h2-lg" style={{ marginTop: "8px" }}>
+            Catégories et caractéristiques
+          </h1>
         </div>
         <label className="admin-search glass-panel">
           <span className="material-symbols-outlined">search</span>
@@ -63,8 +75,12 @@ const AdminCategoriesPage = () => {
         <section className="glass-panel admin-panel">
           <div className="admin-section-head">
             <div>
-              <p className="label-sm" style={{ color: 'var(--outline)' }}>Catégories</p>
-              <h2 className="h3-md" style={{ marginTop: '8px' }}>{filteredCategories.length} éléments</h2>
+              <p className="label-sm" style={{ color: "var(--outline)" }}>
+                Catégories
+              </p>
+              <h2 className="h3-md" style={{ marginTop: "8px" }}>
+                {filteredCategories.length} éléments
+              </h2>
             </div>
           </div>
 
@@ -84,8 +100,12 @@ const AdminCategoriesPage = () => {
         <section className="glass-panel admin-panel">
           <div className="admin-section-head">
             <div>
-              <p className="label-sm" style={{ color: 'var(--outline)' }}>Caractéristiques</p>
-              <h2 className="h3-md" style={{ marginTop: '8px' }}>Répartition par type</h2>
+              <p className="label-sm" style={{ color: "var(--outline)" }}>
+                Caractéristiques
+              </p>
+              <h2 className="h3-md" style={{ marginTop: "8px" }}>
+                Répartition par type
+              </h2>
             </div>
           </div>
 

@@ -1,8 +1,16 @@
 .admin-page-shell {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(0, 219, 233, 0.12), transparent 35%),
-    radial-gradient(circle at bottom right, rgba(235, 178, 255, 0.1), transparent 32%),
+    radial-gradient(
+      circle at top left,
+      rgba(0, 219, 233, 0.12),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(235, 178, 255, 0.1),
+      transparent 32%
+    ),
     var(--background);
 }
 
