@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import "./style/index.css";
 
 // Pages
@@ -14,6 +15,11 @@ import ToolDetailsPage from "./pages/ToolDetailsPage";
 import DebugPage from "./pages/DebugPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import AdminLayout from "./layouts/AdminLayout";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
+import AdminToolsPage from "./pages/admin/AdminToolsPage";
+import AdminCommentsPage from "./pages/admin/AdminCommentsPage";
 
 function App() {
   return (
@@ -74,10 +80,16 @@ function App() {
         path="/admin"
         element={
           <ProtectedRoute requiredRole="admin">
-            <DashboardPage />
+            <AdminLayout />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<AdminDashboardPage />} />
+        <Route path="categories" element={<AdminCategoriesPage />} />
+        <Route path="tools" element={<AdminToolsPage />} />
+        <Route path="comments" element={<AdminCommentsPage />} />
+      </Route>
     </Routes>
   );
 }

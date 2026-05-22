@@ -7,6 +7,15 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const hasRole = (roles) => {
+        if (!user?.role) {
+            return false;
+        }
+
+        const allowedRoles = Array.isArray(roles) ? roles : [roles];
+        return allowedRoles.includes(user.role);
+    };
+
     const checkAuth = async () => {
         try {
             const data = await authApi.checkStatus();
@@ -24,7 +33,37 @@ export const AuthProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        checkAuth();
+        let isMounted = true;
+
+        const initializeAuth = async () => {
+            try {
+                const data = await authApi.checkStatus();
+                if (!isMounted) {
+                    return;
+                }
+
+                if (data.connected) {
+                    setUser(data.user);
+                } else {
+                    setUser(null);
+                }
+            } catch (err) {
+                if (isMounted) {
+                    console.error("Auth check failed", err);
+                    setUser(null);
+                }
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        initializeAuth();
+
+        return () => {
+            isMounted = false;
+        };
     }, [])
 
     const login = async (credentials) => {
@@ -38,7 +77,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            const data = await authApi.logout();
+            await authApi.logout();
         } catch (error) {
             console.log("error when calling logout" + error);
         } finally {
@@ -61,13 +100,14 @@ export const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout, signup, verifySignupCode, checkAuth }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, signup, verifySignupCode, checkAuth, hasRole, isAdmin: user?.role === 'admin' }}>
             {children}
         </AuthContext.Provider>
     )
 
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
