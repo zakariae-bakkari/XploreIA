@@ -39,16 +39,7 @@ const PlaylistModal = ({ isEditing, formData, setFormData, handleSubmit, setIsMo
             />
           </div>
 
-          <div className="flex items-center gap-sm" style={{ marginTop: '8px' }}>
-            <input 
-              type="checkbox" 
-              id="is_public"
-              checked={formData.is_public}
-              onChange={e => setFormData({...formData, is_public: e.target.checked})}
-              style={{ width: '20px', height: '20px', accentColor: 'var(--primary)' }}
-            />
-            <label htmlFor="is_public" className="body-md" style={{ cursor: 'pointer' }}>Rendre cette collection publique</label>
-          </div>
+
 
           <div className="flex gap-md" style={{ marginTop: '20px' }}>
             <button type="button" className="btn-secondary flex-1" onClick={() => setIsModalOpen(false)}>Annuler</button>

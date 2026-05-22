@@ -1,0 +1,127 @@
+@baseUrl = http://localhost/XploreIA/backend/public
+@adminEmail = zakariaetubtob@gmail.com
+@adminPassword = password123
+@userEmail = zakariatubtob@gmail.com
+@userPassword = 12345678
+@userId = 1
+@playlistId = 1
+@toolId = 1
+
+### API status
+GET {{baseUrl}}/status
+
+### Login as admin
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
+}
+
+### Login as user
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{userEmail}}",
+  "password": "{{userPassword}}"
+}
+
+### List all users - admin only
+GET {{baseUrl}}/users
+
+### Get user by id - admin only
+GET {{baseUrl}}/users/show?id={{userId}}
+
+### Get current profile
+GET {{baseUrl}}/profile?email={{userEmail}}
+
+### List all AI tools
+GET {{baseUrl}}/ai-tools
+
+### Get featured AI tools
+GET {{baseUrl}}/ai-tools/featured
+
+### Get AI tool details
+GET {{baseUrl}}/ai-tools/show?id={{toolId}}
+
+### Get tool details by friendly route
+GET {{baseUrl}}/ai-tools/{{toolId}}
+
+### Get user playlists
+GET {{baseUrl}}/playlists?email={{userEmail}}
+
+### Get playlist content
+GET {{baseUrl}}/playlists/content?id={{playlistId}}
+
+### Create playlist
+POST {{baseUrl}}/playlists/create
+Content-Type: application/json
+
+{
+  "email": "{{userEmail}}",
+  "name": "Demo playlist",
+  "description": "Created from backend-api.http"
+}
+
+### Update playlist
+POST {{baseUrl}}/playlists/update
+Content-Type: application/json
+
+{
+  "id": {{playlistId}},
+  "email": "{{userEmail}}",
+  "name": "Updated demo playlist",
+  "description": "Updated from backend-api.http"
+}
+
+### Delete playlist
+POST {{baseUrl}}/playlists/delete?id={{playlistId}}
+
+### Create user account
+POST {{baseUrl}}/signup
+Content-Type: application/json
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "Password123!"
+}
+
+### Verify signup code
+POST {{baseUrl}}/verify-code
+Content-Type: application/json
+
+{
+  "code": "123456"
+}
+
+### Forgot password
+POST {{baseUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "{{userEmail}}"
+}
+
+### Verify forgot password code
+POST {{baseUrl}}/forgot-password/verify
+Content-Type: application/json
+
+{
+  "code": "123456"
+}
+
+### Reset password
+POST {{baseUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "code": "123456",
+  "password": "NewPassword123!",
+  "confirm_password": "NewPassword123!"
+}
+
+### Logout
+POST {{baseUrl}}/logout

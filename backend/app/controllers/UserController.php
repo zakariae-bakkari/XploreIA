@@ -18,6 +18,8 @@ class UserController extends Controller
 
     public function index()
     {
+        $this->requireAdmin();
+
         try {
             $stmt = $this->db->query("SELECT id, email, name, profile_url, status, role, created_at FROM users ORDER BY created_at DESC");
             $users = $stmt->fetchAll();
@@ -29,6 +31,8 @@ class UserController extends Controller
 
     public function show()
     {
+        $this->requireAdmin();
+
         $id = $_GET['id'] ?? null;
         if (!$id) {
             $this->jsonResponse(['status' => 'error', 'message' => 'ID is required'], 400);

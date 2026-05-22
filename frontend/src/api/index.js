@@ -103,6 +103,7 @@ export const playlistApi = {
 //  Service: AI Tools
 export const aiToolApi = {
   getAll: () => apiRequest("ai-tools"),
+  getFilters: () => apiRequest("filters"),
   getById: (id) => apiRequest(`ai-tools/show?id=${id}`),
   // zakariae 16-May-2026
   getFeatured: () => apiRequest("ai-tools/featured"),
