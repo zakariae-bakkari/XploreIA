@@ -16,6 +16,20 @@ class Controller
             ], 401);
         }
 
+        // Securely check if the user is suspended (banned) in the database
+        $db = \Core\Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT status FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $userStatus = $stmt->fetchColumn();
+
+        if ($userStatus === 'banned') {
+            session_destroy();
+            $this->jsonResponse([
+                'status' => 'error',
+                'message' => 'Votre compte a été suspendu par un administrateur.'
+            ], 403);
+        }
+
         if (!in_array($currentRole, $allowedRoles, true)) {
             $this->jsonResponse([
                 'status' => 'error',
