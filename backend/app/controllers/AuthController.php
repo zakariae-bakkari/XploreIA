@@ -139,16 +139,17 @@ class AuthController extends Controller {
             $this->jsonResponse(['status' => 'error', 'message' => 'Invalid email format'], 400);
         }
 
-        $stmt = $this->db->prepare("SELECT id, password_hash, name, role FROM users WHERE email = :email");
+        $stmt = $this->db->prepare("SELECT id, password_hash, name, role, status FROM users WHERE email = :email");
         $stmt->execute(['email' => $email]);
         $user = $stmt->fetch();
 
-        if (!$user) {
-            $this->jsonResponse(['status' => 'error', 'message' => 'Invalid credentials'], 404);
+        if (!$user || !password_verify($password, $user['password_hash'])) {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Invalid credentials'], 401);
         }
 
-        if (!password_verify($password, $user['password_hash'])) {
-            $this->jsonResponse(['status' => 'error', 'message' => 'Invalid credentials'], 401);
+        if ($user['status'] === 'banned') {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Votre compte a été suspendu par un administrateur.'], 403);
+            return;
         }
 
         $_SESSION['user_id'] = $user['id'];
@@ -289,6 +290,25 @@ class AuthController extends Controller {
     // zakariae : 8-May-26 : status function that checks if user is logged in or not 
     public function status() {
         if (isset($_SESSION['user_id'])) {
+            $stmt = $this->db->prepare("SELECT status, name, role, email FROM users WHERE id = :id");
+            $stmt->execute(['id' => $_SESSION['user_id']]);
+            $user = $stmt->fetch();
+
+            if (!$user || $user['status'] === 'banned') {
+                session_destroy();
+                $this->jsonResponse([
+                    'status' => 'success',
+                    'connected' => false,
+                    'message' => 'Votre compte a été suspendu par un administrateur.'
+                ]);
+                return;
+            }
+
+            // Sync session variables if changed in DB
+            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_role'] = $user['role'];
+            $_SESSION['user_email'] = $user['email'];
+
             $this->jsonResponse([
                 'status' => 'success',
                 'connected' => true,
