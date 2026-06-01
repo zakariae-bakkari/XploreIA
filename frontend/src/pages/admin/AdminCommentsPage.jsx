@@ -595,11 +595,48 @@ const AdminCommentsPage = () => {
           </div>
 
           <div className="admin-comment-summary" style={{ marginTop: 20 }}>
-            {toolDetails?.logo_url && (
-              <div style={{ width: 64, height: 64, borderRadius: 16, overflow: "hidden", marginBottom: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
-                <img src={toolDetails.logo_url} alt={toolDetails.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <div style={{ 
+              width: 64, 
+              height: 64, 
+              borderRadius: 16, 
+              overflow: "hidden", 
+              marginBottom: 16, 
+              border: "1px solid rgba(255,255,255,0.08)",
+              background: "rgba(0, 219, 233, 0.05)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}>
+              {toolDetails?.logo_url ? (
+                <img 
+                  src={toolDetails.logo_url} 
+                  alt={toolDetails.name} 
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                    if (e.target.nextSibling) {
+                      e.target.nextSibling.style.display = "flex";
+                    }
+                  }}
+                />
+              ) : null}
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  display: toolDetails?.logo_url ? "none" : "flex",
+                  color: "var(--primary)",
+                }}
+              >
+                <span
+                  className="material-symbols-outlined"
+                  style={{ fontSize: "32px" }}
+                >
+                  smart_toy
+                </span>
               </div>
-            )}
+            </div>
             <p style={{ color: "var(--on-surface-variant)", fontSize: "14px", lineHeight: "1.6" }}>
               {toolDetails?.description ||
                 "Sélectionnez un outil pour afficher ses commentaires publics et en attente."}
