@@ -72,5 +72,9 @@ Router::post('/admincharacteristic/delete', 'AdminCharacteristicController@destr
 Router::get('/admin/reviews', 'AdminReviewController@index');
 Router::post('/admin/reviews/approve', 'AdminReviewController@approve');
 Router::post('/admin/reviews/delete', 'AdminReviewController@destroy');
-Router::post('/admin/users/suspend', 'AdminReviewController@suspendUser');
+// zakariae : 01-Jun-26 - User Management
+Router::post('/admin/users/suspend', 'UserController@suspend');
+Router::post('/admin/users/unsuspend', 'UserController@unsuspend');
+Router::post('/admin/users/change-role', 'UserController@changeRole');
+Router::post('/admin/users/delete', 'UserController@delete');
 ?>
