@@ -163,6 +163,7 @@ const characteristicApi = {
   delete: (data) => apiRequest(`admincharacteristic/delete`, { method: "POST", body: JSON.stringify(data) }),
 };
 
+//zakariae 01-Jun-26
 const reviewApi = {
   getAll: (toolId) => apiRequest(`admin/reviews` + (toolId ? `?tool_id=${toolId}` : "")),
   approve: (id) => apiRequest(`admin/reviews/approve`, { method: "POST", body: JSON.stringify({ id }) }),
