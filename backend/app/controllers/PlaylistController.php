@@ -137,4 +137,69 @@ class PlaylistController extends Controller {
             $this->jsonResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Ajouter un outil à une playlist
+     */
+    public function addTool() {
+        $data = json_decode(file_get_contents("php://input"), true);
+        $playlist_id = $data['playlist_id'] ?? '';
+        $tool_id = $data['tool_id'] ?? '';
+
+        try {
+            // Check if already exists
+            $stmtCheck = $this->db->prepare("SELECT id FROM playlist_items WHERE playlist_id = ? AND tool_id = ?");
+            $stmtCheck->execute([$playlist_id, $tool_id]);
+            if ($stmtCheck->fetch()) {
+                $this->jsonResponse(['status' => 'error', 'message' => 'L\'outil est déjà dans cette collection']);
+                return;
+            }
+
+            $stmt = $this->db->prepare("INSERT INTO playlist_items (playlist_id, tool_id) VALUES (?, ?)");
+            $stmt->execute([$playlist_id, $tool_id]);
+            $this->jsonResponse(['status' => 'success', 'message' => 'Outil ajouté à la collection']);
+        } catch (\Exception $e) {
+            $this->jsonResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Retirer un outil d'une playlist
+     */
+    public function removeTool() {
+        $data = json_decode(file_get_contents("php://input"), true);
+        $playlist_id = $data['playlist_id'] ?? '';
+        $tool_id = $data['tool_id'] ?? '';
+
+        try {
+            $stmt = $this->db->prepare("DELETE FROM playlist_items WHERE playlist_id = ? AND tool_id = ?");
+            $stmt->execute([$playlist_id, $tool_id]);
+            $this->jsonResponse(['status' => 'success', 'message' => 'Outil retiré de la collection']);
+        } catch (\Exception $e) {
+            $this->jsonResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Vérifier dans quelles playlists un outil est sauvegardé
+     */
+    public function checkSaved() {
+        $email = $_GET['email'] ?? '';
+        $tool_id = $_GET['tool_id'] ?? '';
+        
+        try {
+            $stmt = $this->db->prepare("
+                SELECT p.id, p.name 
+                FROM playlists p
+                JOIN playlist_items pi ON p.id = pi.playlist_id
+                JOIN users u ON p.user_id = u.id
+                WHERE u.email = ? AND pi.tool_id = ?
+            ");
+            $stmt->execute([$email, $tool_id]);
+            $savedPlaylists = $stmt->fetchAll();
+            $this->jsonResponse(['status' => 'success', 'data' => $savedPlaylists]);
+        } catch (\Exception $e) {
+            $this->jsonResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
 }
