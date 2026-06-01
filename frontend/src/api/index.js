@@ -130,3 +130,33 @@ export const userApi = {
     }),
   delete: (id) => apiRequest(`users/${id}`, { method: "DELETE" }),
 };
+const categorieApi = {
+  getAll: () => apiRequest(`admincategorie`),
+  create: (data) =>
+    apiRequest(`admincategorie/create`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  update: (data) =>
+    apiRequest(`admincategorie/update`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  delete: (data) =>
+    apiRequest(`admincategorie/delete`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+};
+
+const characteristicApi = {
+  getAll: () => apiRequest(`admincharacteristic`),
+  create: (data) => apiRequest(`admincharacteristic/create`, { method: "POST", body: JSON.stringify(data) }),
+  update: (data) => apiRequest(`admincharacteristic/update`, { method: "POST", body: JSON.stringify(data) }),
+  delete: (data) => apiRequest(`admincharacteristic/delete`, { method: "POST", body: JSON.stringify(data) }),
+};
+
+export const adminApi = {
+  categorieApi: categorieApi,
+  characteristicApi: characteristicApi,
+};
