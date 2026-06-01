@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { aiToolApi } from "../../api";
+import { aiToolApi, adminApi } from "../../api";
 
 const CustomSelect = ({ value, onChange, options, placeholder = "Sélectionner..." }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,46 +57,113 @@ const AdminCommentsPage = () => {
   const [tools, setTools] = useState([]);
   const [selectedToolId, setSelectedToolId] = useState("");
   const [toolDetails, setToolDetails] = useState(null);
+  const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadTools = async () => {
-      try {
-        const response = await aiToolApi.getAll();
-        if (response.status === "success") {
-          const nextTools = response.data || [];
-          setTools(nextTools);
-          if (nextTools.length > 0) {
-            setSelectedToolId(String(nextTools[0].id));
-          }
+  const loadTools = async () => {
+    try {
+      const response = await aiToolApi.getAll();
+      if (response.status === "success") {
+        const nextTools = response.data || [];
+        setTools(nextTools);
+        if (nextTools.length > 0) {
+          setSelectedToolId(String(nextTools[0].id));
         }
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const loadComments = async () => {
+    if (!selectedToolId) return;
+    try {
+      const res = await adminApi.reviewApi.getAll(selectedToolId);
+      if (res.status === "success") {
+        setComments(res.data || []);
+      }
+    } catch (e) {
+      console.error("Failed to load reviews:", e);
+    }
+  };
+
+  useEffect(() => {
     loadTools();
   }, []);
 
   useEffect(() => {
     const loadDetails = async () => {
       if (!selectedToolId) return;
-      const response = await aiToolApi.getById(selectedToolId);
-      if (response?.status === "success" || response?.success) {
-        setToolDetails(response.data || null);
+      try {
+        const response = await aiToolApi.getById(selectedToolId);
+        if (response?.status === "success" || response?.success) {
+          setToolDetails(response.data || null);
+        }
+      } catch (e) {
+        console.error(e);
       }
     };
 
     loadDetails();
+    loadComments();
   }, [selectedToolId]);
 
-  const reviews = useMemo(() => toolDetails?.reviews || [], [toolDetails]);
+  // Moderation Handlers
+  const handleApprove = async (reviewId) => {
+    if (!confirm("Voulez-vous approuver cet avis et le publier officiellement sur le site ?")) return;
+    try {
+      const res = await adminApi.reviewApi.approve(reviewId);
+      if (res.status === "success") {
+        await loadComments();
+      } else {
+        alert(res.message || "Erreur lors de l'approbation.");
+      }
+    } catch (e) {
+      alert("Une erreur inattendue est survenue.");
+    }
+  };
+
+  const handleDelete = async (reviewId) => {
+    if (!confirm("Voulez-vous supprimer définitivement ce commentaire ? Cette action est irréversible.")) return;
+    try {
+      const res = await adminApi.reviewApi.delete(reviewId);
+      if (res.status === "success") {
+        await loadComments();
+      } else {
+        alert(res.message || "Erreur lors de la suppression.");
+      }
+    } catch (e) {
+      alert("Une erreur inattendue est survenue.");
+    }
+  };
+
+  const handleSuspendUser = async (userId, userName) => {
+    if (
+      !confirm(
+        `Êtes-vous absolument sûr de vouloir suspendre l'utilisateur ${userName} ?\nCette personne sera définitivement bannie et ne pourra plus publier d'avis.`
+      )
+    )
+      return;
+    try {
+      const res = await adminApi.reviewApi.suspendUser(userId);
+      if (res.status === "success") {
+        await loadComments();
+        alert(`L'utilisateur ${userName} a été suspendu avec succès.`);
+      } else {
+        alert(res.message || "Erreur lors de la suspension.");
+      }
+    } catch (e) {
+      alert("Une erreur inattendue est survenue.");
+    }
+  };
 
   if (loading) {
     return (
       <div className="admin-loading">
         <div className="loader" />
-        <p>Chargement des commentaires...</p>
+        <p style={{ marginTop: 12 }}>Chargement de l'espace de modération des commentaires...</p>
       </div>
     );
   }
@@ -189,6 +256,183 @@ const AdminCommentsPage = () => {
         .custom-select-option:hover .option-desc {
           color: rgba(255, 255, 255, 0.6);
         }
+
+        /* Review Moderation Panel Custom styles */
+        .moderation-grid {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+          width: 100%;
+        }
+
+        .premium-review-card {
+          padding: 24px;
+          border-radius: 24px;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          transition: border-color 0.2s ease;
+        }
+
+        .premium-review-card:hover {
+          border-color: rgba(255, 255, 255, 0.09);
+        }
+
+        .reviewer-info-flex {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+          padding-bottom: 14px;
+        }
+
+        .reviewer-meta {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .reviewer-avatar {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          color: var(--primary);
+        }
+
+        .reviewer-details {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .comment-status-tag {
+          font-size: 11px;
+          font-weight: 700;
+          padding: 4px 8px;
+          border-radius: 99px;
+          text-transform: uppercase;
+        }
+
+        .comment-status-tag.approved {
+          background: rgba(69, 207, 123, 0.12);
+          color: #45cf7b;
+          border: 1px solid rgba(69, 207, 123, 0.2);
+        }
+
+        .comment-status-tag.pending {
+          background: rgba(255, 173, 51, 0.12);
+          color: #ffad33;
+          border: 1px solid rgba(255, 173, 51, 0.2);
+        }
+
+        .review-rating-line {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 13px;
+          color: var(--outline);
+        }
+
+        .rating-stars {
+          color: #ffad33;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          gap: 3px;
+        }
+
+        .user-ban-badge {
+          background: rgba(255, 74, 118, 0.12);
+          color: #ff4a76;
+          border: 1px solid rgba(255, 74, 118, 0.2);
+          font-size: 11px;
+          font-weight: 700;
+          padding: 4px 8px;
+          border-radius: 99px;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .btn-moderation-suspend {
+          background: rgba(255, 74, 118, 0.08);
+          color: #ff4a76;
+          border: 1px solid rgba(255, 74, 118, 0.15);
+          border-radius: 10px;
+          padding: 5px 10px;
+          font-size: 11px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .btn-moderation-suspend:hover {
+          background: #ff4a76;
+          color: #0b0b0f;
+          box-shadow: 0 4px 10px rgba(255, 74, 118, 0.2);
+        }
+
+        .review-actions-footer {
+          display: flex;
+          justify-content: flex-end;
+          gap: 12px;
+          border-top: 1px solid rgba(255, 255, 255, 0.04);
+          padding-top: 14px;
+        }
+
+        .btn-action-approve {
+          background: rgba(69, 207, 123, 0.1);
+          color: #45cf7b;
+          border: 1px solid rgba(69, 207, 123, 0.15);
+          padding: 8px 16px;
+          border-radius: 12px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .btn-action-approve:hover {
+          background: #45cf7b;
+          color: #0b0b0f;
+          box-shadow: 0 4px 12px rgba(69, 207, 123, 0.25);
+        }
+
+        .btn-action-delete {
+          background: rgba(255, 74, 118, 0.1);
+          color: #ff4a76;
+          border: 1px solid rgba(255, 74, 118, 0.15);
+          padding: 8px 16px;
+          border-radius: 12px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .btn-action-delete:hover {
+          background: #ff4a76;
+          color: #0b0b0f;
+          box-shadow: 0 4px 12px rgba(255, 74, 118, 0.25);
+        }
       `}</style>
 
       <section className="admin-page-head">
@@ -197,8 +441,11 @@ const AdminCommentsPage = () => {
             Gestion commentaire
           </p>
           <h1 className="h2-lg" style={{ marginTop: "8px" }}>
-            Avis et retours utilisateurs
+            Modération des avis et retours
           </h1>
+          <p style={{ color: "var(--on-surface-variant)", fontSize: "14px", marginTop: "6px" }}>
+            Validez les commentaires en attente, supprimez les retours hors-sujet, et suspendez les profils perturbateurs.
+          </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <span className="material-symbols-outlined" style={{ color: "var(--outline)" }}>smart_toy</span>
@@ -216,55 +463,149 @@ const AdminCommentsPage = () => {
       </section>
 
       <div className="admin-grid-two">
+        {/* Left Column: Tool information panel */}
         <section className="glass-panel admin-panel">
           <div className="admin-section-head">
             <div>
               <p className="label-sm" style={{ color: "var(--outline)" }}>
-                Sélection
+                Outil sélectionné
               </p>
               <h2 className="h3-md" style={{ marginTop: "8px" }}>
                 {toolDetails?.name || "Aucun outil sélectionné"}
               </h2>
             </div>
-            <span className="admin-pill">{reviews.length} avis</span>
+            <span className="admin-pill">{comments.length} avis au total</span>
           </div>
 
-          <div className="admin-comment-summary">
-            <p style={{ color: "var(--on-surface-variant)" }}>
+          <div className="admin-comment-summary" style={{ marginTop: 20 }}>
+            {toolDetails?.logo_url && (
+              <div style={{ width: 64, height: 64, borderRadius: 16, overflow: "hidden", marginBottom: 16, border: "1px solid rgba(255,255,255,0.08)" }}>
+                <img src={toolDetails.logo_url} alt={toolDetails.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+            )}
+            <p style={{ color: "var(--on-surface-variant)", fontSize: "14px", lineHeight: "1.6" }}>
               {toolDetails?.description ||
-                "Sélectionnez un outil pour afficher ses commentaires publics."}
+                "Sélectionnez un outil pour afficher ses commentaires publics et en attente."}
             </p>
+            
+            {toolDetails?.global_rating && (
+              <div style={{ marginTop: 20, display: "flex", alignItems: "center", gap: 8, fontSize: "15px" }}>
+                <span>Note globale publique :</span>
+                <span style={{ color: "#ffad33", fontWeight: "800", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                  ★ {toolDetails.global_rating} / 5
+                </span>
+              </div>
+            )}
           </div>
         </section>
 
+        {/* Right Column: Moderation review card list */}
         <section className="glass-panel admin-panel">
           <div className="admin-section-head">
             <div>
               <p className="label-sm" style={{ color: "var(--outline)" }}>
-                Commentaires
+                Commentaires à modérer
               </p>
               <h2 className="h3-md" style={{ marginTop: "8px" }}>
-                Derniers avis
+                Avis publics et en attente
               </h2>
             </div>
           </div>
 
-          <div className="admin-review-list">
-            {reviews.length > 0 ? (
-              reviews.map((review) => (
-                <article key={review.id} className="admin-review-card">
-                  <div className="admin-review-top">
-                    <strong>{review.user_name || "Utilisateur"}</strong>
-                    <span className="admin-pill">{review.rating} / 5</span>
-                  </div>
-                  <p>{review.comment}</p>
-                  <small>{review.created_at}</small>
-                </article>
-              ))
+          <div className="admin-review-list" style={{ marginTop: 22 }}>
+            {comments.length > 0 ? (
+              <div className="moderation-grid">
+                {comments.map((review) => {
+                  const reviewerInitials = review.user_name
+                    ? review.user_name.substring(0, 2).toUpperCase()
+                    : "U";
+                  const isUserBanned = review.user_status === "banned";
+
+                  return (
+                    <article key={review.id} className="premium-review-card">
+                      {/* Reviewer Header info */}
+                      <div className="reviewer-info-flex">
+                        <div className="reviewer-meta">
+                          <div className="reviewer-avatar">
+                            {reviewerInitials}
+                          </div>
+                          <div className="reviewer-details">
+                            <span style={{ fontWeight: 600, fontSize: "14px" }}>{review.user_name || "Utilisateur"}</span>
+                            <span style={{ fontSize: "12px", color: "var(--outline)" }}>{review.user_email}</span>
+                          </div>
+                        </div>
+
+                        {/* Status Badge */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <span className={`comment-status-tag ${review.status}`}>
+                            {review.status === "approved" ? "Approuvé" : "En attente"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Review Rating & User Ban Status */}
+                      <div className="review-rating-line">
+                        <div className="rating-stars">
+                          {"★".repeat(review.rating)}
+                          {"☆".repeat(5 - review.rating)}
+                          <span style={{ marginLeft: 6, color: "var(--on-background)" }}>{review.rating} / 5</span>
+                        </div>
+
+                        <div>
+                          {isUserBanned ? (
+                            <span className="user-ban-badge">
+                              <span className="material-symbols-outlined" style={{ fontSize: 13 }}>block</span>
+                              Suspendu
+                            </span>
+                          ) : (
+                            <button
+                              className="btn-moderation-suspend"
+                              title="Suspendre définitivement cet utilisateur"
+                              onClick={() => handleSuspendUser(review.user_id, review.user_name)}
+                            >
+                              <span className="material-symbols-outlined" style={{ fontSize: 13 }}>block</span>
+                              Suspendre l'auteur
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Review comment body */}
+                      <p style={{ color: "var(--on-background)", fontSize: "14px", lineHeight: "1.6", margin: "4px 0" }}>
+                        {review.comment}
+                      </p>
+
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <small style={{ color: "var(--outline)", fontSize: "12px" }}>{review.created_at}</small>
+                        
+                        {/* Review Action Buttons */}
+                        <div className="review-actions-footer">
+                          {review.status === "pending" && (
+                            <button
+                              className="btn-action-approve"
+                              onClick={() => handleApprove(review.id)}
+                            >
+                              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check_circle</span>
+                              Approuver
+                            </button>
+                          )}
+                          <button
+                            className="btn-action-delete"
+                            onClick={() => handleDelete(review.id)}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
+                            Supprimer
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
             ) : (
-              <div className="admin-empty-state">
+              <div className="admin-empty-state" style={{ minHeight: 280 }}>
                 <span className="material-symbols-outlined">forum</span>
-                <p>Aucun commentaire disponible pour cet outil.</p>
+                <p style={{ marginTop: 12 }}>Aucun commentaire enregistré pour cet outil d'IA.</p>
               </div>
             )}
           </div>
