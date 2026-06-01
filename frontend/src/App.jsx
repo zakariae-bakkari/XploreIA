@@ -20,6 +20,7 @@ import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
 import AdminToolsPage from "./pages/admin/AdminToolsPage";
 import AdminCommentsPage from "./pages/admin/AdminCommentsPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
 
 function App() {
   return (
@@ -89,6 +90,7 @@ function App() {
         <Route path="categories" element={<AdminCategoriesPage />} />
         <Route path="tools" element={<AdminToolsPage />} />
         <Route path="comments" element={<AdminCommentsPage />} />
+        <Route path="users" element={<AdminUsersPage />} />
       </Route>
     </Routes>
   );

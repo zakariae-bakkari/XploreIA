@@ -133,6 +133,11 @@ export const userApi = {
       body: JSON.stringify(data),
     }),
   delete: (id) => apiRequest(`users/${id}`, { method: "DELETE" }),
+  adminGetAll: (params) => apiRequest("users" + (params ? "?" + new URLSearchParams(params).toString() : "")),
+  adminSuspend: (userId) => apiRequest("admin/users/suspend", { method: "POST", body: JSON.stringify({ user_id: userId }) }),
+  adminUnsuspend: (userId) => apiRequest("admin/users/unsuspend", { method: "POST", body: JSON.stringify({ user_id: userId }) }),
+  adminChangeRole: (userId, role) => apiRequest("admin/users/change-role", { method: "POST", body: JSON.stringify({ user_id: userId, role }) }),
+  adminDelete: (userId) => apiRequest("admin/users/delete", { method: "POST", body: JSON.stringify({ user_id: userId }) }),
 };
 
 //zakariae 01-Jun-26
