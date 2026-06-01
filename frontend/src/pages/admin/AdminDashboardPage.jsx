@@ -167,12 +167,28 @@ const AdminDashboardPage = () => {
           <div className="admin-list">
             {recentTools.map((tool) => (
               <article key={tool.id} className="admin-list-item">
-                <div className="admin-list-thumb">
+                <div className="admin-list-thumb" style={{ display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0, 219, 233, 0.05)" }}>
                   {tool.logo_url ? (
-                    <img src={tool.logo_url} alt={tool.name} />
-                  ) : (
-                    <span className="material-symbols-outlined">smart_toy</span>
-                  )}
+                    <img 
+                      src={tool.logo_url} 
+                      alt={tool.name} 
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                        if (e.target.nextSibling) {
+                          e.target.nextSibling.style.display = "flex";
+                        }
+                      }}
+                    />
+                  ) : null}
+                  <span 
+                    className="material-symbols-outlined" 
+                    style={{ 
+                      display: tool.logo_url ? "none" : "flex",
+                      color: "var(--primary)"
+                    }}
+                  >
+                    smart_toy
+                  </span>
                 </div>
                 <div className="admin-list-copy">
                   <h3>{tool.name}</h3>
@@ -210,7 +226,6 @@ const AdminDashboardPage = () => {
             {activeCategories.map((category) => (
               <div key={category.id} className="admin-chip">
                 <strong>{category.name}</strong>
-                <span>#{category.id}</span>
               </div>
             ))}
           </div>
