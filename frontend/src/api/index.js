@@ -130,6 +130,8 @@ export const userApi = {
     }),
   delete: (id) => apiRequest(`users/${id}`, { method: "DELETE" }),
 };
+
+//zakariae 01-Jun-26
 const categorieApi = {
   getAll: () => apiRequest(`admincategorie`),
   create: (data) =>
@@ -149,6 +151,7 @@ const categorieApi = {
     }),
 };
 
+//zakariae 01-Jun-26
 const characteristicApi = {
   getAll: () => apiRequest(`admincharacteristic`),
   create: (data) => apiRequest(`admincharacteristic/create`, { method: "POST", body: JSON.stringify(data) }),
@@ -156,6 +159,7 @@ const characteristicApi = {
   delete: (data) => apiRequest(`admincharacteristic/delete`, { method: "POST", body: JSON.stringify(data) }),
 };
 
+//zakariae 01-Jun-26
 export const adminApi = {
   categorieApi: categorieApi,
   characteristicApi: characteristicApi,
