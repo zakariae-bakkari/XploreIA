@@ -60,6 +60,11 @@ const AdminCommentsPage = () => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Custom Modal States
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTargetReview, setDeleteTargetReview] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
   const loadTools = async () => {
     try {
       const response = await aiToolApi.getAll();
@@ -125,17 +130,27 @@ const AdminCommentsPage = () => {
     }
   };
 
-  const handleDelete = async (reviewId) => {
-    if (!confirm("Voulez-vous supprimer définitivement ce commentaire ? Cette action est irréversible.")) return;
+  const triggerDeleteModal = (review) => {
+    setDeleteTargetReview(review);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteReview = async () => {
+    if (!deleteTargetReview) return;
+    setDeleting(true);
     try {
-      const res = await adminApi.reviewApi.delete(reviewId);
-      if (res.status === "success") {
+      const res = await adminApi.reviewApi.delete(deleteTargetReview.id);
+      if (res.status === "success" || res.success) {
+        setShowDeleteModal(false);
+        setDeleteTargetReview(null);
         await loadComments();
       } else {
         alert(res.message || "Erreur lors de la suppression.");
       }
     } catch (e) {
       alert("Une erreur inattendue est survenue.");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -433,6 +448,108 @@ const AdminCommentsPage = () => {
           color: #0b0b0f;
           box-shadow: 0 4px 12px rgba(255, 74, 118, 0.25);
         }
+
+        /* Premium Modals system */
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.65);
+          backdrop-filter: blur(8px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1200;
+          animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-content {
+          background: #1e1e24;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 28px;
+          width: 90%;
+          max-width: 500px;
+          padding: 32px;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+          animation: slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-title {
+          font-size: 20px;
+          font-weight: 700;
+          margin-bottom: 8px;
+          color: var(--on-background);
+        }
+
+        .modal-desc {
+          font-size: 14px;
+          color: var(--outline);
+          margin-bottom: 24px;
+        }
+
+        .modal-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 12px;
+          margin-top: 28px;
+        }
+
+        .btn-cancel, .btn-submit {
+          padding: 12px 20px;
+          border-radius: 14px;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+          border: none;
+          transition: all 0.2s ease;
+        }
+
+        .btn-cancel {
+          background: rgba(255, 255, 255, 0.05);
+          color: var(--on-background);
+        }
+
+        .btn-cancel:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-submit {
+          background: var(--primary);
+          color: #0b0b0f;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+          background: #00bcd4;
+          box-shadow: 0 4px 12px rgba(0, 219, 233, 0.3);
+        }
+
+        .btn-danger {
+          background: #ff4a76;
+          color: var(--on-background);
+        }
+
+        .btn-danger:hover:not(:disabled) {
+          background: #ff2d60;
+          box-shadow: 0 4px 12px rgba(255, 74, 118, 0.3);
+        }
+
+        .btn-cancel:disabled, .btn-submit:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
       `}</style>
 
       <section className="admin-page-head">
@@ -591,7 +708,7 @@ const AdminCommentsPage = () => {
                           )}
                           <button
                             className="btn-action-delete"
-                            onClick={() => handleDelete(review.id)}
+                            onClick={() => triggerDeleteModal(review)}
                           >
                             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span>
                             Supprimer
@@ -611,6 +728,45 @@ const AdminCommentsPage = () => {
           </div>
         </section>
       </div>
+
+      {/* Modal: Delete Review Confirmation */}
+      {showDeleteModal && deleteTargetReview && (
+        <div className="modal-overlay" onClick={() => setShowDeleteModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 className="modal-title" style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 10px 0" }}>
+              <span className="material-symbols-outlined" style={{ color: "#ff4a76", fontSize: "24px" }}>warning</span>
+              Supprimer le commentaire ?
+            </h3>
+            <p className="modal-desc" style={{ fontSize: "14px", color: "var(--outline)", lineHeight: "1.6", marginBottom: "20px" }}>
+              Êtes-vous sûr de vouloir supprimer définitivement le commentaire de <strong>{deleteTargetReview.user_name}</strong> ? Cette action est irréversible et recalculera la note moyenne globale de l'outil d'IA.
+            </p>
+            <div style={{ background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.06)", borderRadius: "16px", padding: "16px", marginBottom: "24px" }}>
+              <div style={{ fontSize: "12px", color: "var(--outline)", marginBottom: "6px" }}>Extrait du commentaire :</div>
+              <p style={{ margin: 0, fontSize: "13px", color: "var(--on-background)", fontStyle: "italic" }}>
+                "{deleteTargetReview.comment.length > 140 ? deleteTargetReview.comment.substring(0, 140) + '...' : deleteTargetReview.comment}"
+              </p>
+            </div>
+            <div className="modal-actions">
+              <button 
+                type="button" 
+                className="btn-cancel" 
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+              >
+                Annuler
+              </button>
+              <button 
+                type="button" 
+                className="btn-submit btn-danger" 
+                onClick={confirmDeleteReview}
+                disabled={deleting}
+              >
+                {deleting ? "Suppression..." : "Supprimer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
