@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const [navSearch, setNavSearch] = useState('');
 
   const isActive = (path) => location.pathname === path;
@@ -56,6 +58,14 @@ const Navbar = () => {
           </form>
 
           <div className="flex items-center gap-md">
+            <button 
+              onClick={toggleTheme} 
+              style={{ background: 'transparent', border: 'none', color: 'var(--on-surface-variant)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
+                {isDarkMode ? 'light_mode' : 'dark_mode'}
+              </span>
+            </button>
             {user ? (
               <div className="flex items-center gap-md">
                 <Link to="/dashboard" className="btn-primary" style={{ padding: '10px 24px', fontSize: '13px', borderRadius: '99px', textDecoration: 'none' }}>

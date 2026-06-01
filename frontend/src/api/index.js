@@ -70,6 +70,9 @@ export const playlistApi = {
     create: (data) => apiRequest('playlists/create', { method: 'POST', body: JSON.stringify(data) }),
     update: (data) => apiRequest('playlists/update', { method: 'POST', body: JSON.stringify(data) }),
     delete: (id) => apiRequest(`playlists/delete?id=${id}`, { method: 'POST' }),
+    addTool: (data) => apiRequest('playlists/add-tool', { method: 'POST', body: JSON.stringify(data) }),
+    removeTool: (data) => apiRequest('playlists/remove-tool', { method: 'POST', body: JSON.stringify(data) }),
+    checkSaved: (email, toolId) => apiRequest(`playlists/check-saved?email=${email}&tool_id=${toolId}`),
 };
 
 

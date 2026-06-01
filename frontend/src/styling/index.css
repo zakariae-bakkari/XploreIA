@@ -579,3 +579,58 @@ button {
 .animate-fade-in {
   animation: fadeIn 0.8s ease forwards;
 }
+
+/* Light Mode Variables */
+body.light-mode {
+  --background: #fdfcff;
+  --on-background: #1a1c1e;
+  --surface: #fdfcff;
+  --on-surface: #1a1c1e;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f7f6f8;
+  --surface-container: #f1f0f4;
+  --surface-container-high: #ebeaef;
+  --surface-container-highest: #e6e4e9;
+  --outline: #74777f;
+  --outline-variant: #c4c6cf;
+  --primary: #006874;
+  --on-primary: #ffffff;
+  --primary-container: #97f0ff;
+  --on-primary-container: #001f24;
+  --secondary: #9041c2;
+  --on-secondary: #ffffff;
+  --secondary-container: #f5d9ff;
+  --on-secondary-container: #31004a;
+  
+  background-color: var(--background);
+  color: var(--on-background);
+  background-image: 
+      linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+body.light-mode .glass-panel,
+body.light-mode .glass-card,
+body.light-mode .navbar {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .cyber-input,
+body.light-mode .search-input,
+body.light-mode .glass-input {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #1a1c1e !important;
+}
+
+body.light-mode .cyber-input::placeholder,
+body.light-mode .search-input::placeholder,
+body.light-mode .glass-input::placeholder {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+body.light-mode select.cyber-input option {
+  color: #1a1c1e !important;
+  background: #ffffff !important;
+}

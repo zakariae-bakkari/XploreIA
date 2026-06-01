@@ -21,6 +21,9 @@ Router::get('/playlists/content', 'PlaylistController@getContent');
 Router::post('/playlists/create', 'PlaylistController@create');
 Router::post('/playlists/update', 'PlaylistController@update');
 Router::post('/playlists/delete', 'PlaylistController@delete');
+Router::post('/playlists/add-tool', 'PlaylistController@addTool');
+Router::post('/playlists/remove-tool', 'PlaylistController@removeTool');
+Router::get('/playlists/check-saved', 'PlaylistController@checkSaved');
 
 Router::get('/users/create', 'UserController@create');
 Router::post('/users/create', 'UserController@create');

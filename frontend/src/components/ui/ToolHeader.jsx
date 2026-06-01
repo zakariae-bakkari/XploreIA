@@ -1,4 +1,5 @@
 import React from 'react';
+import SaveButton from './SaveButton';
 
 const ToolHeader = ({ tool }) => {
   return (
@@ -19,11 +20,14 @@ const ToolHeader = ({ tool }) => {
           )}
         </div>
       </div>
-      <a href={tool.website_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-        <button className="btn-primary" style={{ padding: '16px 32px' }}>
-          Visiter le Site Web
-        </button>
-      </a>
+      <div className="flex items-center gap-md">
+        <SaveButton tool={tool} />
+        <a href={tool.website_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+          <button className="btn-primary" style={{ padding: '16px 32px' }}>
+            Visiter le Site Web
+          </button>
+        </a>
+      </div>
     </div>
   );
 };
