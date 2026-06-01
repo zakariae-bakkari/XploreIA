@@ -152,10 +152,13 @@ class AiToolDetailsController extends Controller {
      * POST /ai-tools/{id}/reviews
      * Ajouter un avis sur un outil
      */
-    public function addReview($id) {
+    public function addReview($id = null) {
         try {
-            // Vérifier si l'utilisateur est connecté (à implémenter avec session/JWT)
-            $userId = $_POST['user_id'] ?? null;
+            // Verify if user is authenticated (either via secure session or fallback)
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+            $userId = $_SESSION['user_id'] ?? $_POST['user_id'] ?? null;
             
             if (!$userId) {
                 $this->jsonResponse([
@@ -164,8 +167,30 @@ class AiToolDetailsController extends Controller {
                 ], 401);
                 return;
             }
+
+            // Verify if the user is suspended (banned)
+            $userCheck = $this->db->prepare('SELECT status FROM users WHERE id = :id');
+            $userCheck->execute([':id' => $userId]);
+            $userStatus = $userCheck->fetchColumn();
+
+            if ($userStatus === 'banned') {
+                $this->jsonResponse([
+                    'success' => false,
+                    'error' => 'Your account has been suspended'
+                ], 403);
+                return;
+            }
             
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(file_get_contents('php://input'), true) ?: [];
+            $toolId = $id ?? $data['tool_id'] ?? $_GET['tool_id'] ?? null;
+
+            if (!$toolId) {
+                $this->jsonResponse([
+                    'success' => false,
+                    'error' => 'AI Tool ID is required'
+                ], 400);
+                return;
+            }
             
             // Validation
             if (empty($data['rating']) || empty($data['comment'])) {
@@ -181,7 +206,7 @@ class AiToolDetailsController extends Controller {
                 SELECT id FROM reviews 
                 WHERE tool_id = ? AND user_id = ?
             ");
-            $stmt->execute([$id, $userId]);
+            $stmt->execute([$toolId, $userId]);
             
             if ($stmt->fetch()) {
                 $this->jsonResponse([
@@ -195,16 +220,16 @@ class AiToolDetailsController extends Controller {
             $reviewId = $this->generateUUID();
             $stmt = $this->db->prepare("
                 INSERT INTO reviews (id, tool_id, user_id, rating, comment, status, created_at)
-                VALUES (?, ?, ?, ?, ?, 'pending', NOW())
+                VALUES (?, ?, ?, ?, ?, 'approved', NOW())
             ");
-            $stmt->execute([$reviewId, $id, $userId, $data['rating'], $data['comment']]);
+            $stmt->execute([$reviewId, $toolId, $userId, $data['rating'], $data['comment']]);
             
             // Mettre à jour la note globale de l'outil
-            $this->updateGlobalRating($id);
+            $this->updateGlobalRating($toolId);
             
             $this->jsonResponse([
                 'success' => true,
-                'message' => 'Review added successfully. Waiting for approval.',
+                'message' => 'Review added and approved successfully.',
                 'data' => ['id' => $reviewId]
             ], 201);
             
@@ -638,13 +663,13 @@ class AiToolDetailsController extends Controller {
             SET t.global_rating = (
                 SELECT AVG(rating)
                 FROM reviews
-                WHERE tool_id = :tool_id AND status = 'approved'
+                WHERE tool_id = :reviews_tool_id AND status = 'approved'
             )
-            WHERE t.id = :tool_id
+            WHERE t.id = :tools_id
         ";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':tool_id' => $toolId]);
+        $stmt->execute([':reviews_tool_id' => $toolId, ':tools_id' => $toolId]);
     }
 
     /**

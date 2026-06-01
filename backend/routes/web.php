@@ -39,6 +39,7 @@ Router::get('/ai-tools/{id}/disadvantages', 'AiToolDetailsController@getDisadvan
 Router::get('/ai-tools/{id}/pricing', 'AiToolDetailsController@getPricing');
 Router::get('/ai-tools/{id}/reviews', 'AiToolDetailsController@getReviewsOnly');
 Router::post('/ai-tools/{id}/reviews', 'AiToolDetailsController@addReview');
+Router::post('/ai-tools/reviews', 'AiToolDetailsController@addReview');
 Router::get('/ai-tools/{id}/statistics', 'AiToolDetailsController@getStatisticsOnly');
 
 // meriem : login 08-May-26
@@ -66,4 +67,10 @@ Router::get('/admincharacteristic/show', 'AdminCharacteristicController@show');
 Router::post('/admincharacteristic/create', 'AdminCharacteristicController@store');
 Router::post('/admincharacteristic/update', 'AdminCharacteristicController@update');
 Router::post('/admincharacteristic/delete', 'AdminCharacteristicController@destroy');
+
+// zakariae : 01-Jun-26 - Comments and Suspension Moderation
+Router::get('/admin/reviews', 'AdminReviewController@index');
+Router::post('/admin/reviews/approve', 'AdminReviewController@approve');
+Router::post('/admin/reviews/delete', 'AdminReviewController@destroy');
+Router::post('/admin/users/suspend', 'AdminReviewController@suspendUser');
 ?>
