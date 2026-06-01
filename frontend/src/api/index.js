@@ -107,6 +107,10 @@ export const aiToolApi = {
   getById: (id) => apiRequest(`ai-tools/show?id=${id}`),
   // zakariae 16-May-2026
   getFeatured: () => apiRequest("ai-tools/featured"),
+  addReview: (toolId, reviewData) => apiRequest(`ai-tools/${toolId}/reviews`, {
+    method: "POST",
+    body: JSON.stringify(reviewData)
+  }),
 };
 
 // Service: User
@@ -159,8 +163,16 @@ const characteristicApi = {
   delete: (data) => apiRequest(`admincharacteristic/delete`, { method: "POST", body: JSON.stringify(data) }),
 };
 
+const reviewApi = {
+  getAll: (toolId) => apiRequest(`admin/reviews` + (toolId ? `?tool_id=${toolId}` : "")),
+  approve: (id) => apiRequest(`admin/reviews/approve`, { method: "POST", body: JSON.stringify({ id }) }),
+  delete: (id) => apiRequest(`admin/reviews/delete`, { method: "POST", body: JSON.stringify({ id }) }),
+  suspendUser: (userId) => apiRequest(`admin/users/suspend`, { method: "POST", body: JSON.stringify({ user_id: userId }) }),
+};
+
 //zakariae 01-Jun-26
 export const adminApi = {
   categorieApi: categorieApi,
   characteristicApi: characteristicApi,
+  reviewApi: reviewApi,
 };
