@@ -220,7 +220,7 @@ class AiToolDetailsController extends Controller {
             $reviewId = $this->generateUUID();
             $stmt = $this->db->prepare("
                 INSERT INTO reviews (id, tool_id, user_id, rating, comment, status, created_at)
-                VALUES (?, ?, ?, ?, ?, 'pending', NOW())
+                VALUES (?, ?, ?, ?, ?, 'approved', NOW())
             ");
             $stmt->execute([$reviewId, $toolId, $userId, $data['rating'], $data['comment']]);
             
@@ -229,7 +229,7 @@ class AiToolDetailsController extends Controller {
             
             $this->jsonResponse([
                 'success' => true,
-                'message' => 'Review added successfully. Waiting for approval.',
+                'message' => 'Review added and approved successfully.',
                 'data' => ['id' => $reviewId]
             ], 201);
             

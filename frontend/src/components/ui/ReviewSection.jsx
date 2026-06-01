@@ -34,6 +34,10 @@ const ReviewSection = ({ tool, showReviews, setShowReviews }) => {
         setSuccess(true);
         setComment("");
         setRating(5);
+        // Reload after 1.5 seconds to display the new review and updated rating
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       } else {
         const errMsg = response.error || response.message || "Une erreur est survenue.";
         if (response.status === 403 || errMsg.includes("suspended") || errMsg.includes("banned")) {
@@ -302,7 +306,7 @@ const ReviewSection = ({ tool, showReviews, setShowReviews }) => {
               {success && (
                 <div className="review-message-banner success">
                   <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>check_circle</span>
-                  <span>Votre avis a été soumis avec succès ! Il apparaîtra publiquement dès sa validation par notre équipe de modération.</span>
+                  <span>Votre avis a été publié avec succès !</span>
                 </div>
               )}
 
