@@ -66,4 +66,10 @@ Router::get('/admincharacteristic/show', 'AdminCharacteristicController@show');
 Router::post('/admincharacteristic/create', 'AdminCharacteristicController@store');
 Router::post('/admincharacteristic/update', 'AdminCharacteristicController@update');
 Router::post('/admincharacteristic/delete', 'AdminCharacteristicController@destroy');
+
+// zakariae : 01-Jun-26 - Comments and Suspension Moderation
+Router::get('/admin/reviews', 'AdminReviewController@index');
+Router::post('/admin/reviews/approve', 'AdminReviewController@approve');
+Router::post('/admin/reviews/delete', 'AdminReviewController@destroy');
+Router::post('/admin/users/suspend', 'AdminReviewController@suspendUser');
 ?>

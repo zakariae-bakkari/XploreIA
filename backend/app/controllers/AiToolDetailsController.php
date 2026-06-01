@@ -154,14 +154,30 @@ class AiToolDetailsController extends Controller {
      */
     public function addReview($id) {
         try {
-            // Vérifier si l'utilisateur est connecté (à implémenter avec session/JWT)
-            $userId = $_POST['user_id'] ?? null;
+            // Verify if user is authenticated (either via secure session or fallback)
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+            $userId = $_SESSION['user_id'] ?? $_POST['user_id'] ?? null;
             
             if (!$userId) {
                 $this->jsonResponse([
                     'success' => false,
                     'error' => 'User not authenticated'
                 ], 401);
+                return;
+            }
+
+            // Verify if the user is suspended (banned)
+            $userCheck = $this->db->prepare('SELECT status FROM users WHERE id = :id');
+            $userCheck->execute([':id' => $userId]);
+            $userStatus = $userCheck->fetchColumn();
+
+            if ($userStatus === 'banned') {
+                $this->jsonResponse([
+                    'success' => false,
+                    'error' => 'Your account has been suspended'
+                ], 403);
                 return;
             }
             
