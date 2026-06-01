@@ -28,6 +28,12 @@ const adminNavItems = [
     icon: "forum",
     description: "Avis et retours",
   },
+  {
+    to: "/admin/users",
+    label: "Utilisateurs",
+    icon: "group",
+    description: "Rôles et accès",
+  },
 ];
 
 const AdminLayout = () => {
