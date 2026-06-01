@@ -104,14 +104,13 @@ XploreIA/
 
 ## 👥 Team Members
 
-| Name                   | Role           |
-| :--------------------- | :------------- |
-| **Bakkari Zakariae**   | 👑 Super Admin |
-| **Hamri Meriem**       | 👨‍💻 Developer   |
-| **Ait Yahya Saad**     | 👨‍💻 Developer   |
-| **Oubraim Noureddine** | 👨‍💻 Developer   |
-| **Errami Youssef**     | 👨‍💻 Developer   |
-
+| Name                   |
+| :--------------------- |
+| **Bakkari Zakariae**   |
+| **Hamri Meriem**       |
+| **Ait Yahya Saad**     |
+| **Oubraim Noureddine** |
+| **Errami Youssef**     |
 ---
 
 ## 📜 Development Standards
