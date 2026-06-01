@@ -39,6 +39,7 @@ Router::get('/ai-tools/{id}/disadvantages', 'AiToolDetailsController@getDisadvan
 Router::get('/ai-tools/{id}/pricing', 'AiToolDetailsController@getPricing');
 Router::get('/ai-tools/{id}/reviews', 'AiToolDetailsController@getReviewsOnly');
 Router::post('/ai-tools/{id}/reviews', 'AiToolDetailsController@addReview');
+Router::post('/ai-tools/reviews', 'AiToolDetailsController@addReview');
 Router::get('/ai-tools/{id}/statistics', 'AiToolDetailsController@getStatisticsOnly');
 
 // meriem : login 08-May-26

@@ -152,7 +152,7 @@ class AiToolDetailsController extends Controller {
      * POST /ai-tools/{id}/reviews
      * Ajouter un avis sur un outil
      */
-    public function addReview($id) {
+    public function addReview($id = null) {
         try {
             // Verify if user is authenticated (either via secure session or fallback)
             if (session_status() === PHP_SESSION_NONE) {
@@ -181,7 +181,16 @@ class AiToolDetailsController extends Controller {
                 return;
             }
             
-            $data = json_decode(file_get_contents('php://input'), true);
+            $data = json_decode(file_get_contents('php://input'), true) ?: [];
+            $toolId = $id ?? $data['tool_id'] ?? $_GET['tool_id'] ?? null;
+
+            if (!$toolId) {
+                $this->jsonResponse([
+                    'success' => false,
+                    'error' => 'AI Tool ID is required'
+                ], 400);
+                return;
+            }
             
             // Validation
             if (empty($data['rating']) || empty($data['comment'])) {
@@ -197,7 +206,7 @@ class AiToolDetailsController extends Controller {
                 SELECT id FROM reviews 
                 WHERE tool_id = ? AND user_id = ?
             ");
-            $stmt->execute([$id, $userId]);
+            $stmt->execute([$toolId, $userId]);
             
             if ($stmt->fetch()) {
                 $this->jsonResponse([
@@ -213,10 +222,10 @@ class AiToolDetailsController extends Controller {
                 INSERT INTO reviews (id, tool_id, user_id, rating, comment, status, created_at)
                 VALUES (?, ?, ?, ?, ?, 'pending', NOW())
             ");
-            $stmt->execute([$reviewId, $id, $userId, $data['rating'], $data['comment']]);
+            $stmt->execute([$reviewId, $toolId, $userId, $data['rating'], $data['comment']]);
             
             // Mettre à jour la note globale de l'outil
-            $this->updateGlobalRating($id);
+            $this->updateGlobalRating($toolId);
             
             $this->jsonResponse([
                 'success' => true,

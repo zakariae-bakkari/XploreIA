@@ -107,9 +107,9 @@ export const aiToolApi = {
   getById: (id) => apiRequest(`ai-tools/show?id=${id}`),
   // zakariae 16-May-2026
   getFeatured: () => apiRequest("ai-tools/featured"),
-  addReview: (toolId, reviewData) => apiRequest(`ai-tools/${toolId}/reviews`, {
+  addReview: (toolId, reviewData) => apiRequest(`ai-tools/reviews`, {
     method: "POST",
-    body: JSON.stringify(reviewData)
+    body: JSON.stringify({ ...reviewData, tool_id: toolId })
   }),
 };
 
