@@ -1,6 +1,58 @@
 import { useEffect, useMemo, useState } from "react";
 import { aiToolApi } from "../../api";
 
+const CustomSelect = ({ value, onChange, options, placeholder = "Sélectionner..." }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find((opt) => opt.value === value);
+
+  useEffect(() => {
+    const handleClose = () => setIsOpen(false);
+    window.addEventListener("click", handleClose);
+    return () => window.removeEventListener("click", handleClose);
+  }, []);
+
+  return (
+    <div 
+      className="custom-select-container" 
+      onClick={(e) => {
+        e.stopPropagation();
+        setIsOpen(!isOpen);
+      }}
+      style={{ minWidth: "260px" }}
+    >
+      <div className={`custom-select-trigger ${isOpen ? "open" : ""}`}>
+        <span>{selectedOption ? selectedOption.label : placeholder}</span>
+        <span className="material-symbols-outlined select-arrow">
+          {isOpen ? "expand_less" : "expand_more"}
+        </span>
+      </div>
+
+      {isOpen && (
+        <ul className="custom-select-options">
+          {options.map((opt) => (
+            <li
+              key={opt.value}
+              className={`custom-select-option ${opt.value === value ? "selected" : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onChange(opt.value);
+                setIsOpen(false);
+              }}
+            >
+              <div className="option-content-flex">
+                <span className="option-label">{opt.label}</span>
+                {opt.description && (
+                  <span className="option-desc">{opt.description}</span>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
 const AdminCommentsPage = () => {
   const [tools, setTools] = useState([]);
   const [selectedToolId, setSelectedToolId] = useState("");
@@ -51,6 +103,94 @@ const AdminCommentsPage = () => {
 
   return (
     <div className="admin-page">
+      <style>{`
+        /* Custom Select Styles */
+        .custom-select-container {
+          position: relative;
+          cursor: pointer;
+          font-family: inherit;
+        }
+
+        .custom-select-trigger {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px 16px;
+          border-radius: 14px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          color: var(--on-background);
+          font-size: 14px;
+          transition: all 0.2s ease;
+        }
+
+        .custom-select-trigger:hover,
+        .custom-select-trigger.open {
+          border-color: var(--primary);
+          background: rgba(255, 255, 255, 0.06);
+        }
+
+        .select-arrow {
+          color: var(--outline);
+          font-size: 20px;
+          transition: transform 0.2s ease;
+        }
+
+        .custom-select-options {
+          position: absolute;
+          top: calc(100% + 6px);
+          left: 0;
+          right: 0;
+          background: #1e1e24;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 16px;
+          padding: 8px;
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+          z-index: 1100;
+          max-height: 260px;
+          overflow-y: auto;
+          list-style: none;
+          margin: 0;
+        }
+
+        .custom-select-option {
+          padding: 10px 14px;
+          border-radius: 10px;
+          transition: all 0.2s ease;
+        }
+
+        .custom-select-option:hover {
+          background: rgba(0, 219, 233, 0.08);
+          color: var(--primary);
+        }
+
+        .custom-select-option.selected {
+          background: rgba(0, 219, 233, 0.12);
+          color: var(--primary);
+          font-weight: 600;
+        }
+
+        .option-content-flex {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .option-label {
+          font-size: 14px;
+          font-weight: 600;
+        }
+
+        .option-desc {
+          font-size: 12px;
+          color: var(--outline);
+        }
+
+        .custom-select-option:hover .option-desc {
+          color: rgba(255, 255, 255, 0.6);
+        }
+      `}</style>
+
       <section className="admin-page-head">
         <div>
           <p className="label-sm" style={{ color: "var(--outline)" }}>
@@ -60,19 +200,19 @@ const AdminCommentsPage = () => {
             Avis et retours utilisateurs
           </h1>
         </div>
-        <label className="admin-search glass-panel">
-          <span className="material-symbols-outlined">smart_toy</span>
-          <select
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <span className="material-symbols-outlined" style={{ color: "var(--outline)" }}>smart_toy</span>
+          <CustomSelect
             value={selectedToolId}
-            onChange={(e) => setSelectedToolId(e.target.value)}
-          >
-            {tools.map((tool) => (
-              <option key={tool.id} value={tool.id}>
-                {tool.name}
-              </option>
-            ))}
-          </select>
-        </label>
+            onChange={(val) => setSelectedToolId(val)}
+            placeholder="Sélectionner un outil..."
+            options={tools.map((tool) => ({
+              value: String(tool.id),
+              label: tool.name,
+              description: tool.global_rating ? `Note globale : ${tool.global_rating} / 5` : "Aucune note"
+            }))}
+          />
+        </div>
       </section>
 
       <div className="admin-grid-two">

@@ -1,6 +1,6 @@
 @baseUrl = http://localhost/XploreIA/backend/public
-@adminEmail = zakariaetubtob@gmail.com
-@adminPassword = password123
+@adminEmail =  zakariatubtob@gmail.com
+@adminPassword = 12345678
 @userEmail = zakariatubtob@gmail.com
 @userPassword = 12345678
 @userId = 1
@@ -125,3 +125,9 @@ Content-Type: application/json
 
 ### Logout
 POST {{baseUrl}}/logout
+
+### admin categories zakariae:24-May-26
+GET {{baseUrl}}/admincategorie
+
+### admin categories zakariae:24-May-26
+GET {{baseUrl}}/admincategorie/show?id=2
