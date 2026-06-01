@@ -76,8 +76,8 @@ class AdminReviewController extends Controller
 
             if ($toolId) {
                 // Update tool global rating
-                $upd = $this->db->prepare('UPDATE ai_tools SET global_rating = (SELECT AVG(rating) FROM reviews WHERE tool_id = :tool_id AND status = "approved") WHERE id = :tool_id');
-                $upd->execute([':tool_id' => $toolId]);
+                $upd = $this->db->prepare('UPDATE ai_tools SET global_rating = (SELECT AVG(rating) FROM reviews WHERE tool_id = :reviews_tool_id AND status = "approved") WHERE id = :tools_id');
+                $upd->execute([':reviews_tool_id' => $toolId, ':tools_id' => $toolId]);
             }
 
             $this->db->commit();
@@ -114,8 +114,8 @@ class AdminReviewController extends Controller
 
             if ($toolId) {
                 // Update tool global rating
-                $upd = $this->db->prepare('UPDATE ai_tools SET global_rating = (SELECT AVG(rating) FROM reviews WHERE tool_id = :tool_id AND status = "approved") WHERE id = :tool_id');
-                $upd->execute([':tool_id' => $toolId]);
+                $upd = $this->db->prepare('UPDATE ai_tools SET global_rating = (SELECT AVG(rating) FROM reviews WHERE tool_id = :reviews_tool_id AND status = "approved") WHERE id = :tools_id');
+                $upd->execute([':reviews_tool_id' => $toolId, ':tools_id' => $toolId]);
             }
 
             $this->db->commit();

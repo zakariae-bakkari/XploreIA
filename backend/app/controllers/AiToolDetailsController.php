@@ -663,13 +663,13 @@ class AiToolDetailsController extends Controller {
             SET t.global_rating = (
                 SELECT AVG(rating)
                 FROM reviews
-                WHERE tool_id = :tool_id AND status = 'approved'
+                WHERE tool_id = :reviews_tool_id AND status = 'approved'
             )
-            WHERE t.id = :tool_id
+            WHERE t.id = :tools_id
         ";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([':tool_id' => $toolId]);
+        $stmt->execute([':reviews_tool_id' => $toolId, ':tools_id' => $toolId]);
     }
 
     /**
