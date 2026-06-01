@@ -53,4 +53,17 @@ Router::post('/forgot-password', 'AuthController@forgotPassword');
 Router::post('/forgot-password/verify', 'AuthController@forgotPasswordVerify');
 Router::post('/reset-password', 'AuthController@resetPassword');
 
+// zakariae : 24-May-26 
+Router::get('/admincategorie', 'AdminCategorieController@index');
+Router::get('/admincategorie/show/{id}', 'AdminCategorieController@show');
+Router::post('/admincategorie/create', 'AdminCategorieController@store');
+Router::post('/admincategorie/update', 'AdminCategorieController@update');
+Router::post('/admincategorie/delete', 'AdminCategorieController@destroy');
+
+// zakariae : 01-Jun-26
+Router::get('/admincharacteristic', 'AdminCharacteristicController@index');
+Router::get('/admincharacteristic/show', 'AdminCharacteristicController@show');
+Router::post('/admincharacteristic/create', 'AdminCharacteristicController@store');
+Router::post('/admincharacteristic/update', 'AdminCharacteristicController@update');
+Router::post('/admincharacteristic/delete', 'AdminCharacteristicController@destroy');
 ?>
