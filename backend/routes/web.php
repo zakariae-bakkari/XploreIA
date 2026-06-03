@@ -80,4 +80,18 @@ Router::post('/admin/users/suspend', 'UserController@suspend');
 Router::post('/admin/users/unsuspend', 'UserController@unsuspend');
 Router::post('/admin/users/change-role', 'UserController@changeRole');
 Router::post('/admin/users/delete', 'UserController@delete');
+
+// Gestion Admin AI Tools
+Router::get('/adminaitool', 'AdminAiToolController@index');
+Router::get('/adminaitool/show', 'AdminAiToolController@show');
+Router::post('/adminaitool/create', 'AdminAiToolController@store');
+Router::post('/adminaitool/update', 'AdminAiToolController@update');
+Router::post('/adminaitool/delete', 'AdminAiToolController@destroy');
+
+// Gestion Admin AI Models
+Router::get('/adminmodel', 'AdminModelController@index');
+Router::get('/adminmodel/show', 'AdminModelController@show');
+Router::post('/adminmodel/create', 'AdminModelController@store');
+Router::post('/adminmodel/update', 'AdminModelController@update');
+Router::post('/adminmodel/delete', 'AdminModelController@destroy');
 ?>

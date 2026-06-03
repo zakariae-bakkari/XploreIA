@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import SaveButton from './SaveButton';
 
 const slugify = (text) => {
   if (!text) return "";
@@ -21,6 +22,9 @@ const ToolCard = ({ tool }) => {
             e.target.src = "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800";
           }}
         />
+        <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 10, transformOrigin: 'top right', transform: 'scale(0.85)' }}>
+          <SaveButton tool={tool} />
+        </div>
       </div>
       <div style={{ padding: 'var(--md)', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div className="flex items-center gap-sm" style={{ marginBottom: '12px' }}>

@@ -82,7 +82,7 @@ export const authApi = {
 
 // noureddine : Playlist Service
 export const playlistApi = {
-  getAllByUser: (email) => apiRequest(`playlists?email=${email}`),
+  getAllByUser: (email) => apiRequest(`playlists?email=${encodeURIComponent(email)}`),
   getContent: (id) => apiRequest(`playlists/content?id=${id}`),
   create: (data) =>
     apiRequest("playlists/create", {
@@ -97,6 +97,9 @@ export const playlistApi = {
     }),
   // !!! use patch isntead of delete
   delete: (id) => apiRequest(`playlists/delete?id=${id}`, { method: "POST" }),
+  addTool: (data) => apiRequest("playlists/add-tool", { method: "POST", body: JSON.stringify(data) }),
+  removeTool: (data) => apiRequest("playlists/remove-tool", { method: "POST", body: JSON.stringify(data) }),
+  checkSaved: (email, toolId) => apiRequest(`playlists/check-saved?email=${encodeURIComponent(email)}&tool_id=${encodeURIComponent(toolId)}`),
 };
 
 // youssef et saad
@@ -181,4 +184,18 @@ export const adminApi = {
   categorieApi: categorieApi,
   characteristicApi: characteristicApi,
   reviewApi: reviewApi,
+  aiToolApi: {
+    getAll: () => apiRequest(`adminaitool`),
+    getById: (id) => apiRequest(`adminaitool/show?id=${id}`),
+    create: (data) => apiRequest(`adminaitool/create`, { method: "POST", body: JSON.stringify(data) }),
+    update: (data) => apiRequest(`adminaitool/update`, { method: "POST", body: JSON.stringify(data) }),
+    delete: (id) => apiRequest(`adminaitool/delete`, { method: "POST", body: JSON.stringify({ id }) }),
+  },
+  modelApi: {
+    getAll: () => apiRequest(`adminmodel`),
+    getById: (id) => apiRequest(`adminmodel/show?id=${id}`),
+    create: (data) => apiRequest(`adminmodel/create`, { method: "POST", body: JSON.stringify(data) }),
+    update: (data) => apiRequest(`adminmodel/update`, { method: "POST", body: JSON.stringify(data) }),
+    delete: (id) => apiRequest(`adminmodel/delete`, { method: "POST", body: JSON.stringify({ id }) }),
+  }
 };

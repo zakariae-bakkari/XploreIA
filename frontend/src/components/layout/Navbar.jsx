@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { useTheme } from "../../contexts/ThemeContext";
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const [navSearch, setNavSearch] = useState("");
 
   const isActive = (path) => location.pathname === path;
@@ -101,32 +103,40 @@ const Navbar = () => {
           {/* Search Bar in Navbar */}
           <form
             onSubmit={handleNavSearch}
-            className="hidden lg:flex items-center"
-            style={{
-              background: "rgba(255,255,255,0.05)",
-              borderRadius: "99px",
-              padding: "8px 16px",
-              border: "1px solid rgba(255,255,255,0.1)",
-              width: "300px",
-            }}
+            className="hidden lg:flex items-center nav-search-form"
           >
             <input
               type="text"
               placeholder="Rechercher sur le marché..."
-              style={{
-                background: "none",
-                border: "none",
-                color: "white",
-                fontSize: "13px",
-                outline: "none",
-                width: "100%",
-              }}
+              className="nav-search-input"
               value={navSearch}
               onChange={(e) => setNavSearch(e.target.value)}
             />
           </form>
 
           <div className="flex items-center gap-md">
+            <button
+              onClick={toggleTheme}
+              style={{
+                background: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                borderRadius: "50%",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: isDarkMode ? "var(--secondary)" : "var(--primary)",
+                cursor: "pointer",
+                transition: "all 0.3s",
+              }}
+              title={isDarkMode ? "Passer au thème clair" : "Passer au thème sombre"}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "20px", fontVariationSettings: "'FILL' 1" }}>
+                {isDarkMode ? "light_mode" : "dark_mode"}
+              </span>
+            </button>
+
             {user ? (
               <div className="flex items-center gap-md">
                 <Link
