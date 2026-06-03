@@ -303,6 +303,23 @@ button {
   margin-left: var(--lg);
 }
 
+.nav-search-form {
+  background: rgba(255,255,255,0.05);
+  border-radius: 99px;
+  padding: 8px 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  width: 300px;
+}
+
+.nav-search-input {
+  background: none;
+  border: none;
+  color: var(--on-surface);
+  font-size: 13px;
+  outline: none;
+  width: 100%;
+}
+
 .nav-link {
   font-family: var(--font-label-sm);
   font-size: 12px;
@@ -370,7 +387,7 @@ button {
 .search-input {
   background: transparent;
   border: none;
-  color: white;
+  color: var(--on-surface);
   padding: 12px;
   width: 100%;
   font-size: 16px;
@@ -461,6 +478,23 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   box-shadow: inset 1px 1px 0px rgba(255, 255, 255, 0.05);
+}
+
+.playlist-btn {
+  padding: 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  text-align: left;
+  color: var(--on-surface);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.playlist-btn:hover {
+  background: rgba(255,255,255,0.1);
 }
 
 .cyber-input {
@@ -655,3 +689,381 @@ button {
 .animate-fade-in {
   animation: fadeIn 0.8s ease forwards;
 }
+
+/* Light Mode Variables */
+body.light-mode {
+  --background: #f4f7fb;
+  --on-background: #1a1a2e;
+  --surface: #ffffff;
+  --on-surface: #1a1a2e;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f0f2f7;
+  --surface-container: #e6e9f0;
+  --surface-container-high: #d5d9e3;
+  --surface-container-highest: #b0b5c3;
+  --surface-variant: #e8ecf4;
+  --surface-bright: #ffffff;
+  --surface-dim: #dde1ea;
+  --outline: #7a8194;
+  --outline-variant: #c7cdd9;
+  --on-surface-variant: #4a5068;
+  --inverse-surface: #2d2d3a;
+  --inverse-on-surface: #f0f2f7;
+  --inverse-primary: #00b8c4;
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #410002;
+
+  /* Primary: Deep Teal — vibrant but readable on white */
+  --primary: #0e7c86;
+  --on-primary: #ffffff;
+  --primary-container: #d4f5f8;
+  --on-primary-container: #003a3f;
+  --primary-fixed-dim: #0e7c86;
+  --primary-fixed: #d4f5f8;
+  --surface-tint: #0e7c86;
+
+  /* Secondary: Rich Purple — saturated but readable */
+  --secondary: #8a21b0;
+  --on-secondary: #ffffff;
+  --secondary-container: #f3e0fb;
+  --on-secondary-container: #350049;
+  --secondary-fixed-dim: #8a21b0;
+
+  /* Tertiary */
+  --tertiary: #5b33a3;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #ece0ff;
+
+  background-color: var(--background);
+  color: var(--on-background);
+  background-image:
+      linear-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+}
+
+/* Scrollbar */
+body.light-mode * {
+  scrollbar-color: var(--primary) rgba(0,0,0,0.05);
+}
+body.light-mode *::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+}
+body.light-mode *::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #0e7c86, #8a21b0);
+}
+
+/* Glass panels, cards, navbar */
+body.light-mode .glass-panel,
+body.light-mode .glass-card {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+body.light-mode .glass-panel:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(14, 124, 134, 0.3);
+  box-shadow: 0 6px 24px rgba(14, 124, 134, 0.1);
+}
+body.light-mode .navbar {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Nav search */
+body.light-mode .nav-search-form {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+body.light-mode .nav-search-input {
+  color: var(--on-surface) !important;
+}
+body.light-mode .nav-search-input::placeholder {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* Inputs */
+body.light-mode .cyber-input,
+body.light-mode .search-input,
+body.light-mode .glass-input,
+body.light-mode input,
+body.light-mode textarea,
+body.light-mode select {
+  color: var(--on-surface) !important;
+}
+body.light-mode .cyber-input,
+body.light-mode .glass-input {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+body.light-mode .cyber-input:focus,
+body.light-mode .search-input:focus,
+body.light-mode .glass-input:focus {
+  background: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(14, 124, 134, 0.12);
+}
+body.light-mode .cyber-input::placeholder,
+body.light-mode .search-input::placeholder,
+body.light-mode .glass-input::placeholder,
+body.light-mode input::placeholder,
+body.light-mode textarea::placeholder {
+  color: rgba(0, 0, 0, 0.4) !important;
+}
+body.light-mode select.cyber-input option {
+  color: var(--on-surface) !important;
+  background: #ffffff !important;
+}
+
+/* Gradient text */
+body.light-mode .cyber-gradient-text {
+  background: linear-gradient(135deg, #0e7c86 0%, #8a21b0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Gradient bg */
+body.light-mode .cyber-gradient-bg {
+  background: linear-gradient(135deg, #0e7c86 0%, #8a21b0 100%);
+}
+
+/* Light leak effects */
+body.light-mode .light-leak-1 {
+  background: radial-gradient(circle, rgba(14, 124, 134, 0.06) 0%, transparent 70%);
+}
+body.light-mode .light-leak-2 {
+  background: radial-gradient(circle, rgba(138, 33, 176, 0.06) 0%, transparent 70%);
+}
+
+/* Buttons */
+body.light-mode .btn-primary {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+body.light-mode .btn-full {
+  color: var(--on-surface);
+}
+
+/* Tool tags */
+body.light-mode .tool-tag {
+  background: rgba(14, 124, 134, 0.08);
+  color: var(--primary);
+}
+
+/* Sidebar */
+body.light-mode .sidebar-link:hover {
+  background: rgba(14, 124, 134, 0.06);
+}
+body.light-mode .sidebar-link.active {
+  background: rgba(14, 124, 134, 0.1);
+  color: var(--primary);
+}
+body.light-mode .dashboard-sidebar {
+  border-right-color: rgba(0, 0, 0, 0.06);
+}
+
+/* Footer */
+body.light-mode .footer {
+  background-color: var(--surface-container-low);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Feature tag */
+body.light-mode .feature-tag {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--on-surface-variant);
+}
+
+/* Stats card */
+body.light-mode .stats-card {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Chart */
+body.light-mode .chart-bar {
+  background: rgba(14, 124, 134, 0.1);
+}
+body.light-mode .chart-bar:hover {
+  background: rgba(14, 124, 134, 0.25);
+}
+
+/* Playlist button */
+body.light-mode .playlist-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: var(--on-surface);
+}
+body.light-mode .playlist-btn:hover {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+/* ====== ADMIN LIGHT MODE ====== */
+body.light-mode .admin-page-shell {
+  background:
+    radial-gradient(circle at top left, rgba(14, 124, 134, 0.06), transparent 35%),
+    radial-gradient(circle at bottom right, rgba(138, 33, 176, 0.05), transparent 32%),
+    var(--background);
+}
+body.light-mode .admin-sidebar {
+  background: rgba(255, 255, 255, 0.8);
+}
+body.light-mode .admin-brand-mark,
+body.light-mode .admin-user-initials,
+body.light-mode .admin-stat-icon,
+body.light-mode .admin-tool-logo,
+body.light-mode .admin-list-thumb {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+body.light-mode .admin-brand-mark {
+  background: rgba(14, 124, 134, 0.08);
+}
+body.light-mode .admin-user-card {
+  background: rgba(0, 0, 0, 0.02);
+}
+body.light-mode .admin-nav-link {
+  background: rgba(0, 0, 0, 0.01);
+  border-color: transparent;
+}
+body.light-mode .admin-nav-link.active,
+body.light-mode .admin-nav-link:hover {
+  background: rgba(14, 124, 134, 0.08);
+  color: var(--primary);
+  border-color: rgba(14, 124, 134, 0.16);
+}
+body.light-mode .admin-list-item,
+body.light-mode .admin-review-card,
+body.light-mode .admin-type-card,
+body.light-mode .admin-tool-card,
+body.light-mode .admin-table-row {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+body.light-mode .admin-pill,
+body.light-mode .admin-score {
+  background: rgba(14, 124, 134, 0.08);
+  color: var(--primary);
+}
+body.light-mode .admin-chip {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+body.light-mode .admin-search input,
+body.light-mode .admin-search select {
+  color: var(--on-surface);
+}
+
+/* Admin Tools page modals */
+body.light-mode .at-modal-content {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+body.light-mode .at-input {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--on-surface);
+}
+body.light-mode .at-input:focus {
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(14, 124, 134, 0.1);
+}
+body.light-mode .at-btn-cancel {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--on-surface);
+}
+body.light-mode .at-btn-cancel:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+body.light-mode .at-action-btn {
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--outline);
+}
+body.light-mode .at-action-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--on-surface);
+}
+body.light-mode .at-add-btn {
+  background: rgba(14, 124, 134, 0.08);
+  border-color: rgba(14, 124, 134, 0.16);
+}
+body.light-mode .at-remove-btn {
+  background: rgba(255, 74, 118, 0.08);
+}
+
+/* Admin Categories page modals */
+body.light-mode .modal-content {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+body.light-mode .modal-input,
+body.light-mode .modal-textarea,
+body.light-mode .modal-select {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--on-surface);
+}
+body.light-mode .modal-input:focus,
+body.light-mode .modal-textarea:focus,
+body.light-mode .modal-select:focus {
+  border-color: var(--primary);
+}
+body.light-mode .custom-select-trigger {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--on-surface);
+}
+body.light-mode .custom-select-options {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+body.light-mode .custom-select-option:hover {
+  background: rgba(14, 124, 134, 0.06);
+}
+body.light-mode .custom-select-option.selected {
+  background: rgba(14, 124, 134, 0.1);
+}
+body.light-mode .premium-cat-chip {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.01));
+  border-color: rgba(0, 0, 0, 0.06);
+}
+body.light-mode .premium-cat-chip:hover {
+  background: rgba(14, 124, 134, 0.06);
+  border-color: rgba(14, 124, 134, 0.3);
+}
+body.light-mode .char-group-card {
+  background: rgba(0, 0, 0, 0.015);
+  border-color: rgba(0, 0, 0, 0.05);
+}
+body.light-mode .char-chip {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+body.light-mode .char-chip:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+body.light-mode .stat-badge {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+body.light-mode .btn-cancel {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--on-surface);
+}
+body.light-mode .btn-cancel:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+body.light-mode .cat-action-btn {
+  background: rgba(0, 0, 0, 0.03);
+  color: var(--outline);
+}
+body.light-mode .cat-action-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
