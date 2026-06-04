@@ -215,6 +215,13 @@ class AiToolDetailsController extends Controller {
                 ], 409);
                 return;
             }
+
+            // Supprimer d'éventuels anciens avis rejetés pour éviter de violer la contrainte unique
+            $deleteRejected = $this->db->prepare("
+                DELETE FROM reviews 
+                WHERE tool_id = ? AND user_id = ? AND status = 'rejected'
+            ");
+            $deleteRejected->execute([$toolId, $userId]);
             
             // AI Comment Moderation
             $prompt = "Analyze this user review comment for AI tool: \"" . $data['comment'] . "\"";
