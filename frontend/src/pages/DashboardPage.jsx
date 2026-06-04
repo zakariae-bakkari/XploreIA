@@ -7,6 +7,7 @@ import { userApi, aiToolApi } from "../api";
 import { DashboardStats } from "../components/dashboard/DashboardStats";
 import DashboardTools from "../components/dashboard/DashboardTools";
 import DashboardPlaylists from "../components/dashboard/DashboardPlaylists";
+import SuggestToolModal from "../components/ui/SuggestToolModal";
 import { slugify } from "../lib/utils";
 
 const DashboardPage = () => {
@@ -14,6 +15,7 @@ const DashboardPage = () => {
   const [profile, setProfile] = useState(null);
   const [allTools, setAllTools] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showSuggest, setShowSuggest] = useState(false);
 
   const role = user?.role || "user";
 
@@ -88,7 +90,17 @@ const DashboardPage = () => {
             </p>
           </div>
           <div className="flex gap-md">
-            <button className="btn-primary" style={{ padding: "12px 24px" }}>
+            <button 
+              className="btn-primary" 
+              style={{ padding: "12px 24px" }}
+              onClick={() => {
+                if (role === "admin") {
+                  window.location.href = "/admin/tools";
+                } else {
+                  setShowSuggest(true);
+                }
+              }}
+            >
               {role === "admin" ? "Ajouter un Outil IA" : "Suggérer un Outil"}
             </button>
           </div>
@@ -212,6 +224,17 @@ const DashboardPage = () => {
           </div>
         )}
       </div>
+
+      <SuggestToolModal 
+        isOpen={showSuggest}
+        onClose={() => setShowSuggest(false)}
+        onSuccess={async () => {
+          if (user?.email) {
+            const profileRes = await userApi.getProfile(user.email);
+            if (profileRes.status === "success") setProfile(profileRes.data);
+          }
+        }}
+      />
     </DashboardLayout>
   );
 };

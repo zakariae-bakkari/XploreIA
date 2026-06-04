@@ -33,6 +33,7 @@ Router::post('/verify-code', 'AuthController@verifyCode');
 Router::get('/ai-tools/show', 'AiToolController@show');
 Router::get('/ai-tools-detail', 'AiToolController@show');
 Router::get('/ai-tools/featured', 'AiToolController@getFeatured'); # zakariae : 16-May-26
+Router::post('/ai-tools/suggest', 'AiToolController@suggest');
 
 
 // Routes pour les détails des AI Tools
