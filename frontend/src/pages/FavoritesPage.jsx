@@ -4,6 +4,7 @@ import { playlistApi } from '../api';
 import { useAuth } from '../contexts/AuthContext';
 import PlaylistCard from '../components/playlists/PlaylistCard';
 import PlaylistModal from '../components/playlists/PlaylistModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const FavoritesPage = () => {
   const { user } = useAuth();
@@ -16,6 +17,8 @@ const FavoritesPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentPlaylist, setCurrentPlaylist] = useState(null);
   const [formData, setFormData] = useState({ name: '', description: '', is_public: false });
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [playlistToDelete, setPlaylistToDelete] = useState(null);
 
   const fetchPlaylists = async () => {
     if (!user?.email) return;
@@ -69,10 +72,17 @@ const FavoritesPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this collection? All saved tools will be removed from it.")) return;
+  const handleDelete = (id) => {
+    setPlaylistToDelete(id);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!playlistToDelete) return;
     try {
-      await playlistApi.delete(id);
+      await playlistApi.delete(playlistToDelete);
+      setIsDeleteConfirmOpen(false);
+      setPlaylistToDelete(null);
       fetchPlaylists();
     } catch (err) {
       alert("Error deleting playlist");
@@ -134,6 +144,21 @@ const FavoritesPage = () => {
             setIsModalOpen={setIsModalOpen}
           />
         )}
+
+        {/* Custom Delete Confirmation Modal */}
+        <ConfirmModal 
+          isOpen={isDeleteConfirmOpen}
+          title="Supprimer la collection"
+          message="Êtes-vous sûr de vouloir supprimer cette collection ? Tous les outils sauvegardés à l'intérieur seront définitivement retirés."
+          confirmText="Supprimer"
+          cancelText="Annuler"
+          onConfirm={handleConfirmDelete}
+          onCancel={() => {
+            setIsDeleteConfirmOpen(false);
+            setPlaylistToDelete(null);
+          }}
+          type="danger"
+        />
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
