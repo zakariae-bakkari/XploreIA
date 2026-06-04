@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import Navbar from "../components/layout/Navbar";
 import { useAuth } from "../contexts/AuthContext";
+import AiChatbot from "../components/ui/AiChatbot";
 import "../style/admin.css";
 
 const adminNavItems = [
@@ -75,7 +76,7 @@ const AdminLayout = () => {
           </div>
 
           <nav className="admin-nav">
-            {adminNavItems.map((item) => (
+             {adminNavItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -113,6 +114,7 @@ const AdminLayout = () => {
           <Outlet />
         </main>
       </div>
+      <AiChatbot />
     </div>
   );
 };
