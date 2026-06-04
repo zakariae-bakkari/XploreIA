@@ -52,13 +52,14 @@ const AiChatbot = () => {
           text: response.reply
         }]);
       } else {
-        throw new Error('Response error');
+        throw new Error(response.message || 'Response error');
       }
     } catch (err) {
       setMessages(prev => [...prev, {
         id: `msg-bot-${messageIdCounter.current++}`,
         sender: 'bot',
-        text: "Désolé, j'ai rencontré un problème lors du traitement de votre demande. Veuillez réessayer."
+        text: "Le service IA n'est pas disponible pour le moment.",
+        isError: true
       }]);
     } finally {
       setIsTyping(false);
@@ -198,6 +199,11 @@ const AiChatbot = () => {
           border-top-left-radius: 4px;
           border: 1px solid rgba(255, 255, 255, 0.04);
         }
+        .message-bubble.bot.error {
+          background: rgba(255, 74, 118, 0.1);
+          color: #ff4a76;
+          border: 1px solid rgba(255, 74, 118, 0.2);
+        }
         .message-bubble.user {
           background: linear-gradient(135deg, var(--primary) 0%, rgba(0, 219, 233, 0.8) 100%);
           color: #0b0b0f;
@@ -296,7 +302,7 @@ const AiChatbot = () => {
           <div className="chat-messages">
             {messages.map(msg => (
               <div key={msg.id} className={`message-row ${msg.sender}`}>
-                <div className={`message-bubble ${msg.sender}`}>
+                <div className={`message-bubble ${msg.sender} ${msg.isError ? 'error' : ''}`}>
                   {msg.sender === 'bot' ? renderMessageText(msg.text) : msg.text}
                 </div>
               </div>

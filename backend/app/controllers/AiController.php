@@ -59,6 +59,14 @@ Answer in the same language as the user's message.";
             // Run AI completion
             $reply = AiService::generateText($message, $systemInstruction);
 
+            if ($reply === null) {
+                $this->jsonResponse([
+                    'status' => 'error',
+                    'message' => 'Le service IA n\'est pas disponible pour le moment.'
+                ], 503);
+                return;
+            }
+
             $this->jsonResponse([
                 'status' => 'success',
                 'reply' => $reply
