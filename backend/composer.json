@@ -1,4 +1,7 @@
 {
+    "name": "xploreia/backend",
+    "description": "XploreIA Native PHP API backend",
+    "license": "proprietary",
     "require": {
         "phpmailer/phpmailer": "^7.0"
     }

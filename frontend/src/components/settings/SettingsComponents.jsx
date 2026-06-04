@@ -44,7 +44,7 @@ export const PersonalSettings = ({ formData, setFormData, handleUpdateName, load
             />
           </div>
           <div className="flex flex-col gap-xs">
-            <label className="label-sm" style={{ color: 'var(--primary)', opacity: 0.8, opacity: 0.5 }}>Adresse Email (Lecture seule)</label>
+            <label className="label-sm" style={{ color: 'var(--primary)', opacity: 0.5 }}>Adresse Email (Lecture seule)</label>
             <input 
               type="email" 
               className="cyber-input" 
