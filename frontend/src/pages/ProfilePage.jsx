@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { useAuth } from '../contexts/AuthContext';
 import { userApi } from '../api';
@@ -67,7 +68,21 @@ const ProfilePage = () => {
               <h3 className="h3-md" style={{ marginBottom: '24px' }}>Vos Playlists</h3>
               <div className="flex flex-col gap-md">
                 {profile.playlists.map(pl => (
-                  <div key={pl.id} className="glass-panel" style={{ padding: '20px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                  <Link 
+                    key={pl.id} 
+                    to={`/playlists/${pl.id}`} 
+                    className="glass-panel" 
+                    style={{ 
+                      padding: '20px', 
+                      borderRadius: '20px', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '20px',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      cursor: 'pointer'
+                    }}
+                  >
                     <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: 'rgba(0, 219, 233, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
                       <span className="material-symbols-outlined">playlist_add_check</span>
                     </div>
@@ -78,7 +93,7 @@ const ProfilePage = () => {
                       </p>
                     </div>
                     <span className="material-symbols-outlined" style={{ color: 'var(--outline)' }}>chevron_right</span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </section>
