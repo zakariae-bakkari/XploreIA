@@ -216,6 +216,43 @@ class AiToolDetailsController extends Controller {
                 return;
             }
             
+            // AI Comment Moderation
+            $prompt = "Analyze this user review comment for AI tool: \"" . $data['comment'] . "\"";
+            $systemInstruction = "You are a content moderation assistant. Check if this comment contains hate speech, insults, severe profanities, threats, or harassment.
+Return a JSON object in this exact format:
+{
+  \"respectful\": true/false,
+  \"reason\": \"Explain why if it is disrespectful\"
+}
+Do NOT include any extra formatting, markdown wraps, or explanations. Only return valid JSON.";
+
+            $aiResponse = \App\Services\AiService::generateText($prompt, $systemInstruction);
+            $cleanResponse = preg_replace('/```json|```/', '', $aiResponse);
+            $moderation = json_decode(trim($cleanResponse), true);
+
+            $isRespectful = true;
+            $modReason = '';
+            if ($moderation && isset($moderation['respectful'])) {
+                $isRespectful = (bool)$moderation['respectful'];
+                $modReason = $moderation['reason'] ?? '';
+            }
+
+            if (!$isRespectful) {
+                // Insert as rejected so the admin/user can see it
+                $reviewId = $this->generateUUID();
+                $stmt = $this->db->prepare("
+                    INSERT INTO reviews (id, tool_id, user_id, rating, comment, status, created_at)
+                    VALUES (?, ?, ?, ?, ?, 'rejected', NOW())
+                ");
+                $stmt->execute([$reviewId, $toolId, $userId, $data['rating'], $data['comment']]);
+
+                $this->jsonResponse([
+                    'success' => false,
+                    'error' => 'Votre commentaire a été rejeté par notre système de modération automatique car il contient du contenu inapproprié.'
+                ], 400);
+                return;
+            }
+
             // Ajouter l'avis
             $reviewId = $this->generateUUID();
             $stmt = $this->db->prepare("
