@@ -12,6 +12,7 @@ const AiChatbot = () => {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const messageIdCounter = useRef(0);
   
   const messagesEndRef = useRef(null);
 
@@ -31,7 +32,7 @@ const AiChatbot = () => {
 
     // Add user message
     const userMsg = {
-      id: Date.now().toString(),
+      id: `msg-user-${messageIdCounter.current++}`,
       sender: 'user',
       text: text
     };
@@ -46,7 +47,7 @@ const AiChatbot = () => {
 
       if (response.status === 'success' && response.reply) {
         setMessages(prev => [...prev, {
-          id: (Date.now() + 1).toString(),
+          id: `msg-bot-${messageIdCounter.current++}`,
           sender: 'bot',
           text: response.reply
         }]);
@@ -55,7 +56,7 @@ const AiChatbot = () => {
       }
     } catch (err) {
       setMessages(prev => [...prev, {
-        id: (Date.now() + 1).toString(),
+        id: `msg-bot-${messageIdCounter.current++}`,
         sender: 'bot',
         text: "Désolé, j'ai rencontré un problème lors du traitement de votre demande. Veuillez réessayer."
       }]);
