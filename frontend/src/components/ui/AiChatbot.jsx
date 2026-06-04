@@ -273,6 +273,96 @@ const AiChatbot = () => {
           background: #00bcd4;
           transform: translateY(-1px);
         }
+
+        /* Light mode override styling */
+        body.light-mode .chat-window {
+          background: rgba(255, 255, 255, 0.95);
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+        }
+        body.light-mode .chat-window * {
+          color: var(--on-surface);
+        }
+        body.light-mode .chat-header {
+          background: linear-gradient(135deg, rgba(14, 124, 134, 0.08) 0%, rgba(138, 33, 176, 0.08) 100%);
+          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        body.light-mode .chat-header h4 {
+          color: var(--on-surface);
+        }
+        body.light-mode .chat-header p {
+          color: var(--primary) !important;
+        }
+        body.light-mode .chat-header p span {
+          background: var(--primary) !important;
+        }
+        body.light-mode .chat-header button {
+          color: var(--outline) !important;
+        }
+        body.light-mode .message-bubble.bot {
+          background: rgba(0, 0, 0, 0.04);
+          color: var(--on-surface);
+          border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        body.light-mode .message-bubble.user {
+          background: linear-gradient(135deg, var(--primary) 0%, rgba(14, 124, 134, 0.85) 100%);
+          color: #ffffff !important;
+        }
+        body.light-mode .message-bubble.user * {
+          color: #ffffff !important;
+        }
+        body.light-mode .typing-indicator {
+          background: rgba(0, 0, 0, 0.04);
+        }
+        body.light-mode .chat-footer {
+          background: rgba(0, 0, 0, 0.01);
+          border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        body.light-mode .chat-input {
+          background: rgba(0, 0, 0, 0.03);
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          color: var(--on-surface);
+        }
+        body.light-mode .chat-input:focus {
+          background: #ffffff;
+          border-color: var(--primary);
+        }
+        body.light-mode .chat-send-btn {
+          color: #ffffff !important;
+        }
+        body.light-mode .chat-send-btn span {
+          color: #ffffff !important;
+        }
+        body.light-mode .chat-send-btn:hover {
+          background: #1293a0;
+        }
+        body.light-mode .chat-messages::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.02);
+        }
+        body.light-mode .chat-messages::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.15);
+          border-radius: 99px;
+        }
+        .chat-preset-btn {
+          padding: 8px 12px;
+          border-radius: 12px;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          color: var(--primary);
+          font-size: 12px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .chat-preset-btn:hover {
+          background: rgba(0, 219, 233, 0.08);
+        }
+        body.light-mode .chat-preset-btn {
+          background: rgba(0, 0, 0, 0.03);
+          border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        body.light-mode .chat-preset-btn:hover {
+          background: rgba(14, 124, 134, 0.08);
+        }
       `}</style>
 
       {/* Chat Window */}
@@ -329,18 +419,7 @@ const AiChatbot = () => {
                   <button 
                     key={idx}
                     onClick={() => handleSendMessage(q)}
-                    style={{ 
-                      padding: '8px 12px', 
-                      borderRadius: '12px', 
-                      background: 'rgba(255,255,255,0.03)', 
-                      border: '1px solid rgba(255,255,255,0.06)', 
-                      color: 'var(--primary)', 
-                      fontSize: '12px', 
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(0, 219, 233, 0.08)' }}
-                    onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)' }}
+                    className="chat-preset-btn"
                   >
                     {q}
                   </button>
