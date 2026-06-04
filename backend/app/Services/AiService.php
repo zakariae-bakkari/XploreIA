@@ -14,6 +14,11 @@ class AiService
         return $_ENV['GITHUB_TOKEN'] ?? getenv('GITHUB_TOKEN') ?? '';
     }
 
+    private static function getGithubModel()
+    {
+        return $_ENV['GITHUB_MODEL'] ?? getenv('GITHUB_MODEL') ?? 'gpt-4o-mini';
+    }
+
     /**
      * Call GITHUB_TOKEN (GitHub Models API) or GEMINI_API_KEY or use the mock fallback
      */
@@ -35,7 +40,7 @@ class AiService
 
                 $data = [
                     "messages" => $messages,
-                    "model" => "deepseek/DeepSeek-V3-0324",
+                    "model" => self::getGithubModel(),
                     "temperature" => 0.8,
                     "top_p" => 0.1,
                     "max_tokens" => 2048
