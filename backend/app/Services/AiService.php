@@ -116,6 +116,7 @@ class AiService
             } catch (\Exception $e) {
                 // Fail silently and use fallback
             }
+        }
         // 3. Return null if no AI service is available
         return null;
     }
