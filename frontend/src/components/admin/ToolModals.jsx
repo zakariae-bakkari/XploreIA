@@ -519,6 +519,11 @@ export const ToolDetailModal = ({ isOpen, onClose, tool }) => {
                   <span className={`at-status-dot at-status-${detailData.status || 'active'}`} />
                   {detailData.status || "active"}
                 </span>
+                {detailData.category_name && (
+                  <span className="admin-pill" style={{ background: "rgba(255, 255, 255, 0.08)", color: "var(--on-background)" }}>
+                    📂 {detailData.category_name}
+                  </span>
+                )}
                 {detailData.website_url && (
                   <a href={detailData.website_url} target="_blank" rel="noopener noreferrer" className="admin-pill" style={{ textDecoration: "none" }}>
                     <span className="material-symbols-outlined" style={{ fontSize: 14, marginRight: 4 }}>open_in_new</span>

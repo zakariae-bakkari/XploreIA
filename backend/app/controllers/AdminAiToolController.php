@@ -53,7 +53,10 @@ class AdminAiToolController extends Controller
 
         try {
             // Fetch tool
-            $sql = 'SELECT * FROM ai_tools WHERE id = :id';
+            $sql = 'SELECT t.*, c.name as category_name 
+                    FROM ai_tools t 
+                    LEFT JOIN categories c ON t.main_category_id = c.id 
+                    WHERE t.id = :id';
             $stmt = $this->db->prepare($sql);
             $stmt->execute([':id' => $id]);
             $tool = $stmt->fetch(PDO::FETCH_ASSOC);
