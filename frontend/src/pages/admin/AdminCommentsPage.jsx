@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { aiToolApi, adminApi } from "../../api";
 
 const CustomSelect = ({ value, onChange, options, placeholder = "Sélectionner..." }) => {
