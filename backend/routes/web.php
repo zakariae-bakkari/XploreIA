@@ -33,6 +33,7 @@ Router::post('/verify-code', 'AuthController@verifyCode');
 Router::get('/ai-tools/show', 'AiToolController@show');
 Router::get('/ai-tools-detail', 'AiToolController@show');
 Router::get('/ai-tools/featured', 'AiToolController@getFeatured'); # zakariae : 16-May-26
+Router::post('/ai-tools/suggest', 'AiToolController@suggest');
 
 
 // Routes pour les détails des AI Tools
@@ -43,6 +44,8 @@ Router::get('/ai-tools/{id}/pricing', 'AiToolDetailsController@getPricing');
 Router::get('/ai-tools/{id}/reviews', 'AiToolDetailsController@getReviewsOnly');
 Router::post('/ai-tools/{id}/reviews', 'AiToolDetailsController@addReview');
 Router::post('/ai-tools/reviews', 'AiToolDetailsController@addReview');
+Router::post('/ai-tools/reviews/update', 'AiToolDetailsController@updateReview');
+Router::post('/ai-tools/reviews/delete', 'AiToolDetailsController@deleteReview');
 Router::get('/ai-tools/{id}/statistics', 'AiToolDetailsController@getStatisticsOnly');
 
 // meriem : login 08-May-26
@@ -94,4 +97,7 @@ Router::get('/adminmodel/show', 'AdminModelController@show');
 Router::post('/adminmodel/create', 'AdminModelController@store');
 Router::post('/adminmodel/update', 'AdminModelController@update');
 Router::post('/adminmodel/delete', 'AdminModelController@destroy');
+
+// IA Sprint 3 routes
+Router::post('/ai/chat', 'AiController@chat');
 ?>

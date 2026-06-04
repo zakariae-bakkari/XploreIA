@@ -182,13 +182,13 @@ class AdminCategorieController extends Controller
                 }
             }
 
-            $sql = 'UPDATE categories SET status = "inactive", updated_at = NOW() WHERE id = :id';
+            $sql = 'DELETE FROM categories WHERE id = :id';
             $stmt = $this->db->prepare($sql);
             $stmt->execute([':id' => $id]);
 
             $this->db->commit();
 
-            $this->jsonResponse(['status' => 'success', 'message' => "Category with id $id was deactivated"]);
+            $this->jsonResponse(['status' => 'success', 'message' => "Category with id $id was deleted permanently"]);
         } catch (Exception $e) {
             if ($this->db->inTransaction()) $this->db->rollBack();
             $this->jsonResponse(['status' => 'error', 'message' => $e->getMessage()], 500);

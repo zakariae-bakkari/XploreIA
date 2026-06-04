@@ -75,7 +75,7 @@ const AdminLayout = () => {
           </div>
 
           <nav className="admin-nav">
-            {adminNavItems.map((item) => (
+             {adminNavItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}

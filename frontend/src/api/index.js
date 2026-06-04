@@ -114,6 +114,14 @@ export const aiToolApi = {
     method: "POST",
     body: JSON.stringify({ ...reviewData, tool_id: toolId })
   }),
+  updateReview: (data) => apiRequest("ai-tools/reviews/update", {
+    method: "POST",
+    body: JSON.stringify(data)
+  }),
+  deleteReview: (data) => apiRequest("ai-tools/reviews/delete", {
+    method: "POST",
+    body: JSON.stringify(data)
+  }),
 };
 
 // Service: User

@@ -79,7 +79,7 @@ class AiToolController extends Controller
     public function getFilters()
     {
         try {
-            $categories = $this->db->query("SELECT id, name FROM categories")->fetchAll();
+            $categories = $this->db->query("SELECT id, name FROM categories WHERE status = 'active'")->fetchAll();
             $characteristics = $this->db->query("SELECT DISTINCT name, type FROM characteristics WHERE status = 'active'")->fetchAll();
 
             $this->jsonResponse([
@@ -233,4 +233,131 @@ class AiToolController extends Controller
         }
     }
 
+    /**
+     * POST /ai-tools/suggest
+     * Suggest a new AI Tool with automatic AI validation
+     */
+    public function suggest()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        $userId = $_SESSION['user_id'] ?? null;
+        if (!$userId) {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Authentication required'], 401);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true) ?: [];
+        $name = trim($data['name'] ?? '');
+        $description = trim($data['description'] ?? '');
+        $websiteUrl = trim($data['website_url'] ?? '');
+        $categoryId = empty($data['main_category_id']) ? null : $data['main_category_id'];
+        $pricingModel = trim($data['pricing_model'] ?? 'freemium');
+
+        if (empty($name)) {
+            $this->jsonResponse(['status' => 'error', 'message' => 'Name is required'], 400);
+            return;
+        }
+
+        try {
+            // Check if tool name already exists
+            $check = $this->db->prepare("SELECT id FROM ai_tools WHERE LOWER(name) = ?");
+            $check->execute([strtolower($name)]);
+            if ($check->fetch()) {
+                $this->jsonResponse(['status' => 'error', 'message' => 'Un outil avec ce nom existe déjà.'], 409);
+                return;
+            }
+
+            // AI Validation Prompt
+            $prompt = "Validate the following suggested AI tool:\nName: $name\nDescription: $description\nURL: $websiteUrl\nPricing: $pricingModel";
+            $systemInstruction = "You are a tool validation assistant. Check if the tool named '$name' is a legitimate AI tool or product.
+Return a JSON object in this exact format:
+{
+  \"valid\": true/false,
+  \"name\": \"Corrected Name if typo\",
+  \"description\": \"Professional 2-sentence description\",
+  \"pricing_model\": \"free/freemium/premium\",
+  \"reason\": \"Brief explanation of your decision\"
+}
+Do NOT include any extra formatting, markdown wraps, or explanations. Only return valid JSON.";
+
+            $aiResponse = \App\Services\AiService::generateText($prompt, $systemInstruction);
+            
+            // Clean AI response to handle Markdown json blocks if returned
+            $cleanResponse = preg_replace('/```json|```/', '', $aiResponse);
+            $validation = json_decode(trim($cleanResponse), true);
+
+            // Defaults if AI response is invalid
+            if (!$validation || !isset($validation['valid'])) {
+                $validation = [
+                    'valid' => true,
+                    'name' => $name,
+                    'description' => $description ?: "Outil suggéré par la communauté.",
+                    'pricing_model' => $pricingModel,
+                    'reason' => "Validé par défaut."
+                ];
+            }
+
+            $isValid = (bool)$validation['valid'];
+            $finalName = trim($validation['name'] ?? $name);
+            $finalDesc = trim($validation['description'] ?? $description);
+            $finalPricing = trim($validation['pricing_model'] ?? $pricingModel);
+            $reason = trim($validation['reason'] ?? '');
+
+            // Create tool entry
+            $toolId = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+                mt_rand(0, 0xffff),
+                mt_rand(0, 0x0fff) | 0x4000,
+                mt_rand(0, 0x3fff) | 0x8000,
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+            );
+
+            $status = $isValid ? 'published' : 'rejected';
+            $validatedBy = $isValid ? '00000000-0000-0000-0000-000000000001' : null; // Validate by Admin seed ID
+
+            $stmt = $this->db->prepare("
+                INSERT INTO ai_tools (id, name, description, website_url, pricing_model, status, main_category_id, created_by, validated_by, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ");
+            $stmt->execute([$toolId, $finalName, $finalDesc, $websiteUrl, $finalPricing, $status, $categoryId, $userId, $validatedBy]);
+
+            // Save Notification for User
+            $notifId = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+                mt_rand(0, 0xffff),
+                mt_rand(0, 0x0fff) | 0x4000,
+                mt_rand(0, 0x3fff) | 0x8000,
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+            );
+
+            $notifMsg = $isValid 
+                ? "Félicitations ! Votre suggestion d'outil '" . $finalName . "' a été automatiquement validée par l'IA et publiée." 
+                : "Votre suggestion d'outil '" . $name . "' a été refusée par l'IA de modération. Raison : " . $reason;
+
+            $nStmt = $this->db->prepare("
+                INSERT INTO notifications (id, user_id, message, link, status, created_at)
+                VALUES (?, ?, ?, ?, 'unread', NOW())
+            ");
+            // Set link to slugified path if published
+            $link = $isValid ? "/discover/" . strtolower(str_replace(' ', '-', $finalName)) : null;
+            $nStmt->execute([$notifId, $userId, $notifMsg, $link]);
+
+            $this->jsonResponse([
+                'status' => 'success',
+                'valid' => $isValid,
+                'message' => $notifMsg,
+                'data' => [
+                    'id' => $toolId,
+                    'name' => $finalName,
+                    'status' => $status
+                ]
+            ], 201);
+
+        } catch (\Exception $e) {
+            $this->jsonResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
 }
