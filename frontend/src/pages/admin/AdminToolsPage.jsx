@@ -1,57 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { adminApi, aiToolApi } from "../../api";
-
-const CustomSelect = ({ value, onChange, options, placeholder = "Sélectionner..." }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const selectedOption = options.find((opt) => opt.value === value);
-
-  useEffect(() => {
-    const handleClose = () => setIsOpen(false);
-    window.addEventListener("click", handleClose);
-    return () => window.removeEventListener("click", handleClose);
-  }, []);
-
-  return (
-    <div 
-      className="custom-select-container" 
-      onClick={(e) => {
-        e.stopPropagation();
-        setIsOpen(!isOpen);
-      }}
-      style={{ width: "100%" }}
-    >
-      <div className={`custom-select-trigger ${isOpen ? "open" : ""}`}>
-        <span>{selectedOption ? selectedOption.label : placeholder}</span>
-        <span className="material-symbols-outlined select-arrow">
-          {isOpen ? "expand_less" : "expand_more"}
-        </span>
-      </div>
-
-      {isOpen && (
-        <ul className="custom-select-options">
-          {options.map((opt) => (
-            <li
-              key={opt.value}
-              className={`custom-select-option ${opt.value === value ? "selected" : ""}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onChange(opt.value);
-                setIsOpen(false);
-              }}
-            >
-              <div className="option-content-flex">
-                <span className="option-label">{opt.label}</span>
-                {opt.description && (
-                  <span className="option-desc">{opt.description}</span>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-};
+import { adminApi } from "../../api";
+import { AddToolModal, EditToolModal, ToolDetailModal, DeleteToolModal } from "../../components/admin/ToolModals";
 
 const AdminToolsPage = () => {
   const [tools, setTools] = useState([]);
@@ -64,36 +13,55 @@ const AdminToolsPage = () => {
   const [showDelete, setShowDelete] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
 
-  // Form states
-  const [formName, setFormName] = useState("");
-  const [formDesc, setFormDesc] = useState("");
-  const [formUrl, setFormUrl] = useState("");
-  const [formPricing, setFormPricing] = useState("freemium");
-  const [formStatus, setFormStatus] = useState("active");
-  const [formAdvantages, setFormAdvantages] = useState([""]);
-  const [formDisadvantages, setFormDisadvantages] = useState([""]);
+  // Selected tool states
+  const [selectedTool, setSelectedTool] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  // Catalog items lists
+  const [allCharacteristics, setAllCharacteristics] = useState([]);
+  const [allModels, setAllModels] = useState([]);
+
+  // Form helpers
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Selected tool for edit/delete/detail
-  const [selectedTool, setSelectedTool] = useState(null);
-  const [detailData, setDetailData] = useState(null);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-
-  const loadTools = async () => {
+  const loadInitialData = async () => {
     setLoading(true);
     try {
-      const response = await adminApi.aiToolApi.getAll();
-      if (response.status === "success") {
-        setTools(response.data || []);
+      const [toolsRes, charRes, modelRes] = await Promise.all([
+        adminApi.aiToolApi.getAll(),
+        adminApi.characteristicApi.getAll(),
+        adminApi.modelApi.getAll()
+      ]);
+      if (toolsRes.status === "success") {
+        setTools(toolsRes.data || []);
       }
+      if (charRes.status === "success") {
+        setAllCharacteristics(charRes.data || []);
+      }
+      if (modelRes.status === "success") {
+        setAllModels(modelRes.data || []);
+      }
+    } catch (e) {
+      console.error("Failed to load catalog data:", e);
     } finally {
       setLoading(false);
     }
   };
 
+  const loadTools = async () => {
+    try {
+      const response = await adminApi.aiToolApi.getAll();
+      if (response.status === "success") {
+        setTools(response.data || []);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
-    loadTools();
+    loadInitialData();
   }, []);
 
   const filteredTools = useMemo(
@@ -106,67 +74,23 @@ const AdminToolsPage = () => {
     [tools, search],
   );
 
-  // Reset form
-  const resetForm = () => {
-    setFormName("");
-    setFormDesc("");
-    setFormUrl("");
-    setFormPricing("freemium");
-    setFormStatus("active");
-    setFormAdvantages([""]);
-    setFormDisadvantages([""]);
-    setFormError("");
-  };
-
   // Open Add
   const openAdd = () => {
-    resetForm();
+    setFormError("");
     setShowAdd(true);
   };
 
   // Open Edit
-  const openEdit = async (tool) => {
-    resetForm();
+  const openEdit = (tool) => {
+    setFormError("");
     setSelectedTool(tool);
-    setFormName(tool.name || "");
-    setFormDesc(tool.description || "");
-    setFormUrl(tool.website_url || "");
-    setFormPricing(tool.pricing_model || "freemium");
-    setFormStatus(tool.status || "active");
-
-    // Fetch details to get advantages/disadvantages
-    try {
-      const res = await adminApi.aiToolApi.getById(tool.id);
-      if (res.status === "success" && res.data) {
-        setFormAdvantages(
-          res.data.advantages && res.data.advantages.length > 0
-            ? res.data.advantages.map((a) => a.advantage_name)
-            : [""]
-        );
-        setFormDisadvantages(
-          res.data.disadvantages && res.data.disadvantages.length > 0
-            ? res.data.disadvantages.map((d) => d.disadvantage_name)
-            : [""]
-        );
-      }
-    } catch (e) {
-      console.error(e);
-    }
     setShowEdit(true);
   };
 
   // Open Detail
-  const openDetail = async (tool) => {
-    setDetailData(null);
+  const openDetail = (tool) => {
+    setSelectedTool(tool);
     setShowDetail(true);
-    try {
-      const res = await adminApi.aiToolApi.getById(tool.id);
-      if (res.status === "success") {
-        setDetailData(res.data);
-      }
-    } catch (e) {
-      console.error(e);
-    }
   };
 
   // Open Delete
@@ -176,27 +100,13 @@ const AdminToolsPage = () => {
   };
 
   // Handle Create
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    if (!formName.trim()) {
-      setFormError("Le nom de l'outil est obligatoire.");
-      return;
-    }
+  const handleCreate = async (data) => {
     setSaving(true);
     setFormError("");
     try {
-      const res = await adminApi.aiToolApi.create({
-        name: formName.trim(),
-        description: formDesc.trim(),
-        website_url: formUrl.trim(),
-        pricing_model: formPricing,
-        status: formStatus,
-        advantages: formAdvantages.filter((a) => a.trim()),
-        disadvantages: formDisadvantages.filter((d) => d.trim()),
-      });
+      const res = await adminApi.aiToolApi.create(data);
       if (res.status === "success") {
         setShowAdd(false);
-        resetForm();
         await loadTools();
       } else {
         setFormError(res.message || "Erreur lors de la création.");
@@ -209,28 +119,13 @@ const AdminToolsPage = () => {
   };
 
   // Handle Update
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    if (!formName.trim()) {
-      setFormError("Le nom de l'outil est obligatoire.");
-      return;
-    }
+  const handleUpdate = async (data) => {
     setSaving(true);
     setFormError("");
     try {
-      const res = await adminApi.aiToolApi.update({
-        id: selectedTool.id,
-        name: formName.trim(),
-        description: formDesc.trim(),
-        website_url: formUrl.trim(),
-        pricing_model: formPricing,
-        status: formStatus,
-        advantages: formAdvantages.filter((a) => a.trim()),
-        disadvantages: formDisadvantages.filter((d) => d.trim()),
-      });
+      const res = await adminApi.aiToolApi.update(data);
       if (res.status === "success") {
         setShowEdit(false);
-        resetForm();
         setSelectedTool(null);
         await loadTools();
       } else {
@@ -263,15 +158,6 @@ const AdminToolsPage = () => {
     }
   };
 
-  // Dynamic list helpers
-  const addAdvantage = () => setFormAdvantages([...formAdvantages, ""]);
-  const removeAdvantage = (i) => setFormAdvantages(formAdvantages.filter((_, idx) => idx !== i));
-  const updateAdvantage = (i, val) => { const copy = [...formAdvantages]; copy[i] = val; setFormAdvantages(copy); };
-
-  const addDisadvantage = () => setFormDisadvantages([...formDisadvantages, ""]);
-  const removeDisadvantage = (i) => setFormDisadvantages(formDisadvantages.filter((_, idx) => idx !== i));
-  const updateDisadvantage = (i, val) => { const copy = [...formDisadvantages]; copy[i] = val; setFormDisadvantages(copy); };
-
   // Pricing badge color
   const pricingColor = (model) => {
     switch (model) {
@@ -291,95 +177,6 @@ const AdminToolsPage = () => {
     );
   }
 
-  // Shared form JSX
-  const renderForm = (onSubmit, submitLabel) => (
-    <form onSubmit={onSubmit}>
-      {formError && <div className="at-error-banner">{formError}</div>}
-
-      <div className="at-form-group">
-        <label>Nom de l'outil *</label>
-        <input className="at-input" value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="Ex: ChatGPT" />
-      </div>
-
-      <div className="at-form-group">
-        <label>Description</label>
-        <textarea className="at-input at-textarea" value={formDesc} onChange={(e) => setFormDesc(e.target.value)} placeholder="Description de l'outil..." rows={3} />
-      </div>
-
-      <div className="at-form-row">
-        <div className="at-form-group" style={{flex:1}}>
-          <label>URL du site</label>
-          <input className="at-input" value={formUrl} onChange={(e) => setFormUrl(e.target.value)} placeholder="https://..." />
-        </div>
-        <div className="at-form-group" style={{flex:1}}>
-          <label>Modèle tarifaire</label>
-          <CustomSelect
-            value={formPricing}
-            onChange={(val) => setFormPricing(val)}
-            options={[
-              { value: "free", label: "Gratuit" },
-              { value: "freemium", label: "Freemium" },
-              { value: "paid", label: "Payant" }
-            ]}
-          />
-        </div>
-      </div>
-
-      <div className="at-form-group">
-        <label>Statut</label>
-        <CustomSelect
-          value={formStatus}
-          onChange={(val) => setFormStatus(val)}
-          options={[
-            { value: "active", label: "Actif" },
-            { value: "draft", label: "Brouillon" },
-            { value: "inactive", label: "Inactif" }
-          ]}
-        />
-      </div>
-
-      {/* Advantages */}
-      <div className="at-form-group">
-        <label>Avantages</label>
-        {formAdvantages.map((adv, i) => (
-          <div key={i} className="at-dynamic-row">
-            <input className="at-input" value={adv} onChange={(e) => updateAdvantage(i, e.target.value)} placeholder={`Avantage ${i + 1}`} />
-            {formAdvantages.length > 1 && (
-              <button type="button" className="at-remove-btn" onClick={() => removeAdvantage(i)}>
-                <span className="material-symbols-outlined" style={{fontSize:18}}>close</span>
-              </button>
-            )}
-          </div>
-        ))}
-        <button type="button" className="at-add-btn" onClick={addAdvantage}>
-          <span className="material-symbols-outlined" style={{fontSize:16}}>add</span> Ajouter
-        </button>
-      </div>
-
-      {/* Disadvantages */}
-      <div className="at-form-group">
-        <label>Inconvénients</label>
-        {formDisadvantages.map((dis, i) => (
-          <div key={i} className="at-dynamic-row">
-            <input className="at-input" value={dis} onChange={(e) => updateDisadvantage(i, e.target.value)} placeholder={`Inconvénient ${i + 1}`} />
-            {formDisadvantages.length > 1 && (
-              <button type="button" className="at-remove-btn" onClick={() => removeDisadvantage(i)}>
-                <span className="material-symbols-outlined" style={{fontSize:18}}>close</span>
-              </button>
-            )}
-          </div>
-        ))}
-        <button type="button" className="at-add-btn" onClick={addDisadvantage}>
-          <span className="material-symbols-outlined" style={{fontSize:16}}>add</span> Ajouter
-        </button>
-      </div>
-
-      <div className="at-modal-actions">
-        <button type="button" className="at-btn-cancel" onClick={() => { setShowAdd(false); setShowEdit(false); }}>Annuler</button>
-        <button type="submit" className="at-btn-submit" disabled={saving}>{saving ? "Enregistrement..." : submitLabel}</button>
-      </div>
-    </form>
-  );
 
   return (
     <div className="admin-page">
@@ -723,6 +520,45 @@ const AdminToolsPage = () => {
           from { transform: translateY(20px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
+
+        /* Chips for characteristics and models selection */
+        .char-chips-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .char-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          border-radius: 14px;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          font-size: 13px;
+          transition: all 0.2s ease;
+          cursor: pointer;
+        }
+
+        .char-chip:hover {
+          background: rgba(255, 255, 255, 0.07);
+          transform: translateY(-1px);
+        }
+
+        .char-delete-icon {
+          font-size: 16px;
+          color: var(--outline);
+          cursor: pointer;
+          border-radius: 50%;
+          padding: 2px;
+          transition: all 0.2s ease;
+        }
+
+        .char-delete-icon:hover {
+          background: rgba(255, 74, 118, 0.2);
+          color: #ff4a76;
+        }
       `}</style>
 
       <section className="admin-page-head">
@@ -846,119 +682,50 @@ const AdminToolsPage = () => {
       </section>
 
       {/* === ADD MODAL === */}
-      {showAdd && (
-        <div className="at-modal-overlay" onClick={() => setShowAdd(false)}>
-          <div className="at-modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2 className="at-modal-title">Ajouter un outil IA</h2>
-            <p className="at-modal-desc">Remplissez les informations de l'outil. Les avantages et inconvénients seront enregistrés automatiquement.</p>
-            {renderForm(handleCreate, "Créer l'outil")}
-          </div>
-        </div>
-      )}
+      <AddToolModal
+        isOpen={showAdd}
+        onClose={() => {
+          setShowAdd(false);
+          setFormError("");
+        }}
+        onSubmit={handleCreate}
+        saving={saving}
+        error={formError}
+        allCharacteristics={allCharacteristics}
+        allModels={allModels}
+      />
 
       {/* === EDIT MODAL === */}
-      {showEdit && (
-        <div className="at-modal-overlay" onClick={() => setShowEdit(false)}>
-          <div className="at-modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2 className="at-modal-title">Modifier l'outil</h2>
-            <p className="at-modal-desc">Modifiez les informations de « {selectedTool?.name} ».</p>
-            {renderForm(handleUpdate, "Enregistrer")}
-          </div>
-        </div>
-      )}
+      <EditToolModal
+        isOpen={showEdit}
+        onClose={() => {
+          setShowEdit(false);
+          setSelectedTool(null);
+          setFormError("");
+        }}
+        onSubmit={handleUpdate}
+        saving={saving}
+        error={formError}
+        tool={selectedTool}
+        allCharacteristics={allCharacteristics}
+        allModels={allModels}
+      />
 
       {/* === DELETE MODAL === */}
-      {showDelete && deleteTarget && (
-        <div className="at-modal-overlay" onClick={() => setShowDelete(false)}>
-          <div className="at-modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
-            <h2 className="at-modal-title">Supprimer l'outil</h2>
-            <p className="at-modal-desc">
-              Êtes-vous sûr de vouloir supprimer <strong>« {deleteTarget.name} »</strong> ?
-              Cette action est irréversible et supprimera également les avantages et inconvénients associés.
-            </p>
-            <div className="at-modal-actions">
-              <button className="at-btn-cancel" onClick={() => setShowDelete(false)}>Annuler</button>
-              <button className="at-btn-danger" onClick={handleDelete} disabled={saving}>
-                {saving ? "Suppression..." : "Supprimer définitivement"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteToolModal
+        isOpen={showDelete}
+        onClose={() => setShowDelete(false)}
+        onConfirm={handleDelete}
+        tool={deleteTarget}
+        saving={saving}
+      />
 
       {/* === DETAIL MODAL === */}
-      {showDetail && (
-        <div className="at-modal-overlay" onClick={() => setShowDetail(false)}>
-          <div className="at-modal-content" onClick={(e) => e.stopPropagation()}>
-            {!detailData ? (
-              <div className="admin-loading" style={{ minHeight: 120 }}>
-                <div className="loader" />
-                <p>Chargement...</p>
-              </div>
-            ) : (
-              <>
-                <h2 className="at-modal-title">{detailData.name}</h2>
-                <p className="at-modal-desc">{detailData.description || "Pas de description."}</p>
-
-                <div className="at-detail-section">
-                  <p className="at-detail-label">Informations</p>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-                    <span className="admin-pill">{detailData.pricing_model || "N/A"}</span>
-                    <span className="admin-pill">
-                      <span className={`at-status-dot at-status-${detailData.status || 'active'}`} />
-                      {detailData.status || "active"}
-                    </span>
-                    {detailData.website_url && (
-                      <a href={detailData.website_url} target="_blank" rel="noopener noreferrer" className="admin-pill" style={{textDecoration:"none"}}>
-                        <span className="material-symbols-outlined" style={{fontSize:14, marginRight:4}}>open_in_new</span>
-                        Site web
-                      </a>
-                    )}
-                  </div>
-                </div>
-
-                {detailData.advantages && detailData.advantages.length > 0 && (
-                  <div className="at-detail-section">
-                    <p className="at-detail-label">Avantages</p>
-                    <div className="at-detail-chips">
-                      {detailData.advantages.map((a, i) => (
-                        <span key={i} className="at-detail-chip at-adv-chip">✓ {a.advantage_name}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {detailData.disadvantages && detailData.disadvantages.length > 0 && (
-                  <div className="at-detail-section">
-                    <p className="at-detail-label">Inconvénients</p>
-                    <div className="at-detail-chips">
-                      {detailData.disadvantages.map((d, i) => (
-                        <span key={i} className="at-detail-chip at-dis-chip">✗ {d.disadvantage_name}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {detailData.models && detailData.models.length > 0 && (
-                  <div className="at-detail-section">
-                    <p className="at-detail-label">Modèles associés</p>
-                    <div className="at-detail-chips">
-                      {detailData.models.map((m, i) => (
-                        <span key={i} className="at-detail-chip" style={{background:"rgba(235,178,255,0.12)", color:"#ebb2ff"}}>{m.name}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="at-modal-actions">
-                  <button className="at-btn-cancel" onClick={() => setShowDetail(false)}>Fermer</button>
-                  <button className="at-btn-submit" onClick={() => { setShowDetail(false); openEdit(detailData); }}>Modifier</button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      <ToolDetailModal
+        isOpen={showDetail}
+        onClose={() => setShowDetail(false)}
+        tool={selectedTool}
+      />
     </div>
   );
 };

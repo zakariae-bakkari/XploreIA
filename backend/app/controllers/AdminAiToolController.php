@@ -78,6 +78,11 @@ class AdminAiToolController extends Controller
             $modelStmt->execute([':id' => $id]);
             $tool['models'] = $modelStmt->fetchAll(PDO::FETCH_ASSOC);
 
+            // Fetch characteristics
+            $charStmt = $this->db->prepare('SELECT c.id, c.name, c.type FROM characteristics c JOIN tool_characteristics tc ON c.id = tc.characteristic_id WHERE tc.tool_id = :id');
+            $charStmt->execute([':id' => $id]);
+            $tool['characteristics'] = $charStmt->fetchAll(PDO::FETCH_ASSOC);
+ 
             $this->jsonResponse(['status' => 'success', 'data' => $tool]);
         } catch (Exception $e) {
             $this->jsonResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
@@ -148,6 +153,16 @@ class AdminAiToolController extends Controller
                 }
             }
 
+            // Insert characteristics
+            if (isset($data['characteristics']) && is_array($data['characteristics'])) {
+                $insChar = $this->db->prepare('INSERT INTO tool_characteristics (tool_id, characteristic_id) VALUES (:tool_id, :characteristic_id)');
+                foreach ($data['characteristics'] as $charId) {
+                    if (trim($charId)) {
+                        $insChar->execute([':tool_id' => $toolId, ':characteristic_id' => trim($charId)]);
+                    }
+                }
+            }
+ 
             $this->db->commit();
             $this->jsonResponse(['status' => 'success', 'message' => 'AI Tool created', 'id' => $toolId], 201);
         } catch (Exception $e) {
@@ -231,6 +246,19 @@ class AdminAiToolController extends Controller
                 }
             }
 
+            // Update characteristics
+            if (isset($data['characteristics']) && is_array($data['characteristics'])) {
+                $delChars = $this->db->prepare('DELETE FROM tool_characteristics WHERE tool_id = :id');
+                $delChars->execute([':id' => $id]);
+                
+                $insChar = $this->db->prepare('INSERT INTO tool_characteristics (tool_id, characteristic_id) VALUES (:tool_id, :characteristic_id)');
+                foreach ($data['characteristics'] as $charId) {
+                    if (trim($charId)) {
+                        $insChar->execute([':tool_id' => $id, ':characteristic_id' => trim($charId)]);
+                    }
+                }
+            }
+ 
             $this->db->commit();
             $this->jsonResponse(['status' => 'success', 'message' => 'AI Tool updated']);
         } catch (Exception $e) {
