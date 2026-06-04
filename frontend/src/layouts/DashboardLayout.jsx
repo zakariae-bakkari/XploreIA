@@ -23,7 +23,7 @@ const DashboardLayout = ({ children }) => {
                 <span className="material-symbols-outlined">explore</span>
                 <span>Découvrir</span>
               </Link>
-              <Link to="/favorites" className="sidebar-link">
+              <Link to="/favorites" className={`sidebar-link ${isActive('/favorites') || location.pathname.startsWith('/playlists') ? 'active' : ''}`}>
                 <span className="material-symbols-outlined">favorite</span>
                 <span>Favoris</span>
               </Link>

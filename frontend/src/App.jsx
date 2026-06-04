@@ -14,6 +14,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ToolDetailsPage from "./pages/ToolDetailsPage";
 import DebugPage from "./pages/DebugPage";
 import FavoritesPage from "./pages/FavoritesPage";
+import PlaylistDetailsPage from "./pages/PlaylistDetailsPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
@@ -72,6 +73,14 @@ function App() {
         element={
           <ProtectedRoute>
             <FavoritesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/playlists/:id"
+        element={
+          <ProtectedRoute>
+            <PlaylistDetailsPage />
           </ProtectedRoute>
         }
       />
