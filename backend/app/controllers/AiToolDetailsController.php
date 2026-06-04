@@ -201,10 +201,10 @@ class AiToolDetailsController extends Controller {
                 return;
             }
             
-            // Vérifier si l'utilisateur a déjà laissé un avis
+            // Vérifier si l'utilisateur a déjà laissé un avis (exclure les avis rejetés)
             $stmt = $this->db->prepare("
                 SELECT id FROM reviews 
-                WHERE tool_id = ? AND user_id = ?
+                WHERE tool_id = ? AND user_id = ? AND status != 'rejected'
             ");
             $stmt->execute([$toolId, $userId]);
             
