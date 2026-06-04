@@ -44,6 +44,8 @@ Router::get('/ai-tools/{id}/pricing', 'AiToolDetailsController@getPricing');
 Router::get('/ai-tools/{id}/reviews', 'AiToolDetailsController@getReviewsOnly');
 Router::post('/ai-tools/{id}/reviews', 'AiToolDetailsController@addReview');
 Router::post('/ai-tools/reviews', 'AiToolDetailsController@addReview');
+Router::post('/ai-tools/reviews/update', 'AiToolDetailsController@updateReview');
+Router::post('/ai-tools/reviews/delete', 'AiToolDetailsController@deleteReview');
 Router::get('/ai-tools/{id}/statistics', 'AiToolDetailsController@getStatisticsOnly');
 
 // meriem : login 08-May-26

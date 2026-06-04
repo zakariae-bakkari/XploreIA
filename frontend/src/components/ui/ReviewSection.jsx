@@ -13,6 +13,61 @@ const ReviewSection = ({ tool, showReviews, setShowReviews }) => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  // Edit/Delete States
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [editRating, setEditRating] = useState(5);
+  const [editComment, setEditComment] = useState("");
+  const [editError, setEditError] = useState("");
+  const [editSubmitting, setEditSubmitting] = useState(false);
+
+  const handleStartEdit = (review) => {
+    setEditingReviewId(review.id);
+    setEditRating(review.rating);
+    setEditComment(review.comment);
+    setEditError("");
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    if (!confirm("Voulez-vous vraiment supprimer votre avis ?")) return;
+    try {
+      const response = await aiToolApi.deleteReview({ review_id: reviewId });
+      if (response && (response.success || response.status === "success")) {
+        window.location.reload();
+      } else {
+        alert(response.error || "Une erreur est survenue lors de la suppression.");
+      }
+    } catch (err) {
+      alert("Impossible de supprimer l'avis.");
+    }
+  };
+
+  const handleSaveEdit = async (e, reviewId) => {
+    e.preventDefault();
+    if (!editComment.trim()) {
+      setEditError("Le commentaire ne peut pas être vide.");
+      return;
+    }
+    setEditSubmitting(true);
+    setEditError("");
+    try {
+      const response = await aiToolApi.updateReview({
+        review_id: reviewId,
+        rating: editRating,
+        comment: editComment.trim()
+      });
+      if (response && (response.success || response.status === "success")) {
+        setEditingReviewId(null);
+        window.location.reload();
+      } else {
+        setEditError(response.error || "Une erreur est survenue.");
+      }
+    } catch (err) {
+      setEditError("Impossible de modifier l'avis.");
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!comment.trim()) {
@@ -346,27 +401,127 @@ const ReviewSection = ({ tool, showReviews, setShowReviews }) => {
           )}
 
           {/* Existing comments list */}
-          {tool.reviews?.length > 0 ? tool.reviews.map((review) => (
-            <div key={review.id} className="glass-panel" style={{ padding: '24px', borderRadius: '20px' }}>
-              <div className="flex justify-between items-start" style={{ marginBottom: '16px' }}>
-                <div className="flex items-center gap-sm">
-                  <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--on-primary)', fontSize: '12px', fontWeight: 'bold' }}>
-                    {review.user_name?.charAt(0)}
-                  </div>
-                  <div>
-                    <p style={{ fontWeight: '600', fontSize: '14px' }}>{review.user_name}</p>
-                    <p style={{ fontSize: '11px', color: 'var(--outline)' }}>{new Date(review.created_at).toLocaleDateString('fr-FR')}</p>
-                  </div>
-                </div>
-                <div style={{ color: '#FFC107', fontSize: '14px' }}>
-                  {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
-                </div>
+          {tool.reviews?.length > 0 ? tool.reviews.map((review) => {
+            const isOwner = user && String(user.id) === String(review.user_id);
+            const isEditing = editingReviewId === review.id;
+
+            return (
+              <div key={review.id} className="glass-panel" style={{ padding: '24px', borderRadius: '20px' }}>
+                {isEditing ? (
+                  <form onSubmit={(e) => handleSaveEdit(e, review.id)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <h4 style={{ margin: 0, fontSize: "14px", fontWeight: "700" }}>Modifier votre avis</h4>
+                    </div>
+
+                    {/* Star selector */}
+                    <div className="review-input-group">
+                      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                        <div style={{ display: "flex", gap: "6px" }}>
+                          {[1, 2, 3, 4, 5].map((star) => {
+                            const isActive = editRating >= star;
+                            return (
+                              <span
+                                key={star}
+                                className="material-symbols-outlined"
+                                style={{
+                                  fontSize: "24px",
+                                  cursor: "pointer",
+                                  color: isActive ? "#FFAD33" : "rgba(255, 255, 255, 0.15)",
+                                  textShadow: isActive ? "0 0 10px rgba(255, 173, 51, 0.4)" : "none",
+                                  transition: "all 0.15s ease",
+                                  fontVariationSettings: isActive ? "'FILL' 1, 'wght' 400" : "'FILL' 0, 'wght' 400"
+                                }}
+                                onClick={() => setEditRating(star)}
+                              >
+                                star
+                              </span>
+                            );
+                          })}
+                        </div>
+                        <span style={{ fontSize: "13px", fontWeight: "600", color: "#FFAD33" }}>
+                          {starLabels[editRating]}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Comment text box */}
+                    <div className="review-input-group">
+                      <textarea
+                        className="review-textarea-custom"
+                        style={{ minHeight: '80px' }}
+                        value={editComment}
+                        onChange={(e) => setEditComment(e.target.value.substring(0, 500))}
+                        required
+                      />
+                    </div>
+
+                    {editError && (
+                      <div className="review-message-banner error" style={{ padding: '10px 14px', borderRadius: '12px' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>warning</span>
+                        <span style={{ fontSize: '13px' }}>{editError}</span>
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                      <button 
+                        type="button" 
+                        onClick={() => setEditingReviewId(null)}
+                        style={{ padding: '8px 16px', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--on-surface)', cursor: 'pointer', fontSize: '13px' }}
+                      >
+                        Annuler
+                      </button>
+                      <button 
+                        type="submit" 
+                        disabled={editSubmitting}
+                        style={{ padding: '8px 16px', borderRadius: '10px', background: 'var(--primary)', border: 'none', color: '#0b0b0f', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        {editSubmitting && <span className="material-symbols-outlined" style={{ animation: "spin 1s linear infinite", fontSize: "16px" }}>sync</span>}
+                        Enregistrer
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div className="flex justify-between items-start" style={{ marginBottom: '16px' }}>
+                      <div className="flex items-center gap-sm">
+                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--on-primary)', fontSize: '12px', fontWeight: 'bold' }}>
+                          {review.user_name?.charAt(0)}
+                        </div>
+                        <div>
+                          <p style={{ fontWeight: '600', fontSize: '14px' }}>{review.user_name}</p>
+                          <p style={{ fontSize: '11px', color: 'var(--outline)' }}>{new Date(review.created_at).toLocaleDateString('fr-FR')}</p>
+                        </div>
+                      </div>
+                      <div style={{ color: '#FFC107', fontSize: '14px' }}>
+                        {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                      </div>
+                    </div>
+                    <p className="body-md" style={{ color: 'var(--on-surface-variant)', lineHeight: '1.6' }}>
+                      "{review.comment}"
+                    </p>
+                    {isOwner && (
+                      <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end', marginTop: '12px', borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: '10px' }}>
+                        <button 
+                          onClick={() => handleStartEdit(review)}
+                          style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', padding: 0 }}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>edit</span>
+                          Modifier
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteReview(review.id)}
+                          style={{ background: 'none', border: 'none', color: '#ff4a76', cursor: 'pointer', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', padding: 0 }}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>delete</span>
+                          Supprimer
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
-              <p className="body-md" style={{ color: 'var(--on-surface-variant)', lineHeight: '1.6' }}>
-                "{review.comment}"
-              </p>
-            </div>
-          )) : (
+            );
+          }) : (
             <div style={{ textAlign: 'center', padding: '40px', color: 'var(--outline)' }}>
               Aucun avis pour le moment. Soyez le premier à donner votre avis !
             </div>

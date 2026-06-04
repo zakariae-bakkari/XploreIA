@@ -234,6 +234,13 @@ Return a JSON object in this exact format:
 Do NOT include any extra formatting, markdown wraps, or explanations. Only return valid JSON.";
 
             $aiResponse = \App\Services\AiService::generateText($prompt, $systemInstruction);
+            if ($aiResponse === null) {
+                $this->jsonResponse([
+                    'success' => false,
+                    'error' => 'Le service de modération IA n\'est pas disponible pour le moment. Veuillez réessayer plus tard.'
+                ], 503);
+                return;
+            }
             $cleanResponse = preg_replace('/```json|```/', '', $aiResponse);
             $moderation = json_decode(trim($cleanResponse), true);
 
@@ -696,6 +703,176 @@ Do NOT include any extra formatting, markdown wraps, or explanations. Only retur
         $stats['total_compares'] = (int)$stmt->fetch(PDO::FETCH_ASSOC)['total_compares'];
         
         return $stats;
+    }
+
+    /**
+     * POST /ai-tools/reviews/update
+     * Modifier un avis existant (pour le client)
+     */
+    public function updateReview() {
+        try {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+            $userId = $_SESSION['user_id'] ?? $_POST['user_id'] ?? null;
+            if (!$userId) {
+                $this->jsonResponse(['success' => false, 'error' => 'User not authenticated'], 401);
+                return;
+            }
+
+            // Verify if user is suspended
+            $userCheck = $this->db->prepare('SELECT status FROM users WHERE id = :id');
+            $userCheck->execute([':id' => $userId]);
+            $userStatus = $userCheck->fetchColumn();
+            if ($userStatus === 'banned') {
+                $this->jsonResponse(['success' => false, 'error' => 'Your account has been suspended'], 403);
+                return;
+            }
+
+            $data = json_decode(file_get_contents('php://input'), true) ?: [];
+            $reviewId = $data['review_id'] ?? null;
+            $rating = $data['rating'] ?? null;
+            $comment = trim($data['comment'] ?? '');
+
+            if (!$reviewId || !$rating || empty($comment)) {
+                $this->jsonResponse(['success' => false, 'error' => 'Missing required fields'], 400);
+                return;
+            }
+
+            // Fetch current review to verify ownership
+            $reviewStmt = $this->db->prepare("SELECT user_id, tool_id FROM reviews WHERE id = ?");
+            $reviewStmt->execute([$reviewId]);
+            $review = $reviewStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$review) {
+                $this->jsonResponse(['success' => false, 'error' => 'Review not found'], 404);
+                return;
+            }
+
+            if ($review['user_id'] !== $userId) {
+                $this->jsonResponse(['success' => false, 'error' => 'Unauthorized to edit this review'], 403);
+                return;
+            }
+
+            // AI Comment Moderation on edited comment
+            $prompt = "Analyze this user review comment for AI tool: \"" . $comment . "\"";
+            $systemInstruction = "You are a content moderation assistant. Check if this comment contains hate speech, insults, severe profanities, threats, or harassment.
+Return a JSON object in this exact format:
+{
+  \"respectful\": true/false,
+  \"reason\": \"Explain why if it is disrespectful\"
+}
+Do NOT include any extra formatting, markdown wraps, or explanations. Only return valid JSON.";
+
+            $aiResponse = \App\Services\AiService::generateText($prompt, $systemInstruction);
+            if ($aiResponse === null) {
+                $this->jsonResponse([
+                    'success' => false,
+                    'error' => 'Le service de modération IA n\'est pas disponible pour le moment. Veuillez réessayer plus tard.'
+                ], 503);
+                return;
+            }
+            $cleanResponse = preg_replace('/```json|```/', '', $aiResponse);
+            $moderation = json_decode(trim($cleanResponse), true);
+
+            $isRespectful = true;
+            if ($moderation && isset($moderation['respectful'])) {
+                $isRespectful = (bool)$moderation['respectful'];
+            }
+
+            if (!$isRespectful) {
+                // Update status to rejected
+                $stmt = $this->db->prepare("
+                    UPDATE reviews 
+                    SET rating = ?, comment = ?, status = 'rejected', updated_at = NOW()
+                    WHERE id = ?
+                ");
+                $stmt->execute([$rating, $comment, $reviewId]);
+                
+                // Recalculate rating because this review is now rejected/not approved
+                $this->updateGlobalRating($review['tool_id']);
+
+                $this->jsonResponse([
+                    'success' => false,
+                    'error' => 'Votre commentaire a été rejeté par notre système de modération automatique car il contient du contenu inapproprié.'
+                ], 400);
+                return;
+            }
+
+            // If respectful, update as approved
+            $stmt = $this->db->prepare("
+                UPDATE reviews 
+                SET rating = ?, comment = ?, status = 'approved', updated_at = NOW()
+                WHERE id = ?
+            ");
+            $stmt->execute([$rating, $comment, $reviewId]);
+
+            // Update rating
+            $this->updateGlobalRating($review['tool_id']);
+
+            $this->jsonResponse([
+                'success' => true,
+                'message' => 'Review updated successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            $this->jsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST /ai-tools/reviews/delete
+     * Supprimer un avis existant (pour le client)
+     */
+    public function deleteReview() {
+        try {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+            $userId = $_SESSION['user_id'] ?? $_POST['user_id'] ?? null;
+            if (!$userId) {
+                $this->jsonResponse(['success' => false, 'error' => 'User not authenticated'], 401);
+                return;
+            }
+
+            $data = json_decode(file_get_contents('php://input'), true) ?: [];
+            $reviewId = $data['review_id'] ?? null;
+
+            if (!$reviewId) {
+                $this->jsonResponse(['success' => false, 'error' => 'Review ID is required'], 400);
+                return;
+            }
+
+            // Verify ownership
+            $reviewStmt = $this->db->prepare("SELECT user_id, tool_id FROM reviews WHERE id = ?");
+            $reviewStmt->execute([$reviewId]);
+            $review = $reviewStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$review) {
+                $this->jsonResponse(['success' => false, 'error' => 'Review not found'], 404);
+                return;
+            }
+
+            if ($review['user_id'] !== $userId) {
+                $this->jsonResponse(['success' => false, 'error' => 'Unauthorized to delete this review'], 403);
+                return;
+            }
+
+            // Delete review
+            $stmt = $this->db->prepare("DELETE FROM reviews WHERE id = ?");
+            $stmt->execute([$reviewId]);
+
+            // Recalculate rating
+            $this->updateGlobalRating($review['tool_id']);
+
+            $this->jsonResponse([
+                'success' => true,
+                'message' => 'Review deleted successfully.'
+            ]);
+
+        } catch (\Exception $e) {
+            $this->jsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
