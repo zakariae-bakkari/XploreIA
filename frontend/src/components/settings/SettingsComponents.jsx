@@ -28,7 +28,16 @@ export const PersonalSettings = ({ formData, setFormData, handleUpdateName, load
             <input 
               type="text" 
               className="cyber-input" 
-              style={{ padding: '12px 0', border: 'none', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '0', background: 'transparent' }} 
+              style={{ 
+                padding: '12px 16px', 
+                border: '1px solid var(--outline-variant)', 
+                borderRadius: '12px', 
+                background: 'var(--surface-container-low)',
+                color: 'var(--on-surface)',
+                width: '100%',
+                outline: 'none',
+                transition: 'all 0.3s ease'
+              }} 
               value={formData.name} 
               onChange={(e) => setFormData({...formData, name: e.target.value})} 
               required
@@ -39,7 +48,16 @@ export const PersonalSettings = ({ formData, setFormData, handleUpdateName, load
             <input 
               type="email" 
               className="cyber-input" 
-              style={{ padding: '12px 0', border: 'none', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '0', background: 'transparent', cursor: 'not-allowed' }} 
+              style={{ 
+                padding: '12px 16px', 
+                border: '1px solid var(--outline-variant)', 
+                borderRadius: '12px', 
+                background: 'var(--surface-container-low)',
+                color: 'var(--on-surface)',
+                opacity: 0.6,
+                width: '100%',
+                cursor: 'not-allowed'
+              }} 
               value={formData.email} 
               disabled
             />
@@ -75,7 +93,16 @@ export const SecuritySettings = ({ passwordData, setPasswordData, handleChangePa
             <input 
               type="password" 
               className="cyber-input" 
-              style={{ padding: '12px 0', border: 'none', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '0', background: 'transparent' }} 
+              style={{ 
+                padding: '12px 16px', 
+                border: '1px solid var(--outline-variant)', 
+                borderRadius: '12px', 
+                background: 'var(--surface-container-low)',
+                color: 'var(--on-surface)',
+                width: '100%',
+                outline: 'none',
+                transition: 'all 0.3s ease'
+              }} 
               value={passwordData.old_password}
               onChange={(e) => setPasswordData({...passwordData, old_password: e.target.value})}
               required
@@ -88,7 +115,16 @@ export const SecuritySettings = ({ passwordData, setPasswordData, handleChangePa
             <input 
               type="password" 
               className="cyber-input" 
-              style={{ padding: '12px 0', border: 'none', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '0', background: 'transparent' }} 
+              style={{ 
+                padding: '12px 16px', 
+                border: '1px solid var(--outline-variant)', 
+                borderRadius: '12px', 
+                background: 'var(--surface-container-low)',
+                color: 'var(--on-surface)',
+                width: '100%',
+                outline: 'none',
+                transition: 'all 0.3s ease'
+              }} 
               value={passwordData.new_password}
               onChange={(e) => setPasswordData({...passwordData, new_password: e.target.value})}
               required
@@ -99,7 +135,16 @@ export const SecuritySettings = ({ passwordData, setPasswordData, handleChangePa
             <input 
               type="password" 
               className="cyber-input" 
-              style={{ padding: '12px 0', border: 'none', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '0', background: 'transparent' }} 
+              style={{ 
+                padding: '12px 16px', 
+                border: '1px solid var(--outline-variant)', 
+                borderRadius: '12px', 
+                background: 'var(--surface-container-low)',
+                color: 'var(--on-surface)',
+                width: '100%',
+                outline: 'none',
+                transition: 'all 0.3s ease'
+              }} 
               value={passwordData.confirm_password}
               onChange={(e) => setPasswordData({...passwordData, confirm_password: e.target.value})}
               required

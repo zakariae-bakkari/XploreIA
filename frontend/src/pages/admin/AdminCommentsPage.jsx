@@ -64,6 +64,9 @@ const AdminCommentsPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteTargetReview, setDeleteTargetReview] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [showSuspendModal, setShowSuspendModal] = useState(false);
+  const [suspendTargetUser, setSuspendTargetUser] = useState(null);
+  const [suspending, setSuspending] = useState(false);
 
   const loadTools = async () => {
     try {
@@ -154,23 +157,27 @@ const AdminCommentsPage = () => {
     }
   };
 
-  const handleSuspendUser = async (userId, userName) => {
-    if (
-      !confirm(
-        `Êtes-vous absolument sûr de vouloir suspendre l'utilisateur ${userName} ?\nCette personne sera définitivement bannie et ne pourra plus publier d'avis.`
-      )
-    )
-      return;
+  const triggerSuspendModal = (userId, userName) => {
+    setSuspendTargetUser({ id: userId, name: userName });
+    setShowSuspendModal(true);
+  };
+
+  const confirmSuspendUser = async () => {
+    if (!suspendTargetUser) return;
+    setSuspending(true);
     try {
-      const res = await adminApi.reviewApi.suspendUser(userId);
-      if (res.status === "success") {
+      const res = await adminApi.reviewApi.suspendUser(suspendTargetUser.id);
+      if (res.status === "success" || res.success) {
+        setShowSuspendModal(false);
+        setSuspendTargetUser(null);
         await loadComments();
-        alert(`L'utilisateur ${userName} a été suspendu avec succès.`);
       } else {
         alert(res.message || "Erreur lors de la suspension.");
       }
     } catch (e) {
       alert("Une erreur inattendue est survenue.");
+    } finally {
+      setSuspending(false);
     }
   };
 
@@ -715,7 +722,7 @@ const AdminCommentsPage = () => {
                             <button
                               className="btn-moderation-suspend"
                               title="Suspendre définitivement cet utilisateur"
-                              onClick={() => handleSuspendUser(review.user_id, review.user_name)}
+                              onClick={() => triggerSuspendModal(review.user_id, review.user_name)}
                             >
                               <span className="material-symbols-outlined" style={{ fontSize: 13 }}>block</span>
                               Suspendre l'auteur
@@ -799,6 +806,40 @@ const AdminCommentsPage = () => {
                 disabled={deleting}
               >
                 {deleting ? "Suppression..." : "Supprimer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Suspend User Confirmation */}
+      {showSuspendModal && suspendTargetUser && (
+        <div className="modal-overlay" onClick={() => setShowSuspendModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3 className="modal-title" style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 10px 0" }}>
+              <span className="material-symbols-outlined" style={{ color: "#ff4a76", fontSize: "24px" }}>warning</span>
+              Suspendre l'utilisateur ?
+            </h3>
+            <p className="modal-desc" style={{ fontSize: "14px", color: "var(--outline)", lineHeight: "1.6", marginBottom: "20px" }}>
+              Êtes-vous absolument sûr de vouloir suspendre définitivement l'utilisateur <strong>{suspendTargetUser.name}</strong> ?
+              Cette personne sera bannie et ne pourra plus publier d'avis sur le catalogue.
+            </p>
+            <div className="modal-actions">
+              <button 
+                type="button" 
+                className="btn-cancel" 
+                onClick={() => setShowSuspendModal(false)}
+                disabled={suspending}
+              >
+                Annuler
+              </button>
+              <button 
+                type="button" 
+                className="btn-submit btn-danger" 
+                onClick={confirmSuspendUser}
+                disabled={suspending}
+              >
+                {suspending ? "Suspension..." : "Suspendre"}
               </button>
             </div>
           </div>

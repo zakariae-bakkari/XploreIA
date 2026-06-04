@@ -1,6 +1,58 @@
 import { useEffect, useMemo, useState } from "react";
 import { adminApi, aiToolApi } from "../../api";
 
+const CustomSelect = ({ value, onChange, options, placeholder = "Sélectionner..." }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find((opt) => opt.value === value);
+
+  useEffect(() => {
+    const handleClose = () => setIsOpen(false);
+    window.addEventListener("click", handleClose);
+    return () => window.removeEventListener("click", handleClose);
+  }, []);
+
+  return (
+    <div 
+      className="custom-select-container" 
+      onClick={(e) => {
+        e.stopPropagation();
+        setIsOpen(!isOpen);
+      }}
+      style={{ width: "100%" }}
+    >
+      <div className={`custom-select-trigger ${isOpen ? "open" : ""}`}>
+        <span>{selectedOption ? selectedOption.label : placeholder}</span>
+        <span className="material-symbols-outlined select-arrow">
+          {isOpen ? "expand_less" : "expand_more"}
+        </span>
+      </div>
+
+      {isOpen && (
+        <ul className="custom-select-options">
+          {options.map((opt) => (
+            <li
+              key={opt.value}
+              className={`custom-select-option ${opt.value === value ? "selected" : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onChange(opt.value);
+                setIsOpen(false);
+              }}
+            >
+              <div className="option-content-flex">
+                <span className="option-label">{opt.label}</span>
+                {opt.description && (
+                  <span className="option-desc">{opt.description}</span>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
 const AdminToolsPage = () => {
   const [tools, setTools] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -261,21 +313,29 @@ const AdminToolsPage = () => {
         </div>
         <div className="at-form-group" style={{flex:1}}>
           <label>Modèle tarifaire</label>
-          <select className="at-input" value={formPricing} onChange={(e) => setFormPricing(e.target.value)}>
-            <option value="free">Gratuit</option>
-            <option value="freemium">Freemium</option>
-            <option value="paid">Payant</option>
-          </select>
+          <CustomSelect
+            value={formPricing}
+            onChange={(val) => setFormPricing(val)}
+            options={[
+              { value: "free", label: "Gratuit" },
+              { value: "freemium", label: "Freemium" },
+              { value: "paid", label: "Payant" }
+            ]}
+          />
         </div>
       </div>
 
       <div className="at-form-group">
         <label>Statut</label>
-        <select className="at-input" value={formStatus} onChange={(e) => setFormStatus(e.target.value)}>
-          <option value="active">Actif</option>
-          <option value="draft">Brouillon</option>
-          <option value="inactive">Inactif</option>
-        </select>
+        <CustomSelect
+          value={formStatus}
+          onChange={(val) => setFormStatus(val)}
+          options={[
+            { value: "active", label: "Actif" },
+            { value: "draft", label: "Brouillon" },
+            { value: "inactive", label: "Inactif" }
+          ]}
+        />
       </div>
 
       {/* Advantages */}
@@ -324,6 +384,90 @@ const AdminToolsPage = () => {
   return (
     <div className="admin-page">
       <style>{`
+        /* Custom Select Styles */
+        .custom-select-container {
+          position: relative;
+          cursor: pointer;
+          font-family: inherit;
+          width: 100%;
+        }
+
+        .custom-select-trigger {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 12px 16px;
+          border-radius: 14px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          color: var(--on-background);
+          font-size: 14px;
+          transition: all 0.2s ease;
+        }
+
+        .custom-select-trigger:hover,
+        .custom-select-trigger.open {
+          border-color: var(--primary);
+          background: rgba(255, 255, 255, 0.06);
+        }
+
+        .select-arrow {
+          color: var(--outline);
+          font-size: 20px;
+          transition: transform 0.2s ease;
+        }
+
+        .custom-select-options {
+          position: absolute;
+          top: calc(100% + 6px);
+          left: 0;
+          right: 0;
+          background: #1e1e24;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 16px;
+          padding: 8px;
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+          z-index: 1100;
+          max-height: 260px;
+          overflow-y: auto;
+          list-style: none;
+          margin: 0;
+        }
+
+        .custom-select-option {
+          padding: 10px 14px;
+          border-radius: 10px;
+          transition: all 0.2s ease;
+          color: var(--on-background);
+        }
+
+        .custom-select-option:hover {
+          background: rgba(0, 219, 233, 0.08);
+          color: var(--primary);
+        }
+
+        .custom-select-option.selected {
+          background: rgba(0, 219, 233, 0.12);
+          color: var(--primary);
+          font-weight: 600;
+        }
+
+        .option-content-flex {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .option-label {
+          font-size: 14px;
+          font-weight: 600;
+        }
+
+        .option-desc {
+          font-size: 12px;
+          color: var(--outline);
+        }
+
         /* Admin Tools Page Premium Styles */
         .at-error-banner {
           background: rgba(255, 74, 118, 0.1);
