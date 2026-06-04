@@ -79,7 +79,7 @@ class AiToolController extends Controller
     public function getFilters()
     {
         try {
-            $categories = $this->db->query("SELECT id, name FROM categories")->fetchAll();
+            $categories = $this->db->query("SELECT id, name FROM categories WHERE status = 'active'")->fetchAll();
             $characteristics = $this->db->query("SELECT DISTINCT name, type FROM characteristics WHERE status = 'active'")->fetchAll();
 
             $this->jsonResponse([
