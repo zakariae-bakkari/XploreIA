@@ -22,9 +22,11 @@ import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
 import AdminToolsPage from "./pages/admin/AdminToolsPage";
 import AdminCommentsPage from "./pages/admin/AdminCommentsPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AiChatbot from "./components/ui/AiChatbot";
 
 function App() {
   return (
+    <>
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<HomePage />} />
@@ -102,6 +104,8 @@ function App() {
         <Route path="users" element={<AdminUsersPage />} />
       </Route>
     </Routes>
+    <AiChatbot />
+    </>
   );
 }
 

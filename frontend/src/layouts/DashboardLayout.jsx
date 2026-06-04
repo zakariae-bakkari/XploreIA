@@ -1,7 +1,6 @@
 import Navbar from '../components/layout/Navbar';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import AiChatbot from '../components/ui/AiChatbot';
 
 const DashboardLayout = ({ children }) => {
   const location = useLocation();
@@ -51,7 +50,6 @@ const DashboardLayout = ({ children }) => {
           {children}
         </main>
       </div>
-      <AiChatbot />
     </div>
   );
 };
