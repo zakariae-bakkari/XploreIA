@@ -20,6 +20,7 @@ const AdminToolsPage = () => {
   // Catalog items lists
   const [allCharacteristics, setAllCharacteristics] = useState([]);
   const [allModels, setAllModels] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
 
   // Form helpers
   const [formError, setFormError] = useState("");
@@ -28,10 +29,11 @@ const AdminToolsPage = () => {
   const loadInitialData = async () => {
     setLoading(true);
     try {
-      const [toolsRes, charRes, modelRes] = await Promise.all([
+      const [toolsRes, charRes, modelRes, catRes] = await Promise.all([
         adminApi.aiToolApi.getAll(),
         adminApi.characteristicApi.getAll(),
-        adminApi.modelApi.getAll()
+        adminApi.modelApi.getAll(),
+        adminApi.categorieApi.getAll()
       ]);
       if (toolsRes.status === "success") {
         setTools(toolsRes.data || []);
@@ -41,6 +43,9 @@ const AdminToolsPage = () => {
       }
       if (modelRes.status === "success") {
         setAllModels(modelRes.data || []);
+      }
+      if (catRes.status === "success") {
+        setAllCategories(catRes.data || []);
       }
     } catch (e) {
       console.error("Failed to load catalog data:", e);
@@ -693,6 +698,7 @@ const AdminToolsPage = () => {
         error={formError}
         allCharacteristics={allCharacteristics}
         allModels={allModels}
+        allCategories={allCategories}
       />
 
       {/* === EDIT MODAL === */}
@@ -709,6 +715,7 @@ const AdminToolsPage = () => {
         tool={selectedTool}
         allCharacteristics={allCharacteristics}
         allModels={allModels}
+        allCategories={allCategories}
       />
 
       {/* === DELETE MODAL === */}

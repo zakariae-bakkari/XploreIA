@@ -147,12 +147,13 @@ const RelationChipsSelect = ({ selectedIds, setSelectedIds, allItems, label, pla
 };
 
 // ==================== ADD TOOL MODAL ====================
-export const AddToolModal = ({ isOpen, onClose, onSubmit, saving, error, allCharacteristics, allModels }) => {
+export const AddToolModal = ({ isOpen, onClose, onSubmit, saving, error, allCharacteristics, allModels, allCategories }) => {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [url, setUrl] = useState("");
   const [pricing, setPricing] = useState("freemium");
   const [status, setStatus] = useState("active");
+  const [categoryId, setCategoryId] = useState("");
   const [advantages, setAdvantages] = useState([""]);
   const [disadvantages, setDisadvantages] = useState([""]);
   const [selectedChars, setSelectedChars] = useState([]);
@@ -168,6 +169,7 @@ export const AddToolModal = ({ isOpen, onClose, onSubmit, saving, error, allChar
       website_url: url.trim(),
       pricing_model: pricing,
       status: status,
+      main_category_id: categoryId || null,
       advantages: advantages.filter(x => x.trim()),
       disadvantages: disadvantages.filter(x => x.trim()),
       characteristics: selectedChars,
@@ -211,6 +213,16 @@ export const AddToolModal = ({ isOpen, onClose, onSubmit, saving, error, allChar
                 ]}
               />
             </div>
+          </div>
+
+          <div className="at-form-group">
+            <label>Catégorie principale</label>
+            <CustomSelect
+              value={categoryId}
+              onChange={setCategoryId}
+              options={(allCategories || []).map(c => ({ value: c.id, label: c.name }))}
+              placeholder="Sélectionner une catégorie..."
+            />
           </div>
 
           <div className="at-form-group">
@@ -260,12 +272,13 @@ export const AddToolModal = ({ isOpen, onClose, onSubmit, saving, error, allChar
 };
 
 // ==================== EDIT TOOL MODAL ====================
-export const EditToolModal = ({ isOpen, onClose, onSubmit, saving, error, tool, allCharacteristics, allModels }) => {
+export const EditToolModal = ({ isOpen, onClose, onSubmit, saving, error, tool, allCharacteristics, allModels, allCategories }) => {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [url, setUrl] = useState("");
   const [pricing, setPricing] = useState("freemium");
   const [status, setStatus] = useState("active");
+  const [categoryId, setCategoryId] = useState("");
   const [advantages, setAdvantages] = useState([""]);
   const [disadvantages, setDisadvantages] = useState([""]);
   const [selectedChars, setSelectedChars] = useState([]);
@@ -279,6 +292,7 @@ export const EditToolModal = ({ isOpen, onClose, onSubmit, saving, error, tool, 
       setUrl(tool.website_url || "");
       setPricing(tool.pricing_model || "freemium");
       setStatus(tool.status || "active");
+      setCategoryId(tool.main_category_id || "");
       
       const fetchFullDetails = async () => {
         setLoadingDetails(true);
@@ -305,6 +319,7 @@ export const EditToolModal = ({ isOpen, onClose, onSubmit, saving, error, tool, 
                 ? res.data.models.map((m) => m.id)
                 : []
             );
+            setCategoryId(res.data.main_category_id || "");
           }
         } catch (e) {
           console.error(e);
@@ -328,6 +343,7 @@ export const EditToolModal = ({ isOpen, onClose, onSubmit, saving, error, tool, 
       website_url: url.trim(),
       pricing_model: pricing,
       status: status,
+      main_category_id: categoryId || null,
       advantages: advantages.filter(x => x.trim()),
       disadvantages: disadvantages.filter(x => x.trim()),
       characteristics: selectedChars,
@@ -377,6 +393,16 @@ export const EditToolModal = ({ isOpen, onClose, onSubmit, saving, error, tool, 
                   ]}
                 />
               </div>
+            </div>
+
+            <div className="at-form-group">
+              <label>Catégorie principale</label>
+              <CustomSelect
+                value={categoryId}
+                onChange={setCategoryId}
+                options={(allCategories || []).map(c => ({ value: c.id, label: c.name }))}
+                placeholder="Sélectionner une catégorie..."
+              />
             </div>
 
             <div className="at-form-group">
