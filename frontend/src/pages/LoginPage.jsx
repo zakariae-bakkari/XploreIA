@@ -19,7 +19,9 @@ const LoginPage = () => {
     try {
       const data = await login(formData);
       if (data.status === 'success') {
-        navigate('/dashboard');
+        const role = data.user?.role || '';
+        if (role === 'admin') navigate('/admin');
+        else navigate('/dashboard');
       }
     } catch (err) {
       setError(err.message || "Identifiants invalides. Veuillez réessayer.");

@@ -110,4 +110,17 @@ Router::post('/suggestions/approve', 'SuggestionController@approve');
 Router::post('/suggestions/reject', 'SuggestionController@reject');
 Router::get('/admin/settings', 'SuggestionController@getSettings');
 Router::post('/admin/settings', 'SuggestionController@updateSettings');
+//meriem : gestion modele
+Router::get('/adminmodele', 'AdminModeleController@index');
+Router::get('/adminmodele/show', 'AdminModeleController@show');
+Router::post('/adminmodele/create', 'AdminModeleController@store');
+Router::post('/adminmodele/update', 'AdminModeleController@update');
+Router::post('/adminmodele/delete', 'AdminModeleController@destroy');
+
+Router::get('/adminprovider', 'AdminProviderController@index');
+Router::get('/providers', 'AdminProviderController@index');
+Router::get('/adminprovider/show', 'AdminProviderController@show');
+Router::post('/adminprovider/create', 'AdminProviderController@store');
+Router::post('/adminprovider/update', 'AdminProviderController@update');
+Router::post('/adminprovider/delete', 'AdminProviderController@destroy');
 ?>

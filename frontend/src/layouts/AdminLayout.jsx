@@ -27,6 +27,16 @@ const adminNavItems = [
     label: "Suggestions IA",
     icon: "lightbulb",
     description: "Suggestions de la communauté",
+    to: "/admin/providers",
+    label: "Providers",
+    icon: "account_tree",
+    description: "Fournisseurs et intégrations",
+  },
+  {
+    to: "/admin/models",
+    label: "Modèles",
+    icon: "memory",
+    description: "Gestion des modèles AI",
   },
   {
     to: "/admin/comments",

@@ -24,6 +24,8 @@ import AdminCommentsPage from "./pages/admin/AdminCommentsPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminSuggestionsPage from "./pages/admin/AdminSuggestionsPage";
 import AiChatbot from "./components/ui/AiChatbot";
+import AdminModelsPage from "./pages/admin/AdminModelsPage";
+import AdminProvidersPage from "./pages/admin/AdminProvidersPage";
 
 function App() {
   return (
@@ -101,6 +103,8 @@ function App() {
         <Route path="dashboard" element={<AdminDashboardPage />} />
         <Route path="categories" element={<AdminCategoriesPage />} />
         <Route path="tools" element={<AdminToolsPage />} />
+        <Route path="models" element={<AdminModelsPage />} />
+        <Route path="providers" element={<AdminProvidersPage />} />
         <Route path="comments" element={<AdminCommentsPage />} />
         <Route path="users" element={<AdminUsersPage />} />
         <Route path="suggestions" element={<AdminSuggestionsPage />} />
