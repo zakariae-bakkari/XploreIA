@@ -11,6 +11,12 @@ const adminNavItems = [
     description: "Vue globale",
   },
   {
+    to: "/admin/suggestions",
+    label: "Suggestions IA",
+    icon: "lightbulb",
+    description: "Suggestions de la communauté",
+  },
+  {
     to: "/admin/categories",
     label: "Catégories",
     icon: "category",
@@ -91,7 +97,7 @@ const AdminLayout = () => {
           </div>
 
           <nav className="admin-nav">
-             {adminNavItems.map((item) => (
+            {adminNavItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
