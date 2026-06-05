@@ -334,6 +334,328 @@ button {
   transform: scale(0.95);
 }
 
+/* Page header */
+.page-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.page-title { font-size: 20px; font-weight: 600; color: var(--primary); margin: 0; }
+.page-actions { display: flex; gap: 12px; align-items: center; }
+.page-actions .btn-primary { padding: 10px 18px; border-radius: 12px; }
+
+/* Make title more prominent and elegant */
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+/* Attractive primary button */
+.page-actions .btn-primary {
+  background: linear-gradient(180deg, #00f0ff 0%, #00c7d1 100%);
+  color: #002022;
+  box-shadow: 0 6px 20px rgba(0, 196, 200, 0.18);
+  border-radius: 14px;
+  padding: 10px 18px;
+  font-weight: 700;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.page-actions .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,196,200,0.22); }
+
+/* Edit / Delete button styles and spacing */
+.model-list td .actions { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; }
+.model-list td .actions .outline-btn {
+  min-width: 92px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--on-surface-variant);
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: background 120ms ease, transform 120ms ease;
+}
+.model-list td .actions .outline-btn:hover { background: rgba(255,255,255,0.04); transform: translateY(-2px); }
+.model-list td .actions .danger-btn {
+  min-width: 92px;
+  background: linear-gradient(180deg, #7b1515 0%, #4b0b0b 100%);
+  color: #ffdede;
+  padding: 10px 12px;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.model-list td .actions .danger-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,0.6); }
+
+/* Ensure action column doesn't collapse */
+.model-list th:last-child, .model-list td:last-child { width: 160px; }
+
+/* Actions column in table */
+.model-list td .actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+.model-list td .actions .outline-btn { min-width: 84px; }
+.model-list td .actions .danger-btn { min-width: 84px; }
+
+/* Models table */
+.model-list th,
+.model-list td {
+  padding: 14px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: top;
+}
+
+.model-list thead th {
+  text-align: left;
+  font-weight: 700;
+  color: var(--primary);
+  background: rgba(255,255,255,0.02);
+}
+
+.model-list tbody tr:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.outline-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--on-surface-variant);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.danger-btn {
+  background: #3b0a0a;
+  color: #ffdede;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,0,0,0.12);
+  font-weight: 700;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px dashed rgba(255,255,255,0.04);
+  color: var(--on-surface-variant);
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+/* Searchable select and TagMultiSelect styles */
+.searchable-select { position: relative; }
+.searchable-panel { position: absolute; z-index: 80; width: 100%; margin-top: 8px; padding: 8px; max-height: 320px; overflow: auto; }
+.searchable-list { list-style: none; margin: 8px 0 0 0; padding: 0; }
+.searchable-list li { padding: 8px; cursor: pointer; border-radius: 6px; }
+.searchable-list li:hover { background: rgba(255,255,255,0.03); }
+
+/* Ensure the displayed select value remains on a single line */
+.searchable-input { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 10px 12px; cursor: pointer; }
+.searchable-input > div { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.searchable-input .cyber-input { padding: 0; background: transparent; border: none; box-shadow: none; }
+.searchable-panel .cyber-input { width: 100%; margin-bottom: 8px; }
+
+/* Filters row styling */
+.filters-row { background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00)); padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); }
+
+/* Uniform spacing and layout for filter children */
+.filters-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.filters-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 240px;
+  min-width: 180px;
+}
+.filters-row > div.small { flex: 0 0 140px; }
+.filters-row .cyber-input { width: 100%; }
+
+/* unify cyber-input appearance for filters and selects */
+.cyber-input {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 10px;
+  padding: 12px 14px;
+  height: 48px;
+  color: var(--on-surface-variant);
+  width: 100%;
+}
+
+/* Tag chips */
+.tag-chip { background: rgba(255,255,255,0.04); padding: 6px 10px; border-radius: 999px; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; }
+.tag-remove { background: transparent; border: none; color: rgba(255,255,255,0.7); font-weight: 700; cursor: pointer; padding: 0; margin-left: 6px; }
+.tag-remove:hover { color: #fff; }
+
+/* Tag panel adjustments */
+.tag-panel { position: absolute; z-index: 90; width: 100%; margin-top: 8px; padding: 8px; max-height: 260px; overflow: auto; }
+.tag-row { display: flex; align-items: center; gap: 8px; padding: 8px; cursor: pointer; }
+.tag-row:hover { background: rgba(255,255,255,0.02); }
+
+/* Ensure tags (chips) stay inside the field and wrap neatly */
+.tag-input {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 48px;
+  padding: 10px 12px;
+  /* allow field to grow to contain chips, no internal scroll */
+  max-height: none;
+  overflow: visible;
+}
+
+.tag-input .tag-chip {
+  flex: 0 0 auto;
+  max-width: 100%;
+
+/* Improved select appearance for theme consistency */
+select.cyber-input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 44px; /* space for custom arrow */
+  color: var(--on-surface);
+  background-color: rgba(255,255,255,0.03);
+}
+
+/* Enhanced select visuals */
+select.cyber-input {
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 12px 44px 12px 14px; /* left padding + right space for arrow */
+  height: 48px;
+  transition: box-shadow 180ms ease, border-color 180ms ease, transform 120ms ease;
+  cursor: pointer;
+}
+
+select.cyber-input:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+}
+
+select.cyber-input:focus {
+  outline: none;
+  box-shadow: 0 0 22px rgba(0, 208, 255, 0.12);
+  border-color: rgba(0,208,255,0.5);
+}
+
+/* Improve dropdown option hover where supported */
+select.cyber-input option:hover { background: rgba(0,0,0,0.6); color: #fff; }
+
+/* Dropdown options styling (when supported) */
+select.cyber-input option {
+  background: var(--surface-container);
+  color: var(--on-surface);
+}
+
+/* Make the select label look like the input when focused */
+select.cyber-input:focus {
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.12);
+  border-color: var(--primary-fixed-dim);
+}
+
+/* Ensure tag inputs that also use .cyber-input (TagMultiSelect) are not forced to 48px */
+.tag-input.cyber-input {
+  height: auto;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  align-items: flex-start;
+}
+
+/* number input: remove native spinner */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] { -moz-appearance: textfield; }
+
+/* improve searchable panel look */
+.searchable-panel.glass-card { padding: 10px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.6); }
+
+/* adjust select dropdown arrow alignment */
+.searchable-input > div + div { color: var(--on-surface-variant); }
+
+.tag-multiselect { position: relative; }
+.tag-input { min-height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; }
+.tag-chip { background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 999px; font-size: 13px; }
+.tag-chip { display: inline-flex; align-items: center; gap: 8px; }
+.tag-remove { background: transparent; border: none; color: rgba(255,255,255,0.7); font-weight: 700; margin-left: 6px; cursor: pointer; }
+
+.tag-input-component .tag-suggestions { position: absolute; z-index: 90; width: 100%; margin-top: 8px; padding: 8px; max-height: 220px; overflow: auto; }
+.tag-suggest { padding: 8px; cursor: pointer; border-radius: 6px; }
+.tag-suggest:hover { background: rgba(255,255,255,0.03); }
+
+/* Confirm modal specific styling */
+.confirm-modal { max-width: 480px; }
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.55);
+  z-index: 2000;
+  padding: 24px;
+}
+
+.modal-card {
+  background: linear-gradient(180deg, var(--surface-container-high) 0%, var(--surface-container) 100%);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.04);
+  max-width: 640px;
+  width: 100%;
+}
+
+/* Larger modal variant for forms that need more horizontal space */
+.modal-large { max-width: 920px; }
+
+@media (max-width: 1000px) {
+  .modal-large { max-width: 92%; }
+}
+
+.modal-card {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.modal-card h3 { margin: 0 0 8px 0; }
+
+.modal-body {
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Limit body height to allow header/footer space */
+.modal-body { max-height: calc(90vh - 80px); }
+
+/* Ensure footer stays visible while modal-body scrolls */
+/* footer sticky removed: keep native right scrollbar only */
+
+@media (max-width: 600px) {
+  .modal-card { padding: 16px; border-radius: 10px; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.confirm-modal h3 { margin-bottom: 8px; }
+.confirm-modal p { color: var(--on-surface-variant); }
+.confirm-modal .danger-btn { background: linear-gradient(180deg, #7b1515 0%, #4b0b0b 100%); }
+.tag-panel { position: absolute; z-index: 80; width: 100%; margin-top: 8px; padding: 8px; max-height: 320px; overflow: auto; }
+.tag-list { margin-top: 8px; }
+.tag-row { display: flex; align-items: center; padding: 8px; cursor: pointer; border-radius: 6px; }
+.tag-row:hover { background: rgba(255,255,255,0.03); }
+
+.searchable-panel .cyber-input, .tag-panel .cyber-input { margin-bottom: 8px; }
+
 .footer {
   background-color: var(--surface-container-lowest);
   border-top: 1px solid rgba(255, 255, 255, 0.05);

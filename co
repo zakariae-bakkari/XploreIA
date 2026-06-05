@@ -60,12 +60,33 @@ function generateController($name, $isAuth = false)
     echo "Do you want to add the route automatically? (y/n): ";
     $addRoute = trim(fgets(STDIN));
 
+    echo "Is this an admin role? (y/n): ";
+    $isAdmin = trim(fgets(STDIN));
+
     $content = "<?php\n\nnamespace App\Controllers;\n\nuse Core\Controller;\nuse Core\Database;\nuse PDO;\n\nclass $className extends Controller {\n    private \$db;\n\n    public function __construct() {\n        \$this->db = Database::getInstance()->getConnection();\n    }\n";
 
+    // Prepare optional admin guard to inject into generated methods
+    $adminCall = '';
+    if (strtolower($isAdmin) === 'y') {
+        $adminCall = "        \$this->requireAdmin();\n\n";
+    }
+
     if (strtolower($crud) === 'y') {
-        $content .= "\n    public function index() {\n        // Fetch list\n    }\n\n    public function show(\$id) {\n        // Fetch single\n    }\n\n    public function store() {\n        // Create\n    }\n\n    public function update(\$id) {\n        // Update\n    }\n\n    public function destroy(\$id) {\n        // Delete\n    }\n";
+        $content .= "\n    public function index() {\n";
+        $content .= $adminCall;
+        $content .= "        // Fetch list\n    }\n\n    public function show(\$id) {\n";
+        $content .= $adminCall;
+        $content .= "        // Fetch single\n    }\n\n    public function store() {\n";
+        $content .= $adminCall;
+        $content .= "        // Create\n    }\n\n    public function update(\$id) {\n";
+        $content .= $adminCall;
+        $content .= "        // Update\n    }\n\n    public function destroy(\$id) {\n";
+        $content .= $adminCall;
+        $content .= "        // Delete\n    }\n";
     } else {
-        $content .= "\n    public function index() {\n        \$this->jsonResponse(['message' => 'Hello from $className']);\n    }\n";
+        $content .= "\n    public function index() {\n";
+        $content .= $adminCall;
+        $content .= "        \$this->jsonResponse(['message' => 'Hello from $className']);\n    }\n";
     }
 
     $content .= "}\n";

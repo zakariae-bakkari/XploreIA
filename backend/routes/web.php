@@ -53,4 +53,17 @@ Router::post('/forgot-password', 'AuthController@forgotPassword');
 Router::post('/forgot-password/verify', 'AuthController@forgotPasswordVerify');
 Router::post('/reset-password', 'AuthController@resetPassword');
 
+//meriem : gestion modele
+Router::get('/adminmodele', 'AdminModeleController@index');
+Router::get('/adminmodele/show', 'AdminModeleController@show');
+Router::post('/adminmodele/create', 'AdminModeleController@store');
+Router::post('/adminmodele/update', 'AdminModeleController@update');
+Router::post('/adminmodele/delete', 'AdminModeleController@destroy');
+
+Router::get('/adminprovider', 'AdminProviderController@index');
+Router::get('/providers', 'AdminProviderController@index');
+Router::get('/adminprovider/show', 'AdminProviderController@show');
+Router::post('/adminprovider/create', 'AdminProviderController@store');
+Router::post('/adminprovider/update', 'AdminProviderController@update');
+Router::post('/adminprovider/delete', 'AdminProviderController@destroy');
 ?>

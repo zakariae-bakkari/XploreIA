@@ -80,7 +80,8 @@ class AiToolController extends Controller
     {
         try {
             $categories = $this->db->query("SELECT id, name FROM categories")->fetchAll();
-            $characteristics = $this->db->query("SELECT DISTINCT name, type FROM characteristics WHERE status = 'active'")->fetchAll();
+            // include id so frontend can reference characteristic ids
+            $characteristics = $this->db->query("SELECT id, name, type FROM characteristics WHERE status = 'active'")->fetchAll();
 
             $this->jsonResponse([
                 'status' => 'success',

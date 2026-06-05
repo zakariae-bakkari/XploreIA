@@ -23,6 +23,18 @@ const adminNavItems = [
     description: "Catalogue et statut",
   },
   {
+    to: "/admin/providers",
+    label: "Providers",
+    icon: "account_tree",
+    description: "Fournisseurs et intégrations",
+  },
+  {
+    to: "/admin/models",
+    label: "Modèles",
+    icon: "memory",
+    description: "Gestion des modèles AI",
+  },
+  {
     to: "/admin/comments",
     label: "Commentaires",
     icon: "forum",

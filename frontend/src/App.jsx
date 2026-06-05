@@ -20,6 +20,8 @@ import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
 import AdminToolsPage from "./pages/admin/AdminToolsPage";
 import AdminCommentsPage from "./pages/admin/AdminCommentsPage";
+import AdminModelsPage from "./pages/admin/AdminModelsPage";
+import AdminProvidersPage from "./pages/admin/AdminProvidersPage";
 
 function App() {
   return (
@@ -88,6 +90,8 @@ function App() {
         <Route path="dashboard" element={<AdminDashboardPage />} />
         <Route path="categories" element={<AdminCategoriesPage />} />
         <Route path="tools" element={<AdminToolsPage />} />
+        <Route path="models" element={<AdminModelsPage />} />
+        <Route path="providers" element={<AdminProvidersPage />} />
         <Route path="comments" element={<AdminCommentsPage />} />
       </Route>
     </Routes>

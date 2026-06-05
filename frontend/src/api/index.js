@@ -30,11 +30,21 @@ export const apiRequest = async (endpoint = "", options = {}) => {
       },
     });
 
-    const result = await response.json();
+    // Read body as text first to avoid consuming stream twice (json() may throw)
+    const text = await response.text();
+    let result = null;
+    if (text) {
+      try {
+        result = JSON.parse(text);
+      } catch (err) {
+        // not JSON - return text as error-like response
+        return { status: 'error', message: text || 'Invalid response from server', httpStatus: response.status };
+      }
+    }
 
     if (!response.ok) {
-      // Return result even if not ok so we can handle custom error messages from backend
-      return result;
+      // Return parsed JSON error object if any
+      return result || { status: 'error', message: 'Request failed', httpStatus: response.status };
     }
 
     return result;
@@ -107,6 +117,7 @@ export const aiToolApi = {
   getById: (id) => apiRequest(`ai-tools/show?id=${id}`),
   // zakariae 16-May-2026
   getFeatured: () => apiRequest("ai-tools/featured"),
+  getProviders: () => apiRequest('providers'),
 };
 
 // Service: User
@@ -129,4 +140,21 @@ export const userApi = {
       body: JSON.stringify(data),
     }),
   delete: (id) => apiRequest(`users/${id}`, { method: "DELETE" }),
+};
+
+// Admin Modele (Models) Service
+export const adminModelApi = {
+  getAll: () => apiRequest('adminmodele'),
+  getById: (id) => apiRequest(`adminmodele/show?id=${id}`),
+  create: (data) => apiRequest('adminmodele/create', { method: 'POST', body: JSON.stringify(data) }),
+  update: (data) => apiRequest('adminmodele/update', { method: 'POST', body: JSON.stringify(data) }),
+  delete: (id) => apiRequest('adminmodele/delete', { method: 'POST', body: JSON.stringify({ id }) }),
+};
+
+export const adminProviderApi = {
+  getAll: () => apiRequest('adminprovider'),
+  getById: (id) => apiRequest(`adminprovider/show?id=${id}`),
+  create: (data) => apiRequest('adminprovider/create', { method: 'POST', body: JSON.stringify(data) }),
+  update: (data) => apiRequest('adminprovider/update', { method: 'POST', body: JSON.stringify(data) }),
+  delete: (id) => apiRequest('adminprovider/delete', { method: 'POST', body: JSON.stringify({ id }) }),
 };
