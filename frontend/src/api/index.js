@@ -207,3 +207,30 @@ export const adminApi = {
     delete: (id) => apiRequest(`adminmodel/delete`, { method: "POST", body: JSON.stringify({ id }) }),
   }
 };
+
+export const suggestionApi = {
+  submit: (data) =>
+    apiRequest("suggestions", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  getPending: () => apiRequest("suggestions/pending"),
+  update: (id, data) =>
+    apiRequest(`suggestions/${id}/update`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  approve: (id) => apiRequest(`suggestions/${id}/approve`, { method: "POST" }),
+  reject: (id, reason) =>
+    apiRequest(`suggestions/${id}/reject`, {
+      method: "POST",
+      body: JSON.stringify({ reason }),
+    }),
+  getSettings: () => apiRequest("admin/settings"),
+  updateSettings: (data) =>
+    apiRequest("admin/settings", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+};
+

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
+import SuggestToolModal from "../ui/SuggestToolModal";
 
 const Navbar = () => {
   const location = useLocation();
@@ -9,6 +10,15 @@ const Navbar = () => {
   const { user } = useAuth();
   const { isDarkMode, toggleTheme } = useTheme();
   const [navSearch, setNavSearch] = useState("");
+  const [showSuggest, setShowSuggest] = useState(false);
+
+  const handleSuggestClick = () => {
+    if (!user) {
+      navigate("/login");
+    } else {
+      setShowSuggest(true);
+    }
+  };
 
   const isActive = (path) => location.pathname === path;
 
@@ -30,6 +40,7 @@ const Navbar = () => {
   };
 
   return (
+    <>
     <nav
       className="navbar"
       style={{
@@ -77,6 +88,21 @@ const Navbar = () => {
             >
               Découvrir
             </Link>
+            <button
+              onClick={handleSuggestClick}
+              className="nav-link"
+              style={{ 
+                fontSize: "14px", 
+                fontWeight: "500",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                padding: "0",
+                fontFamily: "inherit"
+              }}
+            >
+              Suggérer un outil
+            </button>
             {user && (
               <Link
                 to={user.role === "admin" ? "/admin/dashboard" : "/dashboard"}
@@ -196,6 +222,8 @@ const Navbar = () => {
         </div>
       </div>
     </nav>
+    <SuggestToolModal isOpen={showSuggest} onClose={() => setShowSuggest(false)} />
+    </>
   );
 };
 

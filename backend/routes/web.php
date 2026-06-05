@@ -100,4 +100,13 @@ Router::post('/adminmodel/delete', 'AdminModelController@destroy');
 
 // IA Sprint 3 routes
 Router::post('/ai/chat', 'AiController@chat');
+
+// Routes pour les suggestions d'outils IA et parametres (Youssef & Integration)
+Router::post('/suggestions', 'SuggestionController@submit');
+Router::get('/suggestions/pending', 'SuggestionController@getPending');
+Router::post('/suggestions/{id}/update', 'SuggestionController@update');
+Router::post('/suggestions/{id}/approve', 'SuggestionController@approve');
+Router::post('/suggestions/{id}/reject', 'SuggestionController@reject');
+Router::get('/admin/settings', 'SuggestionController@getSettings');
+Router::post('/admin/settings', 'SuggestionController@updateSettings');
 ?>

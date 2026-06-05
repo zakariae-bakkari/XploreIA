@@ -23,6 +23,12 @@ const adminNavItems = [
     description: "Catalogue et statut",
   },
   {
+    to: "/admin/suggestions",
+    label: "Suggestions IA",
+    icon: "lightbulb",
+    description: "Suggestions de la communauté",
+  },
+  {
     to: "/admin/comments",
     label: "Commentaires",
     icon: "forum",

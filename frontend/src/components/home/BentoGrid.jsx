@@ -1,7 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
-const BentoGrid = () => {
+const BentoGrid = ({ onSuggestClick }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSuggestClick = (e) => {
+    e.preventDefault();
+    if (!user) {
+      navigate('/login');
+    } else {
+      onSuggestClick();
+    }
+  };
+
   return (
     <section className="bento-grid">
       {/* Main Feature - Discovery */}
@@ -20,12 +33,34 @@ const BentoGrid = () => {
       </div>
 
       {/* Feature 2 - Suggestions */}
-      <div className="glass-panel bento-item col-4" style={{ padding: 'var(--lg)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div 
+        className="glass-panel bento-item col-4" 
+        onClick={handleSuggestClick}
+        style={{ 
+          padding: 'var(--lg)', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '16px',
+          cursor: 'pointer',
+          transition: 'transform 0.2s, box-shadow 0.2s'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-4px)';
+          e.currentTarget.style.boxShadow = '0 8px 30px rgba(0, 219, 233, 0.1)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'none';
+          e.currentTarget.style.boxShadow = 'none';
+        }}
+      >
         <span className="material-symbols-outlined" style={{ color: 'var(--secondary)', fontSize: '48px' }}>add_box</span>
         <h3 className="h3-md" style={{ color: 'white' }}>Suggérer des Outils</h3>
         <p style={{ color: 'var(--on-surface-variant)' }}>
           Vous avez trouvé un super outil que nous avons manqué ? Suggérez-le à notre communauté et aidez à construire le répertoire.
         </p>
+        <div style={{ color: 'var(--primary)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px', marginTop: 'auto' }}>
+          Proposer un outil <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
+        </div>
       </div>
 
       {/* Feature 3 - Categories */}
@@ -59,3 +94,4 @@ const BentoGrid = () => {
 };
 
 export default BentoGrid;
+
