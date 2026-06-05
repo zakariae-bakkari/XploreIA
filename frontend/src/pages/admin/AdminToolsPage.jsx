@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { adminApi } from "../../api";
-import { AddToolModal, EditToolModal, ToolDetailModal, DeleteToolModal } from "../../components/admin/ToolModals";
+import {
+  AddToolModal,
+  EditToolModal,
+  ToolDetailModal,
+  DeleteToolModal,
+} from "../../components/admin/ToolModals";
 
 const AdminToolsPage = () => {
   const [tools, setTools] = useState([]);
@@ -33,7 +38,7 @@ const AdminToolsPage = () => {
         adminApi.aiToolApi.getAll(),
         adminApi.characteristicApi.getAll(),
         adminApi.modelApi.getAll(),
-        adminApi.categorieApi.getAll()
+        adminApi.categorieApi.getAll(),
       ]);
       if (toolsRes.status === "success") {
         setTools(toolsRes.data || []);
@@ -117,7 +122,7 @@ const AdminToolsPage = () => {
         setFormError(res.message || "Erreur lors de la création.");
       }
     } catch (err) {
-      setFormError("Erreur inattendue.");
+      setFormError("Erreur inattendue. " + (err?.message || ""));
     } finally {
       setSaving(false);
     }
@@ -137,7 +142,7 @@ const AdminToolsPage = () => {
         setFormError(res.message || "Erreur lors de la modification.");
       }
     } catch (err) {
-      setFormError("Erreur inattendue.");
+      setFormError(`Erreur inattendue ${err.message}.`);
     } finally {
       setSaving(false);
     }
@@ -157,7 +162,7 @@ const AdminToolsPage = () => {
         alert(res.message || "Erreur lors de la suppression.");
       }
     } catch (err) {
-      alert("Erreur inattendue.");
+      alert("Erreur inattendue. " + (err?.message || ""));
     } finally {
       setSaving(false);
     }
@@ -166,10 +171,14 @@ const AdminToolsPage = () => {
   // Pricing badge color
   const pricingColor = (model) => {
     switch (model) {
-      case "free": return { bg: "rgba(69,207,123,0.12)", color: "#45cf7b" };
-      case "paid": return { bg: "rgba(255,74,118,0.12)", color: "#ff4a76" };
-      case "freemium": return { bg: "rgba(0,219,233,0.12)", color: "var(--primary)" };
-      default: return { bg: "rgba(255,255,255,0.06)", color: "var(--outline)" };
+      case "free":
+        return { bg: "rgba(69,207,123,0.12)", color: "#45cf7b" };
+      case "paid":
+        return { bg: "rgba(255,74,118,0.12)", color: "#ff4a76" };
+      case "freemium":
+        return { bg: "rgba(0,219,233,0.12)", color: "var(--primary)" };
+      default:
+        return { bg: "rgba(255,255,255,0.06)", color: "var(--outline)" };
     }
   };
 
@@ -181,7 +190,6 @@ const AdminToolsPage = () => {
       </div>
     );
   }
-
 
   return (
     <div className="admin-page">
@@ -574,7 +582,13 @@ const AdminToolsPage = () => {
           <h1 className="h2-lg" style={{ marginTop: "8px" }}>
             Catalogue des outils
           </h1>
-          <p style={{ color: "var(--on-surface-variant)", fontSize: "14px", marginTop: "6px" }}>
+          <p
+            style={{
+              color: "var(--on-surface-variant)",
+              fontSize: "14px",
+              marginTop: "6px",
+            }}
+          >
             Créez, modifiez et supprimez les outils IA et leurs attributs.
           </p>
         </div>
@@ -607,7 +621,12 @@ const AdminToolsPage = () => {
               whiteSpace: "nowrap",
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>add</span>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: 18 }}
+            >
+              add
+            </span>
             Nouvel outil
           </button>
         </div>
@@ -631,42 +650,95 @@ const AdminToolsPage = () => {
             return (
               <article key={tool.id} className="admin-tool-card">
                 <div className="admin-tool-header">
-                  <div className="admin-tool-logo" style={{ borderRadius: '12px', overflow: 'hidden' }}>
-                    {(tool.image_url || tool.logo_url || tool.image) ? (
-                      <img src={tool.image_url || tool.logo_url || tool.image} alt={tool.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800"; }} />
+                  <div
+                    className="admin-tool-logo"
+                    style={{ borderRadius: "12px", overflow: "hidden" }}
+                  >
+                    {tool.image_url || tool.logo_url || tool.image ? (
+                      <img
+                        src={tool.image_url || tool.logo_url || tool.image}
+                        alt={tool.name}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                        onError={(e) => {
+                          e.target.src =
+                            "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800";
+                        }}
+                      />
                     ) : (
-                      <span className="material-symbols-outlined">smart_toy</span>
+                      <span className="material-symbols-outlined">
+                        smart_toy
+                      </span>
                     )}
                   </div>
                   <div style={{ flex: 1 }}>
                     <h3>{tool.name}</h3>
                     <p style={{ fontSize: 13, color: "var(--outline)" }}>
-                      <span className={`at-status-dot at-status-${tool.status || 'active'}`} />
+                      <span
+                        className={`at-status-dot at-status-${tool.status || "active"}`}
+                      />
                       {tool.provider_name || "Provider inconnu"}
                     </p>
                   </div>
                   <div className="at-tool-actions">
-                    <button className="at-action-btn view-btn" title="Consulter" onClick={() => openDetail(tool)}>
-                      <span className="material-symbols-outlined" style={{fontSize:18}}>visibility</span>
+                    <button
+                      className="at-action-btn view-btn"
+                      title="Consulter"
+                      onClick={() => openDetail(tool)}
+                    >
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontSize: 18 }}
+                      >
+                        visibility
+                      </span>
                     </button>
-                    <button className="at-action-btn edit-btn" title="Modifier" onClick={() => openEdit(tool)}>
-                      <span className="material-symbols-outlined" style={{fontSize:18}}>edit</span>
+                    <button
+                      className="at-action-btn edit-btn"
+                      title="Modifier"
+                      onClick={() => openEdit(tool)}
+                    >
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontSize: 18 }}
+                      >
+                        edit
+                      </span>
                     </button>
-                    <button className="at-action-btn delete-btn" title="Supprimer" onClick={() => openDelete(tool)}>
-                      <span className="material-symbols-outlined" style={{fontSize:18}}>delete</span>
+                    <button
+                      className="at-action-btn delete-btn"
+                      title="Supprimer"
+                      onClick={() => openDelete(tool)}
+                    >
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontSize: 18 }}
+                      >
+                        delete
+                      </span>
                     </button>
                   </div>
                 </div>
 
                 <p className="admin-tool-description">
-                  {tool.description ? (tool.description.length > 120 ? tool.description.substring(0, 120) + "..." : tool.description) : "Pas de description."}
+                  {tool.description
+                    ? tool.description.length > 120
+                      ? tool.description.substring(0, 120) + "..."
+                      : tool.description
+                    : "Pas de description."}
                 </p>
 
                 <div className="admin-tool-meta">
                   <span className="admin-pill">
                     {tool.category_name || "Non classé"}
                   </span>
-                  <span className="admin-pill" style={{ background: pc.bg, color: pc.color }}>
+                  <span
+                    className="admin-pill"
+                    style={{ background: pc.bg, color: pc.color }}
+                  >
                     {tool.pricing_model || "N/A"}
                   </span>
                   <span className="admin-score">
