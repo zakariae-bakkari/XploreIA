@@ -1,10 +1,28 @@
 <?php
+
+// Au tout début, après <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // ========== HEADERS CORS (à mettre ABSOLUMENT au début) ==========
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 header("Access-Control-Max-Age: 3600");
+
+// Au début du fichier, après les headers CORS
+if (file_exists(__DIR__ . '/../.env')) {
+    $lines = file(__DIR__ . '/../.env');
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if (!empty($line) && strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+            list($key, $value) = explode('=', $line, 2);
+            putenv("$key=$value");
+        }
+    }
+}
 
 // Répondre immédiatement aux requêtes OPTIONS (pre-flight)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {

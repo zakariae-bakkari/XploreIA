@@ -12,7 +12,7 @@ Router::get('/ai-tools/show', 'AiToolController@show');
 Router::get('/ai-tools-detail', 'AiToolController@show');
 
 
-// Routes pour les détails des AI Tools
+// Routes pour les détails des AI Tools YOUSSEF 
 Router::get('/ai-tools/{id}', 'AiToolDetailsController@show');
 Router::get('/ai-tools/{id}/advantages', 'AiToolDetailsController@getAdvantagesOnly');
 Router::get('/ai-tools/{id}/disadvantages', 'AiToolDetailsController@getDisadvantagesOnly');
@@ -20,5 +20,15 @@ Router::get('/ai-tools/{id}/pricing', 'AiToolDetailsController@getPricing');
 Router::get('/ai-tools/{id}/reviews', 'AiToolDetailsController@getReviewsOnly');
 Router::post('/ai-tools/{id}/reviews', 'AiToolDetailsController@addReview');
 Router::get('/ai-tools/{id}/statistics', 'AiToolDetailsController@getStatisticsOnly');
+
+
+Router::get('/suggestion', 'SuggestionController@index');
+
+// Routes pour les suggestions (YOUSSEF)
+Router::post('/suggestions', 'SuggestionController@submit');
+Router::get('/suggestions/pending', 'SuggestionController@getPending');
+Router::post('/suggestions/{id}/approve', 'SuggestionController@approve');
+Router::post('/suggestions/{id}/reject', 'SuggestionController@reject');
+Router::post('/suggestions', 'SuggestionController@submit');
 
 ?>

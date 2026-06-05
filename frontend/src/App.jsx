@@ -2,6 +2,8 @@ import React from 'react'
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import Home from './pages/Home'
 import ToolDetail from './pages/ToolDetail'
+import SuggestTool from './pages/SuggestTool';
+
 
 function App() {
   return (
@@ -25,6 +27,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/tool/:id" element={<ToolDetail />} />
+            <Route path="/suggest" element={<SuggestTool />} />
           </Routes>
         </main>
       </div>

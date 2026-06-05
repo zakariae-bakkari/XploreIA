@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'  // ← AJOUTE CET IMPORT
 import { aiToolApi } from '../api'
 import ToolCard from '../components/ToolCard'
 
@@ -82,8 +83,35 @@ function Home() {
   console.log('10. Affichage de la liste des outils')
   return (
     <div>
+      {/* BANNIÈRE AVEC BOUTON SUGGÉRER */}
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderRadius: '16px',
+        padding: '30px',
+        marginBottom: '30px',
+        textAlign: 'center',
+        color: 'white'
+      }}>
+        <h2 style={{ margin: '0 0 10px 0' }}>🤖 Explore AI Tools</h2>
+        <p style={{ margin: '0 0 20px 0', opacity: 0.9 }}>
+          Découvrez les meilleurs outils d'intelligence artificielle pour vos projets.
+        </p>
+        <Link to="/suggest" style={{
+          display: 'inline-block',
+          padding: '12px 24px',
+          background: 'white',
+          color: '#667eea',
+          textDecoration: 'none',
+          borderRadius: '12px',
+          fontWeight: 'bold',
+          transition: 'all 0.3s ease'
+        }}>
+          💡 Suggérer un outil
+        </Link>
+      </div>
+
       <h2 style={{ marginBottom: '20px' }}>
-         {tools.length} outils IA disponibles
+        🔥 {tools.length} outils IA disponibles
       </h2>
 
       {tools.length === 0 ? (

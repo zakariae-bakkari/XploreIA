@@ -49,3 +49,17 @@ export const userApi = {
     update: (id, data) => apiRequest(`users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id) => apiRequest(`users/${id}`, { method: 'DELETE' }),
 };
+
+// Service: Suggestions
+export const suggestionApi = {
+    submit: (data) => apiRequest('suggestions', { 
+        method: 'POST', 
+        body: JSON.stringify(data) 
+    }),
+    getPending: () => apiRequest('suggestions/pending'),
+    approve: (id) => apiRequest(`suggestions/${id}/approve`, { method: 'POST' }),
+    reject: (id, reason) => apiRequest(`suggestions/${id}/reject`, { 
+        method: 'POST', 
+        body: JSON.stringify({ reason }) 
+    }),
+};
