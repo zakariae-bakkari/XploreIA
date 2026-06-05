@@ -53,17 +53,40 @@ class SuggestionController extends Controller
 
             // Verifier les doublons
             $duplicateCheck = $this->checkDuplicate($data['name']);
+            if ($duplicateCheck && $duplicateCheck['exists']) {
+                $source = $duplicateCheck['source'] === 'catalogue' ? 'présent dans le catalogue' : 'déjà suggéré';
+                $this->jsonResponse([
+                    'success' => false,
+                    'error' => "Doublon : Cet outil est déjà " . $source
+                ], 400);
+                return;
+            }
             
             // Calculer le score (LLM ou Fallback Heuristiques)
             $aiResult = $this->evaluateSuggestion($data, $duplicateCheck);
+
+            // Bloquer si le score est inférieur à 40 (l'outil n'existe pas sur le marché ou est suspect/frauduleux)
+            if ($aiResult['score'] < 40) {
+                $this->jsonResponse([
+                    'success' => false,
+                    'error' => "Cette suggestion a été rejetée car l'outil n'a pas été validé par l'IA (Score: " . $aiResult['score'] . "/100). " . $aiResult['feedback'],
+                    'data' => [
+                        'ai_score' => $aiResult['score'],
+                        'ai_feedback' => $aiResult['feedback'],
+                        'ai_details' => $aiResult['details'] ?? []
+                    ]
+                ], 400);
+                return;
+            }
 
             // Generer un ID
             $id = $this->generateUUID();
 
             $stmt = $this->db->prepare("
                 INSERT INTO tool_suggestions 
-                (id, name, description, website_url, logo_url, main_category_id, pricing_model, provider_name, submitted_by, ai_score, ai_feedback, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+                (id, name, description, website_url, logo_url, main_category_id, pricing_model, provider_name, submitted_by, 
+                 ai_score, ai_feedback, model_ids, characteristic_ids, advantages, disadvantages, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
             ");
 
             $stmt->execute([
@@ -77,20 +100,24 @@ class SuggestionController extends Controller
                 $data['provider_name'] ?? null,
                 $userId,
                 $aiResult['score'],
-                $aiResult['feedback']
+                $aiResult['feedback'],
+                json_encode($data['model_ids'] ?? []),
+                json_encode($data['characteristic_ids'] ?? []),
+                json_encode($data['advantages'] ?? []),
+                json_encode($data['disadvantages'] ?? [])
             ]);
 
             // Récupérer le paramètre d'auto-approbation
             $autoApproveStmt = $this->db->prepare("SELECT value FROM settings WHERE key_name = 'ai_auto_approval'");
             $autoApproveStmt->execute();
-            $autoApprove = $autoApproveStmt->fetchColumn() === '1';
+            $autoApprove = (int)$autoApproveStmt->fetchColumn() === 1;
 
             $automaticallyApproved = false;
             $toolId = null;
 
-            // Si auto-approbation active et score >= 70 et pas de doublon
-            if ($autoApprove && $aiResult['score'] >= 70 && (!$duplicateCheck || !$duplicateCheck['exists'])) {
-                $providerId = $this->getOrCreateProvider($data['provider_name']);
+            // Si auto-approbation active et score >= 70
+            if ($autoApprove && $aiResult['score'] >= 70) {
+                $providerId = $this->getOrCreateProvider($data['provider_name'] ?? null);
                 $toolId = $this->createAiTool([
                     'name' => $data['name'],
                     'description' => $data['description'],
@@ -99,6 +126,9 @@ class SuggestionController extends Controller
                     'pricing_model' => $data['pricing_model'] ?? 'freemium',
                     'main_category_id' => $data['main_category_id'] ?? null
                 ], $providerId);
+
+                // Lier les relations (modèles, caractéristiques, avantages, inconvénients)
+                $this->insertToolRelations($toolId, $data, $userId);
 
                 // Mettre à jour le statut de la suggestion
                 $updateStmt = $this->db->prepare("UPDATE tool_suggestions SET status = 'approved' WHERE id = ?");
@@ -138,6 +168,7 @@ class SuggestionController extends Controller
         }
     }
 
+
     /**
      * GET /suggestions/pending
      * Recuperer les suggestions en attente (admin)
@@ -168,10 +199,10 @@ class SuggestionController extends Controller
     }
 
     /**
-     * POST /suggestions/{id}/update
+     * POST /suggestions/update
      * Modifier les suggestions (admin)
      */
-    public function update($id)
+    public function update()
     {
         $this->requireAdmin();
         $data = json_decode(file_get_contents('php://input'), true);
@@ -181,12 +212,19 @@ class SuggestionController extends Controller
             return;
         }
 
+        $id = $data['id'] ?? null;
+        if (!$id) {
+            $this->jsonResponse(['success' => false, 'error' => 'ID is required'], 400);
+            return;
+        }
+
         try {
             $this->ensureSuggestionsTable();
 
             $stmt = $this->db->prepare("
                 UPDATE tool_suggestions
-                SET name = ?, description = ?, website_url = ?, logo_url = ?, main_category_id = ?, pricing_model = ?, provider_name = ?, updated_at = NOW()
+                SET name = ?, description = ?, website_url = ?, logo_url = ?, main_category_id = ?, pricing_model = ?, provider_name = ?, 
+                    model_ids = ?, characteristic_ids = ?, advantages = ?, disadvantages = ?, updated_at = NOW()
                 WHERE id = ?
             ");
             $stmt->execute([
@@ -197,6 +235,10 @@ class SuggestionController extends Controller
                 $data['main_category_id'] ?? null,
                 $data['pricing_model'] ?? 'freemium',
                 $data['provider_name'] ?? null,
+                json_encode($data['model_ids'] ?? []),
+                json_encode($data['characteristic_ids'] ?? []),
+                json_encode($data['advantages'] ?? []),
+                json_encode($data['disadvantages'] ?? []),
                 $id
             ]);
 
@@ -209,13 +251,21 @@ class SuggestionController extends Controller
         }
     }
 
+
     /**
-     * POST /suggestions/{id}/approve
+     * POST /suggestions/approve
      * Approuver manuellement une suggestion
      */
-    public function approve($id)
+    public function approve()
     {
         $this->requireAdmin();
+        $data = json_decode(file_get_contents('php://input'), true);
+        $id = $data['id'] ?? null;
+        if (!$id) {
+            $this->jsonResponse(['success' => false, 'error' => 'ID is required'], 400);
+            return;
+        }
+
         try {
             $this->ensureSuggestionsTable();
             
@@ -231,6 +281,9 @@ class SuggestionController extends Controller
             $providerId = $this->getOrCreateProvider($suggestion['provider_name']);
             $toolId = $this->createAiTool($suggestion, $providerId);
             
+            // Lier les relations
+            $this->insertToolRelations($toolId, $suggestion, $suggestion['submitted_by']);
+
             $stmt = $this->db->prepare("UPDATE tool_suggestions SET status = 'approved' WHERE id = ?");
             $stmt->execute([$id]);
 
@@ -258,14 +311,20 @@ class SuggestionController extends Controller
         }
     }
 
+
     /**
-     * POST /suggestions/{id}/reject
+     * POST /suggestions/reject
      * Rejeter manuellement une suggestion
      */
-    public function reject($id)
+    public function reject()
     {
         $this->requireAdmin();
         $data = json_decode(file_get_contents('php://input'), true);
+        $id = $data['id'] ?? null;
+        if (!$id) {
+            $this->jsonResponse(['success' => false, 'error' => 'ID is required'], 400);
+            return;
+        }
         $reason = $data['reason'] ?? 'Aucune raison fournie';
         
         try {
@@ -322,7 +381,7 @@ class SuggestionController extends Controller
             
             $this->jsonResponse([
                 'success' => true,
-                'ai_auto_approval' => $val === '1'
+                'ai_auto_approval' => (int)$val === 1
             ]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
@@ -346,7 +405,7 @@ class SuggestionController extends Controller
             $this->jsonResponse([
                 'success' => true,
                 'message' => 'Settings updated successfully',
-                'ai_auto_approval' => $value === '1'
+                'ai_auto_approval' => (int)$value === 1
             ]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
@@ -415,7 +474,49 @@ class SuggestionController extends Controller
     }
 
     /**
-     * Évaluer la suggestion (LLM ou Fallback)
+     * GET /suggestions/form-data
+     * Récupérer les catégories, caractéristiques et modèles pour le formulaire de suggestion
+     */
+    public function getFormData()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $userId = $_SESSION['user_id'] ?? null;
+        if (!$userId) {
+            $this->jsonResponse(['success' => false, 'error' => 'Authentication required'], 401);
+            return;
+        }
+
+        try {
+            // Catégories actives
+            $catStmt = $this->db->query("SELECT id, name FROM categories WHERE status = 'active' ORDER BY name ASC");
+            $categories = $catStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            // Caractéristiques actives
+            $charStmt = $this->db->query("SELECT id, name, type FROM characteristics WHERE status = 'active' ORDER BY name ASC");
+            $characteristics = $charStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            // Modèles actifs
+            $modelStmt = $this->db->query("SELECT id, name FROM models WHERE status = 'active' ORDER BY name ASC");
+            $models = $modelStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            $this->jsonResponse([
+                'success' => true,
+                'data' => [
+                    'categories' => $categories,
+                    'characteristics' => $characteristics,
+                    'models' => $models
+                ]
+            ]);
+        } catch (\PDOException $e) {
+            $this->jsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Évaluer la suggestion en appelant le service IA
      */
     private function evaluateSuggestion($toolData, $duplicateCheck)
     {
@@ -438,123 +539,92 @@ class SuggestionController extends Controller
             $categoryName = $stmt->fetchColumn() ?: "Inconnue";
         }
 
-        $prompt = "Évalue l'outil IA suivant sur une échelle de 0 à 100:
-        Nom: {$toolData['name']}
-        Description: {$toolData['description']}
-        Catégorie suggérée: {$categoryName}
-        Site web: {$toolData['website_url']}
-        Créateur: " . ($toolData['provider_name'] ?? 'Non spécifié') . "
-        Tarification: {$toolData['pricing_model']}";
-
-        $systemInstruction = "Tu es un expert en évaluation d'outils d'intelligence artificielle.
-        Analyse l'outil et renvoie STRICTEMENT un objet JSON contenant les clés :
-        - 'score' : nombre de 0 à 100
-        - 'feedback' : court paragraphe explicatif en français
-        - 'details' : un objet contenant les notes pour :
-            * 'description_quality' (sur 20)
-            * 'category_relevance' (sur 15)
-            * 'credibility' (sur 15)
-            * 'innovation' (sur 20)
-            * 'usefulness' (sur 30)
-        Le JSON doit être propre, sans format markdown ```json, juste l'objet brut.";
-
-        $aiResponse = AiService::generateText($prompt, $systemInstruction);
-
-        if ($aiResponse) {
-            // Nettoyage de la réponse si enveloppée par du markdown
-            $cleanResponse = preg_replace('/```json|```/', '', $aiResponse);
-            $cleanResponse = trim($cleanResponse);
-            $parsed = json_decode($cleanResponse, true);
-
-            if ($parsed && isset($parsed['score'])) {
-                return [
-                    'score' => min(max((int)$parsed['score'], 0), 100),
-                    'feedback' => $parsed['feedback'] ?? "Outil évalué par l'IA.",
-                    'details' => $parsed['details'] ?? []
-                ];
-            }
+        // Récupérer les noms des modèles sélectionnés
+        $modelNames = [];
+        $modelIds = $toolData['model_ids'] ?? [];
+        if (!empty($modelIds) && is_array($modelIds)) {
+            $placeholders = implode(',', array_fill(0, count($modelIds), '?'));
+            $mStmt = $this->db->prepare("SELECT name FROM models WHERE id IN ($placeholders)");
+            $mStmt->execute($modelIds);
+            $modelNames = $mStmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
         }
 
-        // Fallback Heuristiques de Youssef
-        return $this->fallbackScoring($toolData);
+        // Récupérer les noms des caractéristiques sélectionnées
+        $characteristicNames = [];
+        $charIds = $toolData['characteristic_ids'] ?? [];
+        if (!empty($charIds) && is_array($charIds)) {
+            $placeholders = implode(',', array_fill(0, count($charIds), '?'));
+            $cStmt = $this->db->prepare("SELECT name FROM characteristics WHERE id IN ($placeholders)");
+            $cStmt->execute($charIds);
+            $characteristicNames = $cStmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+        }
+
+        $evaluationData = [
+            'name' => $toolData['name'],
+            'description' => $toolData['description'],
+            'category_name' => $categoryName,
+            'website_url' => $toolData['website_url'],
+            'logo_url' => $toolData['logo_url'] ?? '',
+            'provider_name' => $toolData['provider_name'] ?? '',
+            'pricing_model' => $toolData['pricing_model'] ?? 'freemium',
+            'models' => $modelNames,
+            'characteristics' => $characteristicNames,
+            'advantages' => $toolData['advantages'] ?? [],
+            'disadvantages' => $toolData['disadvantages'] ?? [],
+        ];
+
+        // Évaluation via AiService
+        return AiService::evaluateTool($evaluationData);
     }
 
     /**
-     * Fallback Heuristiques
+     * Lier les relations d'un outil approuvé
      */
-    private function fallbackScoring($data)
+    private function insertToolRelations($toolId, $data, $submittedBy)
     {
-        $score = 0;
-        $details = [];
-        $feedbackList = [];
-        $warnings = [];
-        $redFlags = [];
-
-        $descLength = strlen($data['description'] ?? '');
-        if ($descLength >= 300) {
-            $score += 30;
-            $details['description_quality'] = 20;
-            $feedbackList[] = "Description excellente (plus de 300 caractères)";
-        } elseif ($descLength >= 100) {
-            $score += 20;
-            $details['description_quality'] = 15;
-            $feedbackList[] = "Description correcte (plus de 100 caractères)";
-        } else {
-            $score += 5;
-            $details['description_quality'] = 5;
-            $feedbackList[] = "Description trop courte";
-        }
-
-        if (!empty($data['website_url']) && filter_var($data['website_url'], FILTER_VALIDATE_URL)) {
-            $score += 15;
-            $details['credibility'] = 10;
-            if (strpos($data['website_url'], 'https://') === 0) {
-                $score += 10;
-                $details['credibility'] += 5;
-                $feedbackList[] = "Site sécurisé (HTTPS)";
-            } else {
-                $warnings[] = "URL non sécurisée (HTTP)";
+        // 1. Models
+        $modelIds = is_string($data['model_ids'] ?? null) ? json_decode($data['model_ids'], true) : ($data['model_ids'] ?? []);
+        if (!empty($modelIds) && is_array($modelIds)) {
+            $mStmt = $this->db->prepare("INSERT IGNORE INTO tool_models (id, tool_id, model_id) VALUES (UUID(), ?, ?)");
+            foreach ($modelIds as $modelId) {
+                if (!empty($modelId)) {
+                    $mStmt->execute([$toolId, $modelId]);
+                }
             }
-        } else {
-            $redFlags[] = "URL invalide";
         }
 
-        if (!empty($data['main_category_id'])) {
-            $score += 15;
-            $details['category_relevance'] = 15;
-        } else {
-            $redFlags[] = "Catégorie non spécifiée";
+        // 2. Characteristics
+        $charIds = is_string($data['characteristic_ids'] ?? null) ? json_decode($data['characteristic_ids'], true) : ($data['characteristic_ids'] ?? []);
+        if (!empty($charIds) && is_array($charIds)) {
+            $cStmt = $this->db->prepare("INSERT IGNORE INTO tool_characteristics (id, tool_id, characteristic_id) VALUES (UUID(), ?, ?)");
+            foreach ($charIds as $charId) {
+                if (!empty($charId)) {
+                    $cStmt->execute([$toolId, $charId]);
+                }
+            }
         }
 
-        if (!empty($data['provider_name'])) {
-            $score += 15;
-            $details['credibility'] = ($details['credibility'] ?? 0) + 10;
-            $feedbackList[] = "Créateur identifié";
+        // 3. Advantages
+        $advantages = is_string($data['advantages'] ?? null) ? json_decode($data['advantages'], true) : ($data['advantages'] ?? []);
+        if (!empty($advantages) && is_array($advantages)) {
+            $aStmt = $this->db->prepare("INSERT INTO advantages (id, tool_id, advantage_name, created_by, created_at) VALUES (UUID(), ?, ?, ?, NOW())");
+            foreach ($advantages as $adv) {
+                if (!empty($adv) && trim($adv) !== '') {
+                    $aStmt->execute([$toolId, trim($adv), $submittedBy]);
+                }
+            }
         }
 
-        $pricing = $data['pricing_model'] ?? 'unknown';
-        if ($pricing === 'free') {
-            $score += 15;
-            $details['usefulness'] = 20;
-        } elseif ($pricing === 'freemium') {
-            $score += 12;
-            $details['usefulness'] = 18;
-        } else {
-            $score += 5;
-            $details['usefulness'] = 10;
+        // 4. Disadvantages
+        $disadvantages = is_string($data['disadvantages'] ?? null) ? json_decode($data['disadvantages'], true) : ($data['disadvantages'] ?? []);
+        if (!empty($disadvantages) && is_array($disadvantages)) {
+            $dStmt = $this->db->prepare("INSERT INTO disadvantages (id, tool_id, disadvantage_name, created_by, created_at) VALUES (UUID(), ?, ?, ?, NOW())");
+            foreach ($disadvantages as $disadv) {
+                if (!empty($disadv) && trim($disadv) !== '') {
+                    $dStmt->execute([$toolId, trim($disadv), $submittedBy]);
+                }
+            }
         }
-
-        $score = min(max($score, 0), 100);
-
-        $feedback = "Validation heuristique de secours. " . implode(". ", $feedbackList);
-
-        return [
-            'score' => $score,
-            'feedback' => $feedback,
-            'details' => $details,
-            'warnings' => $warnings,
-            'red_flags' => $redFlags
-        ];
     }
 
     /**
@@ -563,7 +633,6 @@ class SuggestionController extends Controller
     private function getOrCreateProvider($name)
     {
         if (empty($name)) {
-            // Provider par défaut "Communauté"
             $name = "Communauté";
         }
         
@@ -628,17 +697,39 @@ class SuggestionController extends Controller
                 ai_score INT DEFAULT NULL,
                 ai_feedback TEXT,
                 admin_notes TEXT,
+                model_ids TEXT DEFAULT NULL,
+                characteristic_ids TEXT DEFAULT NULL,
+                advantages TEXT DEFAULT NULL,
+                disadvantages TEXT DEFAULT NULL,
                 status VARCHAR(20) DEFAULT 'pending',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            );
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             
             CREATE TABLE IF NOT EXISTS settings (
                 key_name VARCHAR(100) PRIMARY KEY,
                 value VARCHAR(255) NOT NULL
-            );
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ";
         $this->db->exec($sql);
+
+        // Convert existing tables if they were created with a different default collation
+        try {
+            $this->db->exec("ALTER TABLE tool_suggestions CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+            $this->db->exec("ALTER TABLE settings CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+        } catch (\PDOException $e) {
+            // Silence potential conversion errors
+        }
+        
+        // Ensure new columns exist for models, characteristics, advantages, disadvantages
+        $cols = ['model_ids', 'characteristic_ids', 'advantages', 'disadvantages'];
+        foreach ($cols as $col) {
+            try {
+                $this->db->query("SELECT $col FROM tool_suggestions LIMIT 1");
+            } catch (\PDOException $e) {
+                $this->db->exec("ALTER TABLE tool_suggestions ADD COLUMN $col TEXT DEFAULT NULL");
+            }
+        }
         
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM settings WHERE key_name = 'ai_auto_approval'");
         $stmt->execute();
@@ -657,3 +748,4 @@ class SuggestionController extends Controller
         return $stmt->fetchColumn();
     }
 }
+

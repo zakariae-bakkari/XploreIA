@@ -12,7 +12,7 @@ import LoginPage from "./pages/LoginPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ProfilePage from "./pages/ProfilePage";
 import ToolDetailsPage from "./pages/ToolDetailsPage";
-import DebugPage from "./pages/DebugPage";
+
 import FavoritesPage from "./pages/FavoritesPage";
 import PlaylistDetailsPage from "./pages/PlaylistDetailsPage";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -33,7 +33,7 @@ function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/discover" element={<DiscoverPage />} />
       <Route path="/discover/:slug" element={<ToolDetailsPage />} />
-      <Route path="/debug" element={<DebugPage />} />
+
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />

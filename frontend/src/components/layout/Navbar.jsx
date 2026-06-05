@@ -112,13 +112,7 @@ const Navbar = () => {
                 Tableau de Bord
               </Link>
             )}
-            <Link
-              to="/debug"
-              className={`nav-link ${isActive("/debug") ? "active" : ""}`}
-              style={{ fontSize: "14px", fontWeight: "500" }}
-            >
-              debug
-            </Link>
+
           </div>
         </div>
 

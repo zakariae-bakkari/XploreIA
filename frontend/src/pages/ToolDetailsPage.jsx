@@ -59,7 +59,7 @@ const ToolDetailsPage = () => {
 
   return (
     <MainLayout>
-      <div className="container" style={{ padding: '40px 0' }}>
+      <div className="container" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
         <Link to="/discover" className="flex items-center gap-xs" style={{ color: 'var(--on-surface-variant)', marginBottom: '32px', textDecoration: 'none' }}>
           <span className="material-symbols-outlined">arrow_back</span>
           <span className="label-sm">Retour au Marché</span>

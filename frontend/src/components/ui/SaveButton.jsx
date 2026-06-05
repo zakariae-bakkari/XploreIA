@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { playlistApi } from '../../api';
+import CustomSelect from './CustomSelect';
 
 const SaveButton = ({ tool }) => {
   const { user } = useAuth();
   const [savedPlaylists, setSavedPlaylists] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [allPlaylists, setAllPlaylists] = useState([]);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -20,6 +22,9 @@ const SaveButton = ({ tool }) => {
       playlistApi.getAllByUser(user.email).then(res => {
         if (res.status === 'success') {
           setAllPlaylists(res.data);
+          if (res.data && res.data.length > 0) {
+            setSelectedPlaylistId(res.data[0].id);
+          }
         }
       });
     }
@@ -51,6 +56,7 @@ const SaveButton = ({ tool }) => {
             setAllPlaylists(res.data);
             const fav = res.data.find(p => p.name === 'Favoris') || res.data[0];
             if (fav) {
+              setSelectedPlaylistId(fav.id);
               await playlistApi.addTool({ playlist_id: fav.id, tool_id: tool.id });
               setSavedPlaylists([fav]);
             }
@@ -61,16 +67,23 @@ const SaveButton = ({ tool }) => {
         setLoading(false);
       } else {
         // Open modal to choose playlist
+        if (allPlaylists.length > 0) {
+          setSelectedPlaylistId(allPlaylists[0].id);
+        }
         setShowModal(true);
       }
     }
   };
 
-  const saveToPlaylist = async (playlistId) => {
+  const saveToPlaylist = async (playlistId, updatedPlaylists = null) => {
+    if (!playlistId) return;
     setLoading(true);
     await playlistApi.addTool({ playlist_id: playlistId, tool_id: tool.id });
-    const addedPlaylist = allPlaylists.find(p => p.id === playlistId);
-    setSavedPlaylists([...savedPlaylists, addedPlaylist]);
+    const list = updatedPlaylists || allPlaylists;
+    const addedPlaylist = list.find(p => p.id === playlistId);
+    if (addedPlaylist && !savedPlaylists.some(p => p.id === playlistId)) {
+      setSavedPlaylists([...savedPlaylists, addedPlaylist]);
+    }
     setShowModal(false);
     setLoading(false);
   };
@@ -111,20 +124,39 @@ const SaveButton = ({ tool }) => {
           <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--surface)', border: '1px solid var(--outline)', width: '400px', padding: '32px', borderRadius: '24px', boxShadow: '0 20px 50px rgba(0,0,0,0.2)' }}>
             <h3 style={{ marginBottom: '24px', color: 'var(--on-surface)', fontSize: '20px', fontWeight: 'bold' }}>Enregistrer dans...</h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '200px', overflowY: 'auto', marginBottom: '20px' }}>
-              {allPlaylists.map(p => (
-                <button 
-                  key={p.id} 
-                  onClick={() => saveToPlaylist(p.id)}
-                  style={{ padding: '12px', textAlign: 'left', background: 'var(--surface-container-low)', color: 'var(--on-surface)', border: '1px solid var(--outline-variant)', borderRadius: '12px', cursor: 'pointer', fontWeight: '500', transition: 'all 0.2s' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--primary-container)'; e.currentTarget.style.color = 'var(--on-primary-container)'; e.currentTarget.style.borderColor = 'var(--primary)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--surface-container-low)'; e.currentTarget.style.color = 'var(--on-surface)'; e.currentTarget.style.borderColor = 'var(--outline-variant)'; }}
-                >
-                  {p.name}
-                </button>
-              ))}
-              {allPlaylists.length === 0 && <p style={{ color: 'var(--on-surface-variant)' }}>Aucune collection trouvée.</p>}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '11px', fontWeight: '700', color: 'var(--outline)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Choisir une Collection</label>
+              <CustomSelect
+                value={selectedPlaylistId}
+                onChange={(val) => setSelectedPlaylistId(val)}
+                options={allPlaylists.map(p => ({ value: p.id, label: p.name }))}
+                placeholder="Sélectionner une collection..."
+              />
             </div>
+
+            <button 
+              onClick={() => saveToPlaylist(selectedPlaylistId)}
+              disabled={!selectedPlaylistId || loading}
+              style={{ 
+                width: '100%', 
+                padding: '12px', 
+                background: 'var(--primary)', 
+                color: '#0b0b0f', 
+                border: 'none', 
+                borderRadius: '12px', 
+                cursor: 'pointer', 
+                fontWeight: 'bold', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: '8px', 
+                transition: 'all 0.2s',
+                marginBottom: '16px'
+              }}
+            >
+              <span className="material-symbols-outlined">bookmark_add</span>
+              Enregistrer
+            </button>
 
             <div style={{ borderTop: '1px solid var(--outline-variant)', paddingTop: '20px', marginTop: '10px', display: 'flex', gap: '10px' }}>
               <input 
@@ -142,7 +174,11 @@ const SaveButton = ({ tool }) => {
                       if (res.status === 'success') {
                         setAllPlaylists(res.data);
                         const p = res.data.find(p => p.name === name);
-                        if (p) await saveToPlaylist(p.id);
+                        if (p) {
+                          setSelectedPlaylistId(p.id);
+                          e.target.value = '';
+                          await saveToPlaylist(p.id, res.data);
+                        }
                       }
                       setLoading(false);
                     }
@@ -160,12 +196,16 @@ const SaveButton = ({ tool }) => {
                     if (res.status === 'success') {
                       setAllPlaylists(res.data);
                       const p = res.data.find(p => p.name === name);
-                      if (p) await saveToPlaylist(p.id);
+                      if (p) {
+                        setSelectedPlaylistId(p.id);
+                        if (input) input.value = '';
+                        await saveToPlaylist(p.id, res.data);
+                      }
                     }
                     setLoading(false);
                   }
                 }}
-                style={{ padding: '10px 16px', background: 'var(--primary)', color: 'var(--on-primary)', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }}
+                style={{ padding: '10px 16px', background: 'rgba(255,255,255,0.05)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' }}
               >
                 Créer
               </button>
@@ -173,7 +213,7 @@ const SaveButton = ({ tool }) => {
 
             <button 
               onClick={() => setShowModal(false)}
-              style={{ marginTop: '24px', width: '100%', padding: '12px', background: 'transparent', border: '1px solid var(--outline)', color: 'var(--on-surface)', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold' }}
+              style={{ marginTop: '20px', width: '100%', padding: '12px', background: 'transparent', border: '1px solid var(--outline)', color: 'var(--on-surface)', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold' }}
             >
               Fermer
             </button>

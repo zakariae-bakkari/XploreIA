@@ -102,11 +102,12 @@ Router::post('/adminmodel/delete', 'AdminModelController@destroy');
 Router::post('/ai/chat', 'AiController@chat');
 
 // Routes pour les suggestions d'outils IA et parametres (Youssef & Integration)
+Router::get('/suggestions/form-data', 'SuggestionController@getFormData');
 Router::post('/suggestions', 'SuggestionController@submit');
 Router::get('/suggestions/pending', 'SuggestionController@getPending');
-Router::post('/suggestions/{id}/update', 'SuggestionController@update');
-Router::post('/suggestions/{id}/approve', 'SuggestionController@approve');
-Router::post('/suggestions/{id}/reject', 'SuggestionController@reject');
+Router::post('/suggestions/update', 'SuggestionController@update');
+Router::post('/suggestions/approve', 'SuggestionController@approve');
+Router::post('/suggestions/reject', 'SuggestionController@reject');
 Router::get('/admin/settings', 'SuggestionController@getSettings');
 Router::post('/admin/settings', 'SuggestionController@updateSettings');
 ?>

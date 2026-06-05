@@ -3,9 +3,97 @@ import { suggestionApi, adminApi } from "../../api";
 import SuggestToolModal from "../../components/ui/SuggestToolModal";
 import CustomSelect from "../../components/ui/CustomSelect";
 
+const DynamicListInput = ({ items, setItems, label, placeholder }) => {
+  const addItem = () => setItems([...items, ""]);
+  const removeItem = (i) => setItems(items.filter((_, idx) => idx !== i));
+  const updateItem = (i, val) => {
+    const copy = [...items];
+    copy[i] = val;
+    setItems(copy);
+  };
+
+  return (
+    <div className="at-form-group">
+      <label style={{ display: "block", marginBottom: "6px", fontSize: "13px", fontWeight: "bold" }}>{label}</label>
+      {items.map((item, i) => (
+        <div key={i} className="at-dynamic-row">
+          <input 
+            className="at-input" 
+            style={{ flex: 1, padding: "10px", borderRadius: "8px", background: "rgba(0,0,0,0.2)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}
+            value={item} 
+            onChange={(e) => updateItem(i, e.target.value)} 
+            placeholder={`${placeholder} ${i + 1}`} 
+          />
+          {items.length > 1 && (
+            <button type="button" className="at-remove-btn" onClick={() => removeItem(i)}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
+            </button>
+          )}
+        </div>
+      ))}
+      <button type="button" className="at-add-btn" onClick={addItem} style={{ marginTop: "4px" }}>
+        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span> Ajouter
+      </button>
+    </div>
+  );
+};
+
+const RelationChipsSelect = ({ selectedIds, setSelectedIds, allItems, label, placeholder }) => {
+  const handleAdd = (id) => {
+    if (id && !selectedIds.includes(id)) {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
+
+  const handleRemove = (id) => {
+    setSelectedIds(selectedIds.filter(x => x !== id));
+  };
+
+  return (
+    <div className="at-form-group">
+      <label style={{ display: "block", marginBottom: "6px", fontSize: "13px", fontWeight: "bold" }}>{label}</label>
+      {selectedIds.length > 0 && (
+        <div className="char-chips-grid" style={{ marginBottom: "12px" }}>
+          {selectedIds.map(id => {
+            const itemObj = allItems.find(x => String(x.id) === String(id));
+            if (!itemObj) return null;
+            return (
+              <div 
+                key={id} 
+                className="char-chip" 
+                style={{ display: "inline-flex", alignItems: "center", gap: "8px", margin: "2px" }}
+              >
+                <span>{itemObj.name}</span>
+                <span 
+                  className="material-symbols-outlined char-delete-icon" 
+                  style={{ fontSize: "16px" }} 
+                  onClick={() => handleRemove(id)}
+                >
+                  close
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <CustomSelect
+        value=""
+        onChange={handleAdd}
+        placeholder={placeholder}
+        options={allItems
+          .filter(x => !selectedIds.includes(x.id))
+          .map(x => ({ value: x.id, label: x.name }))
+        }
+      />
+    </div>
+  );
+};
+
 const AdminSuggestionsPage = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [allModels, setAllModels] = useState([]);
+  const [allCharacteristics, setAllCharacteristics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [autoApprove, setAutoApprove] = useState(false);
   const [toggling, setToggling] = useState(false);
@@ -24,7 +112,11 @@ const AdminSuggestionsPage = () => {
     logo_url: "",
     main_category_id: "",
     pricing_model: "freemium",
-    provider_name: ""
+    provider_name: "",
+    model_ids: [],
+    characteristic_ids: [],
+    advantages: [""],
+    disadvantages: [""]
   });
 
   // Reject Form State
@@ -38,10 +130,12 @@ const AdminSuggestionsPage = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [sugRes, catRes, settingsRes] = await Promise.all([
+      const [sugRes, catRes, settingsRes, modelsRes, charsRes] = await Promise.all([
         suggestionApi.getPending(),
         adminApi.categorieApi.getAll(),
-        suggestionApi.getSettings()
+        suggestionApi.getSettings(),
+        adminApi.modelApi.getAll(),
+        adminApi.characteristicApi.getAll()
       ]);
 
       if (sugRes.success) {
@@ -53,6 +147,12 @@ const AdminSuggestionsPage = () => {
       if (settingsRes.success) {
         setAutoApprove(settingsRes.ai_auto_approval);
       }
+      if (modelsRes.status === "success") {
+        setAllModels(modelsRes.data || []);
+      }
+      if (charsRes.status === "success") {
+        setAllCharacteristics(charsRes.data || []);
+      }
     } catch (e) {
       console.error("Failed to load suggestions page data:", e);
       showToast("error", "Erreur lors du chargement des données.");
@@ -63,6 +163,7 @@ const AdminSuggestionsPage = () => {
 
   useEffect(() => {
     loadData();
+
   }, []);
 
   const showToast = (type, message) => {
@@ -112,6 +213,29 @@ const AdminSuggestionsPage = () => {
   // Open Edit Modal
   const openEditModal = (suggestion) => {
     setSelectedSuggestion(suggestion);
+
+    let modelIds = [];
+    try {
+      modelIds = suggestion.model_ids ? JSON.parse(suggestion.model_ids) : [];
+    } catch(e) {}
+
+    let charIds = [];
+    try {
+      charIds = suggestion.characteristic_ids ? JSON.parse(suggestion.characteristic_ids) : [];
+    } catch(e) {}
+
+    let advs = [""];
+    try {
+      const parsed = suggestion.advantages ? JSON.parse(suggestion.advantages) : [];
+      if (parsed.length > 0) advs = parsed;
+    } catch(e) {}
+
+    let disadvs = [""];
+    try {
+      const parsed = suggestion.disadvantages ? JSON.parse(suggestion.disadvantages) : [];
+      if (parsed.length > 0) disadvs = parsed;
+    } catch(e) {}
+
     setEditForm({
       name: suggestion.name || "",
       description: suggestion.description || "",
@@ -119,10 +243,15 @@ const AdminSuggestionsPage = () => {
       logo_url: suggestion.logo_url || "",
       main_category_id: suggestion.main_category_id || "",
       pricing_model: suggestion.pricing_model || "freemium",
-      provider_name: suggestion.provider_name || ""
+      provider_name: suggestion.provider_name || "",
+      model_ids: modelIds,
+      characteristic_ids: charIds,
+      advantages: advs,
+      disadvantages: disadvs
     });
     setShowEditModal(true);
   };
+
 
   // Submit Edit & Approve
   const handleEditAndApproveSubmit = async (e) => {
@@ -626,6 +755,40 @@ const AdminSuggestionsPage = () => {
                   placeholder="Ex. OpenAI, Google..."
                 />
               </div>
+
+              {/* Models selection */}
+              <RelationChipsSelect
+                selectedIds={editForm.model_ids || []}
+                setSelectedIds={(val) => setEditForm({ ...editForm, model_ids: val })}
+                allItems={allModels}
+                label="Modèles IA utilisés (Optionnel)"
+                placeholder="Sélectionner un modèle..."
+              />
+
+              {/* Characteristics selection */}
+              <RelationChipsSelect
+                selectedIds={editForm.characteristic_ids || []}
+                setSelectedIds={(val) => setEditForm({ ...editForm, characteristic_ids: val })}
+                allItems={allCharacteristics}
+                label="Caractéristiques (Optionnel)"
+                placeholder="Sélectionner une caractéristique..."
+              />
+
+              {/* Advantages dynamic input */}
+              <DynamicListInput
+                items={editForm.advantages || [""]}
+                setItems={(val) => setEditForm({ ...editForm, advantages: val })}
+                label="Avantages"
+                placeholder="Avantage"
+              />
+
+              {/* Disadvantages dynamic input */}
+              <DynamicListInput
+                items={editForm.disadvantages || [""]}
+                setItems={(val) => setEditForm({ ...editForm, disadvantages: val })}
+                label="Inconvénients"
+                placeholder="Inconvénient"
+              />
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "12px" }}>
                 <button 

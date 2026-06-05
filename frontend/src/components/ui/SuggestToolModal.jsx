@@ -2,6 +2,91 @@ import React, { useState, useEffect } from 'react';
 import { apiRequest, suggestionApi } from '../../api';
 import CustomSelect from './CustomSelect';
 
+const DynamicListInput = ({ items, setItems, label, placeholder }) => {
+  const addItem = () => setItems([...items, ""]);
+  const removeItem = (i) => setItems(items.filter((_, idx) => idx !== i));
+  const updateItem = (i, val) => {
+    const copy = [...items];
+    copy[i] = val;
+    setItems(copy);
+  };
+
+  return (
+    <div className="at-form-group">
+      <label>{label}</label>
+      {items.map((item, i) => (
+        <div key={i} className="at-dynamic-row">
+          <input 
+            className="at-input" 
+            value={item} 
+            onChange={(e) => updateItem(i, e.target.value)} 
+            placeholder={`${placeholder} ${i + 1}`} 
+          />
+          {items.length > 1 && (
+            <button type="button" className="at-remove-btn" onClick={() => removeItem(i)}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>close</span>
+            </button>
+          )}
+        </div>
+      ))}
+      <button type="button" className="at-add-btn" onClick={addItem} style={{ marginTop: "4px" }}>
+        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span> Ajouter
+      </button>
+    </div>
+  );
+};
+
+const RelationChipsSelect = ({ selectedIds, setSelectedIds, allItems, label, placeholder }) => {
+  const handleAdd = (id) => {
+    if (id && !selectedIds.includes(id)) {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
+
+  const handleRemove = (id) => {
+    setSelectedIds(selectedIds.filter(x => x !== id));
+  };
+
+  return (
+    <div className="at-form-group">
+      <label>{label}</label>
+      {selectedIds.length > 0 && (
+        <div className="char-chips-grid" style={{ marginBottom: "12px" }}>
+          {selectedIds.map(id => {
+            const itemObj = allItems.find(x => String(x.id) === String(id));
+            if (!itemObj) return null;
+            return (
+              <div 
+                key={id} 
+                className="char-chip" 
+                style={{ display: "inline-flex", alignItems: "center", gap: "8px", margin: "2px" }}
+              >
+                <span>{itemObj.name}</span>
+                <span 
+                  className="material-symbols-outlined char-delete-icon" 
+                  style={{ fontSize: "16px" }} 
+                  onClick={() => handleRemove(id)}
+                >
+                  close
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <CustomSelect
+        value=""
+        onChange={handleAdd}
+        placeholder={placeholder}
+        options={allItems
+          .filter(x => !selectedIds.includes(x.id))
+          .map(x => ({ value: x.id, label: x.name }))
+        }
+      />
+    </div>
+  );
+};
+
 const SuggestToolModal = ({ isOpen, onClose, onSuccess }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -9,7 +94,16 @@ const SuggestToolModal = ({ isOpen, onClose, onSuccess }) => {
   const [pricing, setPricing] = useState('freemium');
   const [category, setCategory] = useState('');
   
+  // Relations
+  const [selectedModels, setSelectedModels] = useState([]);
+  const [selectedChars, setSelectedChars] = useState([]);
+  const [advantages, setAdvantages] = useState(['']);
+  const [disadvantages, setDisadvantages] = useState(['']);
+
   const [categories, setCategories] = useState([]);
+  const [allCharacteristics, setAllCharacteristics] = useState([]);
+  const [allModels, setAllModels] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [validating, setValidating] = useState(false);
   const [validationResult, setValidationResult] = useState(null);
@@ -23,25 +117,31 @@ const SuggestToolModal = ({ isOpen, onClose, onSuccess }) => {
       setUrl('');
       setPricing('freemium');
       setCategory('');
+      setSelectedModels([]);
+      setSelectedChars([]);
+      setAdvantages(['']);
+      setDisadvantages(['']);
       setValidationResult(null);
       setError('');
       return;
     }
 
-    const fetchCategories = async () => {
+    const fetchFormData = async () => {
       try {
-        const res = await apiRequest('filters');
-        if (res.status === 'success' && res.data?.categories) {
-          setCategories(res.data.categories);
-          if (res.data.categories.length > 0) {
+        const res = await suggestionApi.getFormData();
+        if (res.success && res.data) {
+          setCategories(res.data.categories || []);
+          setAllCharacteristics(res.data.characteristics || []);
+          setAllModels(res.data.models || []);
+          if (res.data.categories && res.data.categories.length > 0) {
             setCategory(res.data.categories[0].id);
           }
         }
       } catch (err) {
-        console.error("Failed to load categories", err);
+        console.error("Failed to load suggestions reference data", err);
       }
     };
-    fetchCategories();
+    fetchFormData();
   }, [isOpen]);
 
   const pricingOptions = [
@@ -70,7 +170,11 @@ const SuggestToolModal = ({ isOpen, onClose, onSuccess }) => {
         description: description,
         website_url: url,
         main_category_id: category,
-        pricing_model: pricing
+        pricing_model: pricing,
+        model_ids: selectedModels,
+        characteristic_ids: selectedChars,
+        advantages: advantages.filter(x => x.trim()),
+        disadvantages: disadvantages.filter(x => x.trim())
       });
 
       if (res.success) {
@@ -88,11 +192,13 @@ const SuggestToolModal = ({ isOpen, onClose, onSuccess }) => {
     } catch (err) {
       setError("Erreur inattendue. Veuillez réessayer.");
     } finally {
+
       setLoading(false);
       setValidating(false);
     }
   };
-  if (!isOpen) return null;
+
+  if (!isOpen) return null;
 
   return (
     <>
@@ -331,7 +437,8 @@ const SuggestToolModal = ({ isOpen, onClose, onSuccess }) => {
             </div>
           ) : (
             /* Suggestion Form */
-            <form onSubmit={handleSubmit} className="flex flex-col gap-md">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-md" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              
               <div className="at-form-group">
                 <label>Nom de l'outil IA *</label>
                 <input 
@@ -388,6 +495,39 @@ const SuggestToolModal = ({ isOpen, onClose, onSuccess }) => {
                 </div>
               </div>
 
+              {/* Models selection */}
+              <RelationChipsSelect
+                selectedIds={selectedModels}
+                setSelectedIds={setSelectedModels}
+                allItems={allModels}
+                label="Modèles IA utilisés (Optionnel)"
+                placeholder="Sélectionner un modèle..."
+              />
+
+              {/* Characteristics selection */}
+              <RelationChipsSelect
+                selectedIds={selectedChars}
+                setSelectedIds={setSelectedChars}
+                allItems={allCharacteristics}
+                label="Caractéristiques (Optionnel)"
+                placeholder="Sélectionner une caractéristique..."
+              />
+
+              {/* Advantages dynamic input */}
+              <DynamicListInput
+                items={advantages}
+                setItems={setAdvantages}
+                label="Avantages"
+                placeholder="Avantage"
+              />
+
+              {/* Disadvantages dynamic input */}
+              <DynamicListInput
+                items={disadvantages}
+                setItems={setDisadvantages}
+                label="Inconvénients"
+                placeholder="Inconvénient"
+              />
 
               <div className="at-modal-actions">
                 <button type="button" onClick={onClose} className="at-btn-cancel">

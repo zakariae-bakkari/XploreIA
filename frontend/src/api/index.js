@@ -209,6 +209,7 @@ export const adminApi = {
 };
 
 export const suggestionApi = {
+  getFormData: () => apiRequest("suggestions/form-data"),
   submit: (data) =>
     apiRequest("suggestions", {
       method: "POST",
@@ -216,15 +217,15 @@ export const suggestionApi = {
     }),
   getPending: () => apiRequest("suggestions/pending"),
   update: (id, data) =>
-    apiRequest(`suggestions/${id}/update`, {
+    apiRequest(`suggestions/update`, {
       method: "POST",
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, id }),
     }),
-  approve: (id) => apiRequest(`suggestions/${id}/approve`, { method: "POST" }),
+  approve: (id) => apiRequest(`suggestions/approve`, { method: "POST", body: JSON.stringify({ id }) }),
   reject: (id, reason) =>
-    apiRequest(`suggestions/${id}/reject`, {
+    apiRequest(`suggestions/reject`, {
       method: "POST",
-      body: JSON.stringify({ reason }),
+      body: JSON.stringify({ id, reason }),
     }),
   getSettings: () => apiRequest("admin/settings"),
   updateSettings: (data) =>
