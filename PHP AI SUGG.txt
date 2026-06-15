@@ -1,0 +1,85 @@
+// PHP AI SUGG...
+
+Test 1 : Bonne soumission (score attendu: 85-100)
+
+Nom de l'outil: Midjourney AI
+Description: Midjourney est un générateur d'images par intelligence artificielle. Il permet de créer des visuels époustouflants à partir de descriptions textuelles. L'outil est accessible via Discord et propose différents plans tarifaires. Il est utilisé par des millions de créateurs dans le monde.
+Site web: https://www.midjourney.com
+Logo: https://cdn.midjourney.com/logo.png
+Catégorie: Image Generation
+Tarification: freemium
+Créateur: Midjourney
+
+Test 2 : Soumission médiocre (score attendu: 40-60)
+
+Nom de l'outil: Cool Tool
+Description: Un outil sympa.
+Site web: http://test.com
+Logo: 
+Catégorie: Autre
+Tarification: unknown
+Créateur: 
+
+Test 3 : Contenu suspect (score attendu: 0-30)
+
+Nom de l'outil: Free Crypto Bitcoin Hack
+Description: Gagnez de l'argent facilement avec ce logiciel. Hack tous les comptes.
+Site web: http://free-money.xyz
+Logo: 
+Catégorie: Other
+Tarification: free
+Créateur: Anonymous
+
+
+Test 4 : Doublon (score attendu: 0)
+
+Nom de l'outil: ChatGPT
+Description: Assistant IA conversationnel développé par OpenAI. Permet de discuter et de générer du texte.
+Site web: https://chat.openai.com
+Logo: https://openai.com/logo.png
+Catégorie: Chatbot & Assistant
+Tarification: freemium
+Créateur: OpenAI
+
+Test 5 : Soumission de qualité moyenne (score attendu: 60-75)
+
+Nom de l'outil: Claude Assistant
+Description: Assistant IA avancé développé par Anthropic. Reconnu pour sa sécurité, sa fiabilité et sa capacité à traiter de longs contextes. Utilise l'architecture Constitutional AI. Supporte analyse de documents, recherche web, et raisonnement avancé.
+Site web: https://claude.ai
+Logo: https://anthropic.com/images/claude-logo.png
+Catégorie: Chatbot & Assistant
+Tarification: freemium
+Créateur: Anthropic
+
+Test 7 : Outil réel non suggéré (IA génératrice de musique)
+
+Nom de l'outil: Suno AI
+Description: Suno AI est un générateur de musique par intelligence artificielle. Il permet de créer des chansons complètes avec paroles et voix à partir de simples descriptions textuelles. L'outil est utilisé par des musiciens et créateurs de contenu.
+Site web: https://suno.ai
+Logo: https://suno.ai/logo.png
+Catégorie: Audio & Voice
+Tarification: freemium
+Créateur: Suno
+
+Test 8 : Outil réel non suggéré (IA de présentation)
+
+Nom de l'outil: Gamma AI
+Description: Gamma AI est un outil de création de présentations assisté par IA. Génère des slides professionnels, des documents et des sites web à partir d'une simple description. Alternative moderne à PowerPoint.
+Site web: https://gamma.app
+Logo: https://gamma.app/logo.png
+Catégorie: Productivity
+Tarification: freemium
+Créateur: Gamma Tech
+
+
+Test 9 : Outil réel non suggéré (IA de recherche académique)
+
+Nom de l'outil: Elicit
+Description: Elicit est un assistant de recherche académique utilisant l'IA. Analyse des milliers d'articles scientifiques, extrait les résultats clés et répond aux questions de recherche. Très utilisé par les chercheurs et étudiants.
+Site web: https://elicit.com
+Logo: https://elicit.org/logo.png
+Catégorie: Data & Analytics
+Tarification: freemium
+Créateur: Ought
+
+
