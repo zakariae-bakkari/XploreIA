@@ -115,8 +115,8 @@ class SuggestionController extends Controller
             $automaticallyApproved = false;
             $toolId = null;
 
-            // Si auto-approbation active et score >= 70
-            if ($autoApprove && $aiResult['score'] >= 70) {
+            // Si auto-approbation active et score >= 75
+            if ($autoApprove && $aiResult['score'] >= 75) {
                 $providerId = $this->getOrCreateProvider($data['provider_name'] ?? null);
                 $toolId = $this->createAiTool([
                     'name' => $data['name'],
@@ -402,10 +402,45 @@ class SuggestionController extends Controller
             $stmt = $this->db->prepare("UPDATE settings SET value = ? WHERE key_name = 'ai_auto_approval'");
             $stmt->execute([$value]);
             
+            $countApproved = 0;
+            // Si on active l'auto-publication (value == 1), on approuve rétroactivement les suggestions en attente avec score >= 75
+            if ($value === '1') {
+                $stmt = $this->db->prepare("SELECT * FROM tool_suggestions WHERE status = 'pending' AND ai_score >= 75");
+                $stmt->execute();
+                $pendingToApprove = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                
+                foreach ($pendingToApprove as $suggestion) {
+                    $providerId = $this->getOrCreateProvider($suggestion['provider_name']);
+                    $toolId = $this->createAiTool($suggestion, $providerId);
+                    
+                    // Lier les relations
+                    $this->insertToolRelations($toolId, $suggestion, $suggestion['submitted_by']);
+
+                    // Marquer comme approuvée
+                    $upd = $this->db->prepare("UPDATE tool_suggestions SET status = 'approved' WHERE id = ?");
+                    $upd->execute([$suggestion['id']]);
+
+                    // Notification pour le soumissionnaire
+                    if (!empty($suggestion['submitted_by'])) {
+                        $notifId = $this->generateUUID();
+                        $notifMsg = "Félicitations ! Votre suggestion d'outil '" . $suggestion['name'] . "' a été automatiquement validée et publiée.";
+                        $link = "/discover/" . strtolower(str_replace(' ', '-', $suggestion['name']));
+                        
+                        $nStmt = $this->db->prepare("
+                            INSERT INTO notifications (id, user_id, message, link, status, created_at)
+                            VALUES (?, ?, ?, ?, 'unread', NOW())
+                        ");
+                        $nStmt->execute([$notifId, $suggestion['submitted_by'], $notifMsg, $link]);
+                    }
+                    $countApproved++;
+                }
+            }
+            
             $this->jsonResponse([
                 'success' => true,
                 'message' => 'Settings updated successfully',
-                'ai_auto_approval' => (int)$value === 1
+                'ai_auto_approval' => (int)$value === 1,
+                'retroactive_approved_count' => $countApproved
             ]);
         } catch (\PDOException $e) {
             $this->jsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
@@ -746,6 +781,73 @@ class SuggestionController extends Controller
     {
         $stmt = $this->db->query("SELECT UUID() as uuid");
         return $stmt->fetchColumn();
+    }
+
+    /**
+     * POST /suggestions/autofill
+     * Pré-remplir les données d'un outil avec l'IA
+     */
+    public function autofill()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $userId = $_SESSION['user_id'] ?? null;
+        if (!$userId) {
+            $this->jsonResponse(['success' => false, 'error' => 'Authentication required'], 401);
+            return;
+        }
+
+        $rawInput = file_get_contents('php://input');
+        $data = json_decode($rawInput, true);
+        $name = $data['name'] ?? null;
+
+        if (empty($name)) {
+            $this->jsonResponse(['success' => false, 'error' => 'Le nom de l\'outil est requis'], 400);
+            return;
+        }
+
+        try {
+            $this->ensureSuggestionsTable();
+
+            // 1. Récupérer les catégories actives
+            $catStmt = $this->db->query("SELECT id, name FROM categories WHERE status = 'active' ORDER BY name ASC");
+            $categories = $catStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            // 2. Récupérer les caractéristiques actives
+            $charStmt = $this->db->query("SELECT id, name, type FROM characteristics WHERE status = 'active' ORDER BY name ASC");
+            $characteristics = $charStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            // 3. Récupérer les modèles actifs
+            $modelStmt = $this->db->query("SELECT id, name FROM models WHERE status = 'active' ORDER BY name ASC");
+            $models = $modelStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+            // 4. Récupérer les noms des outils existants
+            $toolsStmt = $this->db->query("SELECT name FROM ai_tools");
+            $existingTools = $toolsStmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+
+            // 5. Récupérer les noms des suggestions en attente
+            $suggStmt = $this->db->query("SELECT name FROM tool_suggestions WHERE status = 'pending'");
+            $pendingTools = $suggStmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+
+            $allExistingNames = array_unique(array_merge($existingTools, $pendingTools));
+
+            // Appeler le service d'autofill IA
+            $result = AiService::autofillTool($name, $allExistingNames, $categories, $models, $characteristics);
+
+            $this->jsonResponse([
+                'success' => true,
+                'real_tool' => $result['real_tool'] ?? true,
+                'already_in_db' => $result['already_in_db'] ?? false,
+                'reason' => $result['reason'] ?? '',
+                'duplicate_tool_name' => $result['duplicate_tool_name'] ?? null,
+                'data' => $result['data'] ?? null
+            ]);
+
+        } catch (\PDOException $e) {
+            $this->jsonResponse(['success' => false, 'error' => 'Database error: ' . $e->getMessage()], 500);
+        }
     }
 }
 

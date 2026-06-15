@@ -104,6 +104,7 @@ Router::post('/ai/chat', 'AiController@chat');
 // Routes pour les suggestions d'outils IA et parametres (Youssef & Integration)
 Router::get('/suggestions/form-data', 'SuggestionController@getFormData');
 Router::post('/suggestions', 'SuggestionController@submit');
+Router::post('/suggestions/autofill', 'SuggestionController@autofill');
 Router::get('/suggestions/pending', 'SuggestionController@getPending');
 Router::post('/suggestions/update', 'SuggestionController@update');
 Router::post('/suggestions/approve', 'SuggestionController@approve');

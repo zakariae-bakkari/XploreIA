@@ -226,6 +226,11 @@ export const suggestionApi = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+  autofill: (name) =>
+    apiRequest("suggestions/autofill", {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    }),
   getPending: () => apiRequest("suggestions/pending"),
   update: (id, data) =>
     apiRequest(`suggestions/update`, {

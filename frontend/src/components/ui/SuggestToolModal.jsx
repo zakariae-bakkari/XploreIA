@@ -109,6 +109,10 @@ const SuggestToolModal = ({ isOpen, onClose, onSuccess }) => {
   const [validationResult, setValidationResult] = useState(null);
   const [error, setError] = useState('');
 
+  // Autofill states
+  const [autofilling, setAutofilling] = useState(false);
+  const [autofillWarning, setAutofillWarning] = useState('');
+
   useEffect(() => {
     if (!isOpen) {
       // Reset form
@@ -123,6 +127,8 @@ const SuggestToolModal = ({ isOpen, onClose, onSuccess }) => {
       setDisadvantages(['']);
       setValidationResult(null);
       setError('');
+      setAutofilling(false);
+      setAutofillWarning('');
       return;
     }
 
@@ -143,6 +149,79 @@ const SuggestToolModal = ({ isOpen, onClose, onSuccess }) => {
     };
     fetchFormData();
   }, [isOpen]);
+
+  const handleAutofill = async () => {
+    if (!name.trim()) return;
+
+    setAutofilling(true);
+    setAutofillWarning('');
+    setError('');
+
+    try {
+      const res = await suggestionApi.autofill(name);
+      if (res.success) {
+        if (!res.real_tool) {
+          setAutofillWarning(res.reason || "Cet outil ne semble pas exister.");
+          return;
+        }
+
+        if (res.already_in_db) {
+          setAutofillWarning(res.reason || `Cet outil existe déjà dans la base de données.`);
+          return;
+        }
+
+        if (res.data) {
+          const d = res.data;
+          if (d.description) setDescription(d.description);
+          if (d.website_url) setUrl(d.website_url);
+          if (d.pricing_model) setPricing(d.pricing_model);
+          if (d.main_category_id) setCategory(d.main_category_id);
+          
+          if (d.model_ids && Array.isArray(d.model_ids)) {
+            const validModelIds = d.model_ids.filter(id => allModels.some(m => String(m.id) === String(id)));
+            setSelectedModels(validModelIds);
+          }
+          
+          if (d.characteristic_ids && Array.isArray(d.characteristic_ids)) {
+            const validCharIds = d.characteristic_ids.filter(id => allCharacteristics.some(c => String(c.id) === String(id)));
+            setSelectedChars(validCharIds);
+          }
+
+          if (d.advantages && Array.isArray(d.advantages)) {
+            const advs = d.advantages.filter(x => x.trim());
+            setAdvantages(advs.length > 0 ? advs : ['']);
+          }
+
+          if (d.disadvantages && Array.isArray(d.disadvantages)) {
+            const disadvs = d.disadvantages.filter(x => x.trim());
+            setDisadvantages(disadvs.length > 0 ? disadvs : ['']);
+          }
+        }
+      } else {
+        setError(res.error || "Une erreur est survenue lors du pré-remplissage.");
+      }
+    } catch (err) {
+      setError("Erreur inattendue lors du pré-remplissage.");
+    } finally {
+      setAutofilling(false);
+    }
+  };
+
+  const handleFillIncorrect = () => {
+    setName("Free Crypto Bitcoin Hack");
+    setDescription("Gagnez de l'argent facilement avec ce logiciel. Hack tous les comptes de vos amis en un clic.");
+    setUrl("http://free-money.xyz");
+    setPricing("free");
+    if (categories && categories.length > 0) {
+      setCategory(categories[0].id);
+    }
+    setSelectedModels([]);
+    setSelectedChars([]);
+    setAdvantages(["Argent facile", "Gain rapide"]);
+    setDisadvantages(["Risque d'arnaque", "Non sécurisé"]);
+    setAutofillWarning("");
+    setError("");
+  };
 
   const pricingOptions = [
     { value: 'free', label: 'Gratuit (Free)' },
@@ -333,6 +412,64 @@ const SuggestToolModal = ({ isOpen, onClose, onSuccess }) => {
           margin-bottom: 20px !important;
           font-size: 13px !important;
         }
+        .at-warning-banner {
+          background: rgba(255, 176, 32, 0.1) !important;
+          border: 1px solid rgba(255, 176, 32, 0.2) !important;
+          color: #ffb020 !important;
+          padding: 12px 16px !important;
+          border-radius: 12px !important;
+          margin-bottom: 20px !important;
+          font-size: 13px !important;
+        }
+        .at-btn-autofill {
+          padding: 0 16px !important;
+          border-radius: 12px !important;
+          background: rgba(0, 219, 233, 0.1) !important;
+          color: var(--primary) !important;
+          border: 1px solid rgba(0, 219, 233, 0.3) !important;
+          cursor: pointer !important;
+          font-size: 13px !important;
+          font-weight: 700 !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+          white-space: nowrap !important;
+          transition: all 0.2s ease !important;
+        }
+        .at-btn-autofill:hover:not(:disabled) {
+          background: rgba(0, 219, 233, 0.2) !important;
+          box-shadow: 0 0 12px rgba(0, 219, 233, 0.15) !important;
+        }
+        .at-btn-autofill:disabled {
+          opacity: 0.5 !important;
+          cursor: not-allowed !important;
+        }
+        .at-btn-test-invalid {
+          padding: 0 16px !important;
+          border-radius: 12px !important;
+          background: rgba(255, 74, 118, 0.1) !important;
+          color: #ff4a76 !important;
+          border: 1px solid rgba(255, 74, 118, 0.3) !important;
+          cursor: pointer !important;
+          font-size: 13px !important;
+          font-weight: 700 !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+          white-space: nowrap !important;
+          transition: all 0.2s ease !important;
+        }
+        .at-btn-test-invalid:hover:not(:disabled) {
+          background: rgba(255, 74, 118, 0.2) !important;
+          box-shadow: 0 0 12px rgba(255, 74, 118, 0.15) !important;
+        }
+        .at-btn-test-invalid:disabled {
+          opacity: 0.5 !important;
+          cursor: not-allowed !important;
+        }
+        .spin {
+          animation: spin 1s linear infinite !important;
+        }
       `}</style>
       <div className="at-modal-overlay">
         <div className="at-modal-content" style={{ maxWidth: '550px' }}>
@@ -341,17 +478,15 @@ const SuggestToolModal = ({ isOpen, onClose, onSuccess }) => {
               <h3 className="at-modal-title">Suggérer un Outil IA</h3>
               <p className="at-modal-desc">Suggérez un outil manquant. Notre IA va instantanément valider son existence et l'ajouter s'il est légitime.</p>
             </div>
-            {!loading && (
-              <button 
-                onClick={onClose} 
-                style={{ background: 'none', border: 'none', color: 'var(--outline)', cursor: 'pointer' }}
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            )}
           </div>
 
           {error && <div className="at-error-banner">{error}</div>}
+          {autofillWarning && (
+            <div className="at-warning-banner" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '20px', flexShrink: 0 }}>warning</span>
+              <span>{autofillWarning}</span>
+            </div>
+          )}
 
           {/* Validation result view */}
           {validationResult ? (
@@ -441,14 +576,46 @@ const SuggestToolModal = ({ isOpen, onClose, onSuccess }) => {
               
               <div className="at-form-group">
                 <label>Nom de l'outil IA *</label>
-                <input 
-                  type="text" 
-                  className="at-input" 
-                  placeholder="Ex. Claude 3.5 Sonnet, Cursor, v0"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                />
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <input 
+                    type="text" 
+                    className="at-input" 
+                    placeholder="Ex. Claude 3.5 Sonnet, Cursor, v0"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (autofillWarning) setAutofillWarning('');
+                    }}
+                    required
+                    style={{ flex: 1, minWidth: '180px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAutofill}
+                    disabled={!name.trim() || autofilling || loading}
+                    className="at-btn-autofill"
+                  >
+                    {autofilling ? (
+                      <>
+                        <span className="material-symbols-outlined spin" style={{ fontSize: 18 }}>sync</span>
+                        Remplissage...
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined" style={{ fontSize: 18 }}>magic_button</span>
+                        Auto-remplir
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleFillIncorrect}
+                    className="at-btn-test-invalid"
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: 18 }}>bug_report</span>
+                    Infos incorrectes (Test)
+                  </button>
+                </div>
               </div>
 
               <div className="at-form-group">

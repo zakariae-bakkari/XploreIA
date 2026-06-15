@@ -156,7 +156,9 @@ class AiService
         
         RÈGLES DE VALIDATION STRICTES :
         1. VÉRIFICATION D'EXISTENCE : Détermine si l'outil existe réellement dans le monde réel sous ce nom et cette URL officielle. Si l'outil est fictif, inventé, expérimental/privé ou n'existe pas publiquement, attribue STRICTEMENT un score entre 0 et 30 et indique clairement dans le 'feedback' qu'il n'existe pas sur le marché.
-        2. EXACTITUDE DES DONNÉES : Vérifie si l'URL fournie correspond au site officiel légitime de l'outil. Si l'URL est fausse, suspecte (par exemple, redirecteurs, faux domaines), ou si l'utilisateur a menti sur le créateur, les modèles utilisés ou les tarifs, pénalise sévèrement le score (maximum 40/100) et explique l'anomalie dans le 'feedback'.
+        2. EXACTITUDE DES DONNÉES : Vérifie si l'URL fournie correspond au site officiel légitime de l'outil.
+           * NOTE IMPORTANTE : Les domaines officiels comme 'claude.ai' (pour Claude par Anthropic), 'suno.com'/'suno.ai' (pour Suno), 'midjourney.com' (pour Midjourney), etc. sont tout à fait valides et légitimes. Ne pénalise pas un outil réel sous prétexte que son URL utilise le domaine de la marque avec l'extension .ai, .com, .app, .co, ou .io.
+           * Si l'URL est réellement fausse, suspecte (par exemple, redirecteurs malveillants, faux domaines de phishing type 'free-claude-coins.xyz'), ou si l'utilisateur a menti sur le créateur, les modèles utilisés ou les tarifs, pénalise sévèrement le score (maximum 40/100) et explique l'anomalie dans le 'feedback'.
         3. CRÉDIBILITÉ DU MARCHÉ : Vérifie si les caractéristiques, avantages et inconvénients listés correspondent aux capacités réelles du produit.
         
         Renvoie STRICTEMENT un objet JSON contenant les clés :
@@ -360,6 +362,124 @@ class AiService
         } else {
             return "❌ L'outil ne répond pas aux critères de qualité minimum. Veuillez fournir plus d'informations.";
         }
+    }
+
+    /**
+     * Autofill a tool's details using AI and check if it exists / is a duplicate
+     */
+    public static function autofillTool($toolName, $existingToolNames, $categories, $models, $characteristics)
+    {
+        $toolName = trim($toolName);
+        
+        // 1. Programmatic local duplicate check (case-insensitive check first for safety)
+        $lowerName = strtolower($toolName);
+        foreach ($existingToolNames as $existingName) {
+            if (strtolower(trim($existingName)) === $lowerName) {
+                return [
+                    'real_tool' => true,
+                    'already_in_db' => true,
+                    'reason' => "L'outil '" . $existingName . "' est déjà enregistré dans notre catalogue.",
+                    'duplicate_tool_name' => $existingName,
+                    'data' => null
+                ];
+            }
+        }
+
+        // Check for obvious fictional / future versions locally to save API calls
+        $suspiciousPatterns = [
+            '/chatgpt\s*[56789]/i',
+            '/claude\s*[45678]/i',
+            '/midjourney\s*(v)?\s*(7|8|9|10|11|12|13)/i',
+            '/suno\s*(v)?\s*(5|6|7|8)/i'
+        ];
+        foreach ($suspiciousPatterns as $pattern) {
+            if (preg_match($pattern, $toolName)) {
+                return [
+                    'real_tool' => false,
+                    'already_in_db' => false,
+                    'reason' => "Cet outil n'existe pas ou n'a pas encore été publié officiellement.",
+                    'duplicate_tool_name' => null,
+                    'data' => null
+                ];
+            }
+        }
+
+        // Format references for AI prompt
+        $existingToolsStr = implode(', ', $existingToolNames);
+        
+        $categoriesJson = json_encode($categories, JSON_UNESCAPED_UNICODE);
+        $modelsJson = json_encode($models, JSON_UNESCAPED_UNICODE);
+        $charsJson = json_encode($characteristics, JSON_UNESCAPED_UNICODE);
+
+        $prompt = "Voici les informations pour l'outil suggéré par l'utilisateur:
+        Nom de l'outil suggéré: \"{$toolName}\"
+
+        Voici la liste des outils déjà présents dans notre base de données:
+        [{$existingToolsStr}]
+
+        Voici la liste des catégories valides avec leurs identifiants:
+        {$categoriesJson}
+
+        Voici la liste des modèles IA valides avec leurs identifiants:
+        {$modelsJson}
+
+        Voici la liste des caractéristiques valides avec leurs identifiants:
+        {$charsJson}";
+
+        $systemInstruction = "Tu es un expert en outils d'intelligence artificielle.
+        Ta tâche est d'analyser l'outil demandé par l'utilisateur (\"{$toolName}\") et de retourner un objet JSON structuré pour pré-remplir ses caractéristiques.
+
+        Consignes strictes :
+        1. VÉRIFICATION D'EXISTENCE (real_tool) : Détermine si l'outil existe réellement aujourd'hui. Si l'outil est fictif, inexistant, ou correspond à une version future non-existante (ex. ChatGPT 6, Claude 5, Midjourney v12, etc.), mets 'real_tool' à false et explique brièvement pourquoi dans 'reason' (en français).
+        2. DÉTECTION DE DOUBLON (already_in_db) : Vérifie si cet outil est déjà présent dans notre base de données (comparer de manière sémantique ou par nom proche avec la liste fournie). Si oui, mets 'already_in_db' à true, indique le nom de l'outil correspondant dans 'duplicate_tool_name' et explique-le dans 'reason' (en français).
+        3. PRÉ-REMPLISSAGE (dans la clé 'data') : Si l'outil est réel et n'est pas un doublon :
+           - 'description' : Génère une description concise et professionnelle en français (150 à 250 caractères).
+           - 'website_url' : L'URL officielle du site web de l'outil (ex: https://suno.com).
+           - 'pricing_model' : Choisis strictement parmi ['free', 'freemium', 'premium'].
+           - 'main_category_id' : L'identifiant (UUID) de la catégorie qui correspond le mieux parmi la liste fournie. Ne renvoie rien d'autre qu'un identifiant existant de la liste, ou null si aucune catégorie ne correspond.
+           - 'model_ids' : Un tableau contenant les identifiants (UUID) des modèles IA utilisés par cet outil, sélectionnés uniquement dans la liste des modèles fournie. Si l'outil n'utilise aucun de ces modèles ou si ce n'est pas applicable, renvoie un tableau vide [].
+           - 'characteristic_ids' : Un tableau contenant les identifiants (UUID) des caractéristiques applicables à cet outil, sélectionnés uniquement dans la liste des caractéristiques fournie. Sélectionne au moins 1 ou 2 caractéristiques pertinentes si possible, ou laisse vide [].
+           - 'advantages' : Un tableau de 2 à 4 avantages majeurs de l'outil en français (phrases courtes).
+           - 'disadvantages' : Un tableau de 2 à 4 inconvénients majeurs de l'outil en français (phrases courtes).
+
+        Renvoie UNIQUEMENT un objet JSON brut respectant exactement cette structure, sans aucun formatage markdown comme ```json ou ``` :
+        {
+          \"real_tool\": true,
+          \"already_in_db\": false,
+          \"reason\": \"\",
+          \"duplicate_tool_name\": null,
+          \"data\": {
+            \"description\": \"...\",
+            \"website_url\": \"...\",
+            \"pricing_model\": \"freemium\",
+            \"main_category_id\": \"UUID-de-la-categorie\",
+            \"model_ids\": [\"UUID-du-modele-1\"],
+            \"characteristic_ids\": [\"UUID-char-1\", \"UUID-char-2\"],
+            \"advantages\": [\"...\", \"...\"],
+            \"disadvantages\": [\"...\", \"...\"]
+          }
+        }";
+
+        $aiResponse = self::generateText($prompt, $systemInstruction);
+
+        if ($aiResponse) {
+            $cleanResponse = preg_replace('/```json|```/', '', $aiResponse);
+            $cleanResponse = trim($cleanResponse);
+            $parsed = json_decode($cleanResponse, true);
+
+            if ($parsed && isset($parsed['real_tool'])) {
+                return $parsed;
+            }
+        }
+
+        // Si l'IA n'est pas configurée ou échoue
+        return [
+            'real_tool' => true,
+            'already_in_db' => false,
+            'reason' => "Impossible de contacter le service de validation IA.",
+            'duplicate_tool_name' => null,
+            'data' => null
+        ];
     }
 }
 

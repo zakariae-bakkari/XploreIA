@@ -180,7 +180,12 @@ const AdminSuggestionsPage = () => {
       const res = await suggestionApi.updateSettings({ ai_auto_approval: nextValue });
       if (res.success) {
         setAutoApprove(res.ai_auto_approval);
-        showToast("success", nextValue ? "Auto-approbation par l'IA activée !" : "Auto-approbation par l'IA désactivée.");
+        let msg = nextValue ? "Auto-publication par l'IA activée !" : "Auto-publication par l'IA désactivée.";
+        if (nextValue && res.retroactive_approved_count > 0) {
+          msg += ` ${res.retroactive_approved_count} suggestion(s) publiée(s) automatiquement.`;
+        }
+        showToast("success", msg);
+        loadData();
       } else {
         showToast("error", "Échec de la mise à jour du paramètre.");
       }
@@ -314,7 +319,7 @@ const AdminSuggestionsPage = () => {
   };
 
   const getScoreColor = (score) => {
-    if (score >= 70) return { bg: "rgba(69, 207, 123, 0.12)", color: "#45cf7b", label: "Excellent" };
+    if (score >= 75) return { bg: "rgba(69, 207, 123, 0.12)", color: "#45cf7b", label: "Excellent" };
     if (score >= 50) return { bg: "rgba(255, 176, 32, 0.12)", color: "#ffb020", label: "Moyen" };
     return { bg: "rgba(255, 74, 118, 0.12)", color: "#ff4a76", label: "Faible" };
   };
@@ -332,6 +337,33 @@ const AdminSuggestionsPage = () => {
 
   return (
     <div className="admin-page-content" style={{ padding: "24px", minHeight: "100vh" }}>
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        .spin {
+          animation: spin 1s linear infinite !important;
+        }
+        .admin-btn-primary {
+          background: linear-gradient(180deg, #00f0ff 0%, #00c7d1 100%) !important;
+          color: #002022 !important;
+          box-shadow: 0 4px 12px rgba(0, 196, 200, 0.2) !important;
+          transition: all 0.2s ease !important;
+        }
+        .admin-btn-primary:hover:not(:disabled) {
+          background: linear-gradient(180deg, #00dbe9 0%, #00adb7 100%) !important;
+          box-shadow: 0 6px 16px rgba(0, 196, 200, 0.35) !important;
+          transform: translateY(-1px);
+        }
+        .admin-btn-primary:active:not(:disabled) {
+          transform: translateY(0);
+        }
+        .admin-btn-primary:disabled {
+          opacity: 0.6 !important;
+          cursor: not-allowed !important;
+        }
+      `}</style>
       {/* Toast Notification */}
       {status.message && (
         <div style={{
@@ -409,9 +441,9 @@ const AdminSuggestionsPage = () => {
             <span className="material-symbols-outlined" style={{ fontSize: "28px" }}>psychology</span>
           </div>
           <div>
-            <h3 style={{ fontSize: "18px", fontWeight: "700" }}>Validation automatique par l'IA</h3>
+            <h3 style={{ fontSize: "18px", fontWeight: "700" }}>Publication automatique</h3>
             <p style={{ fontSize: "14px", color: "var(--on-surface-variant)", marginTop: "2px" }}>
-              Activer l'auto-approbation et la publication instantanée pour les outils dont le score d'évaluation IA est supérieur ou égal à 70.
+              Activer l'auto-publication et la publication instantanée pour les outils dont le score d'évaluation IA est supérieur ou égal à 75.
             </p>
           </div>
         </div>
@@ -674,7 +706,16 @@ const AdminSuggestionsPage = () => {
             overflowY: "auto",
             border: "1px solid rgba(255,255,255,0.1)"
           }}>
-            <h3 style={{ fontSize: "22px", fontWeight: "bold", marginBottom: "16px" }}>Modifier la suggestion avant approbation</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: "22px", fontWeight: "bold", margin: 0 }}>Modifier la suggestion avant approbation</h3>
+              <button 
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                style={{ background: 'none', border: 'none', color: 'var(--outline)', cursor: 'pointer' }}
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
             
             <form onSubmit={handleEditAndApproveSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               <div>
@@ -801,7 +842,8 @@ const AdminSuggestionsPage = () => {
                 <button 
                   type="submit" 
                   disabled={actionLoading}
-                  style={{ padding: "10px 18px", borderRadius: "8px", background: "var(--primary)", border: "none", color: "white", cursor: "pointer", fontWeight: "bold" }}
+                  className="admin-btn-primary"
+                  style={{ padding: "10px 18px", borderRadius: "8px", border: "none", cursor: "pointer", fontWeight: "bold" }}
                 >
                   {actionLoading ? "En cours..." : "Enregistrer et Approuver"}
                 </button>
