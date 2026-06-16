@@ -211,11 +211,11 @@ export const adminApi = {
     delete: (id) => apiRequest(`adminaitool/delete`, { method: "POST", body: JSON.stringify({ id }) }),
   },
   modelApi: {
-    getAll: () => apiRequest(`adminmodel`),
-    getById: (id) => apiRequest(`adminmodel/show?id=${id}`),
-    create: (data) => apiRequest(`adminmodel/create`, { method: "POST", body: JSON.stringify(data) }),
-    update: (data) => apiRequest(`adminmodel/update`, { method: "POST", body: JSON.stringify(data) }),
-    delete: (id) => apiRequest(`adminmodel/delete`, { method: "POST", body: JSON.stringify({ id }) }),
+    getAll: () => apiRequest('adminmodele'),
+    getById: (id) => apiRequest(`adminmodele/show?id=${id}`),
+    create: (data) => apiRequest('adminmodele/create', { method: 'POST', body: JSON.stringify(data) }),
+    update: (data) => apiRequest('adminmodele/update', { method: 'POST', body: JSON.stringify(data) }),
+    delete: (id) => apiRequest('adminmodele/delete', { method: 'POST', body: JSON.stringify({ id }) }),
   }
 };
 

@@ -91,12 +91,6 @@ Router::post('/adminaitool/create', 'AdminAiToolController@store');
 Router::post('/adminaitool/update', 'AdminAiToolController@update');
 Router::post('/adminaitool/delete', 'AdminAiToolController@destroy');
 
-// Gestion Admin AI Models
-Router::get('/adminmodel', 'AdminModelController@index');
-Router::get('/adminmodel/show', 'AdminModelController@show');
-Router::post('/adminmodel/create', 'AdminModelController@store');
-Router::post('/adminmodel/update', 'AdminModelController@update');
-Router::post('/adminmodel/delete', 'AdminModelController@destroy');
 
 // IA Sprint 3 routes
 Router::post('/ai/chat', 'AiController@chat');

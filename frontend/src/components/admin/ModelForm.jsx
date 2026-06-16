@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { aiToolApi } from '../../api';
+import { aiToolApi, adminApi, adminModelApi } from '../../api';
 import SearchableSelect from '../ui/SearchableSelect';
 import TagMultiSelect from '../ui/TagMultiSelect';
-import { adminModelApi } from '../../api';
 
 const ModelForm = ({ model = {}, onSubmit, onCancel }) => {
   const [form, setForm] = useState({
@@ -36,23 +35,29 @@ const ModelForm = ({ model = {}, onSubmit, onCancel }) => {
 
   useEffect(() => {
     const loadFilters = async () => {
-      const res = await aiToolApi.getFilters();
-      if (res && res.status === 'success') {
-        setFilters(res.data || { categories: [], characteristics: [] });
+      // Load characteristics with their IDs (admincharacteristic returns {id, name, type, status})
+      try {
+        const charRes = await adminApi.characteristicApi.getAll();
+        if (charRes && charRes.status === 'success') {
+          const activeChars = (charRes.data || []).filter(c => c.status === 'active');
+          setFilters(prev => ({ ...prev, characteristics: activeChars }));
+        }
+      } catch (e) {
+        console.error('Failed to load characteristics:', e);
       }
 
       const toolsRes = await aiToolApi.getAll();
       if (toolsRes && toolsRes.status === 'success') {
         setTools(toolsRes.data || []);
       }
-      
+
       try {
         const pj = await aiToolApi.getProviders();
         if (pj && pj.status === 'success') setProviders(pj.data || []);
       } catch (e) {
         console.error(e);
       }
-      
+
       try {
         const mres = await adminModelApi.getAll();
         if (mres && mres.status === 'success') {

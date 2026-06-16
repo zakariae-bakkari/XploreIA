@@ -43,7 +43,12 @@ const TagMultiSelect = ({ options = [], values = [], onChange }) => {
           <div className="tag-list">
             {filtered.map(o => (
               <div key={o.id} className="tag-row" onClick={() => toggle(o.id)}>
-                <input type="checkbox" checked={values.includes(o.id)} readOnly />
+                <input
+                  type="checkbox"
+                  checked={values.includes(o.id)}
+                  onChange={() => toggle(o.id)}
+                  onClick={(e) => e.stopPropagation()}
+                />
                 <span style={{ marginLeft: 8 }}>{o.name}</span>
               </div>
             ))}
